@@ -1,11 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:tago_driver/presentation/auth/login/login_view_model.dart';
 import 'package:tago_driver/presentation/common/appScaffold.dart';
 import 'package:tago_driver/presentation/rideRequest/widget/ride_request_tile.dart';
 import 'package:tago_driver/presentation/rideRequest/ride_request_view_model.dart';
-import 'package:tago_driver/presentation/rideRequest/ride_request_model.dart';
+import 'package:tago_driver/data/models/ride_request_model.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({super.key});
@@ -26,7 +27,7 @@ class HomeView extends StatelessWidget {
           '안녕하세요 $userName님 👋\n여정을 선택하세요',
           style: const TextStyle(
             color: Colors.white,
-            fontSize: 20,
+            fontSize: 25,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -45,45 +46,45 @@ class HomeView extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            Expanded(
-              child: StreamBuilder<List<RideRequest>>(
-                stream: rideVm.pendingRequestsStream,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  }
+            StreamBuilder<List<RideRequest>>(
+              stream: rideVm.pendingRequestsStream,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
 
-                  final requests = snapshot.data ?? [];
+                final requests = snapshot.data ?? [];
 
-                  if (requests.isEmpty) {
-                    return const Center(
-                      child: Text(
-                        '현재 대기 중인 여정이 없습니다.',
-                        style: TextStyle(color: Colors.white70),
-                      ),
-                    );
-                  }
-
-                  return ListView.builder(
-                    itemCount: requests.length,
-                    itemBuilder: (context, index) {
-                      final r = requests[index];
-
-                      return RideRequestTile(
-                        id: r.id,
-                        from: r.fromName,
-                        to: r.toName,
-                        timeText: r.timeText,
-                        peopleCount: r.peopleCount,
-                        note: '캐리어 ${r.luggageCount}개 있어요',
-                        docRef: r.ref,
-                      );
-                    },
+                if (requests.isEmpty) {
+                  return const Center(
+                    child: Text(
+                      '현재 대기 중인 여정이 없습니다.',
+                      style: TextStyle(color: Colors.white70),
+                    ),
                   );
-                },
-              ),
+                }
+                final r = requests.first;
+
+                // 🔹 DateTime -> 문자열
+                String timeText;
+                if (r.departureAt != null) {
+                  final formatter = DateFormat('M월 d일 \nh:mm a 출발', 'ko_KR');
+                  timeText = formatter.format(r.departureAt!);
+                } else {
+                  timeText = '시간 정보 없음';
+                }
+
+                return Center(
+                  child: RideRequestTile(
+                    id: r.id,
+                    from: r.fromName,
+                    to: r.toName,
+                    timeText: timeText,
+                    peopleCount: r.peopleCount,
+                    docRef: r.ref,
+                  ),
+                );
+              },
             ),
           ],
         ),

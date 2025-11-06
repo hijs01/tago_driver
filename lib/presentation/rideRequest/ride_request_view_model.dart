@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
-import 'package:tago_driver/presentation/rideRequest/ride_request_model.dart';
+import 'package:tago_driver/data/models/ride_request_model.dart';
 
 class RideRequestViewModel extends ChangeNotifier {
   final _db = FirebaseFirestore.instance;

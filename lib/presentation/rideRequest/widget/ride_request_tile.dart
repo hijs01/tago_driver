@@ -174,14 +174,14 @@ class RideRequestTile extends StatelessWidget {
             ],
           ),
 
-          const SizedBox(height: 8),
+          const SizedBox(height: 20),
 
           // 시간
           Text(
             timeText,
             style: TextStyle(
               color: Colors.grey[300],
-              fontSize: 13,
+              fontSize: 15,
             ),
           ),
 
@@ -218,7 +218,7 @@ class RideRequestTile extends StatelessWidget {
               ),
               onPressed: () => _assignRide(context),
               icon: const Icon(Icons.directions_car, size: 17),
-              label: const Text(
+              label:  Text(
                 '라이드 배정',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,

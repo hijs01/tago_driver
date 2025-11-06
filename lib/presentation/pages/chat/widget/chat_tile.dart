@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class ChatRoomTile extends StatelessWidget {
+class ChatListTile extends StatelessWidget {
   final String title;          // 방 이름 (예: 인천공항 가는 택시팟)
   final String lastMessage;    // 마지막 메세지
   final String timeText;       // 시간 표시 (예: 오후 3:21)
   final int unreadCount;       // 안 읽은 메세지 수
   final VoidCallback onTap;    // 탭 했을 때 액션
 
-  const ChatRoomTile({
+  const ChatListTile({
     super.key,
     required this.title,
     required this.lastMessage,

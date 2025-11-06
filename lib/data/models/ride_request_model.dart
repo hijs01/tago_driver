@@ -7,8 +7,8 @@ class RideRequest {
   final String toName;
   final int peopleCount;
   final int luggageCount;
-  final String timeText;
   final String status;
+  final DateTime? departureAt;
 
   RideRequest({
     required this.id,
@@ -17,14 +17,17 @@ class RideRequest {
     required this.toName,
     required this.peopleCount,
     required this.luggageCount,
-    required this.timeText,
     required this.status,
+    required this.departureAt
   });
 
   factory RideRequest.fromDoc(
     QueryDocumentSnapshot<Map<String, dynamic>> doc,
   ) {
     final data = doc.data();
+        // 🔹 departureAt 타임스탬프 -> DateTime 변환
+    final ts = data['departureAt'] as Timestamp?;
+    final departureAt = ts?.toDate();
     return RideRequest(
       id: doc.id,
       ref: doc.reference,
@@ -32,7 +35,7 @@ class RideRequest {
       toName: data['toName'] as String? ?? '',
       peopleCount: (data['peopleCount'] ?? 0) as int,
       luggageCount: (data['luggageCount'] ?? 0) as int,
-      timeText: data['timeText'] as String? ?? '시간 정보 없음',
+      departureAt: departureAt , 
       status: data['status'] as String? ?? 'pending',
     );
   }
