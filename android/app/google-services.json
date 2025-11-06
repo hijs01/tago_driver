@@ -1,0 +1,82 @@
+{
+  "project_info": {
+    "project_number": "949517781565",
+    "project_id": "tago-a8067",
+    "storage_bucket": "tago-a8067.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:949517781565:android:609ba409cbee6f9b54b854",
+        "android_client_info": {
+          "package_name": "com.example.tago"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "949517781565-nao4ef7f966h6o98blk1hidg68qv3mff.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC1GoJwJF1KXsAd_6gEJwRb2jcteuTw4Vo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "949517781565-nao4ef7f966h6o98blk1hidg68qv3mff.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "949517781565-i0m7b9kkkma2jsvakjbn0lbs4flk2blg.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.ploride.tago"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:949517781565:android:f71454778059a49e54b854",
+        "android_client_info": {
+          "package_name": "com.example.tago_driver"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "949517781565-nao4ef7f966h6o98blk1hidg68qv3mff.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC1GoJwJF1KXsAd_6gEJwRb2jcteuTw4Vo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "949517781565-nao4ef7f966h6o98blk1hidg68qv3mff.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "949517781565-i0m7b9kkkma2jsvakjbn0lbs4flk2blg.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.ploride.tago"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
