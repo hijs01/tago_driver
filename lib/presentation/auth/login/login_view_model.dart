@@ -1,10 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter/services.dart';
 
 import 'package:tago_driver/data/models/user.dart';
 import 'package:tago_driver/data/services/user_services.dart';
-import 'package:tago_driver/data/models/logIn_data.dart'; // LoginResult / LoginError 정의된 파일
+import 'package:tago_driver/data/models/login_data.dart'; // LoginResult / LoginError 정의된 파일
 
 class LoginViewModel extends ChangeNotifier {
   bool isLoading = false;
@@ -109,7 +110,7 @@ class LoginViewModel extends ChangeNotifier {
 
       // 유저가 로그인 창 닫고 취소한 경우
       if (googleUser == null) {
-        return LoginResult.fail(LoginError.unknown);
+        return LoginResult.fail(LoginError.cancelled);
       }
 
       // 2) 인증 토큰 가져오기
@@ -149,6 +150,12 @@ class LoginViewModel extends ChangeNotifier {
     } on FirebaseAuthException catch (e) {
       debugPrint("Google FirebaseAuthException: ${e.code} / ${e.message}");
       // 필요하면 여기서도 코드별로 매핑 가능
+      return LoginResult.fail(LoginError.unknown);
+    } on PlatformException catch (e) {
+      if (e.code == 'sign_in_canceled' || e.code == 'canceled') {
+        return LoginResult.fail(LoginError.cancelled);
+      }
+      debugPrint("Google sign in PlatformException: ${e.code} / ${e.message}");
       return LoginResult.fail(LoginError.unknown);
     } catch (e, st) {
       debugPrint("Google login error: $e");

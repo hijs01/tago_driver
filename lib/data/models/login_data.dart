@@ -6,6 +6,7 @@ enum LoginError {
   invalidEmail,
   weakPassword,
   emailInUse,
+  cancelled,
   unknown,
 }
 

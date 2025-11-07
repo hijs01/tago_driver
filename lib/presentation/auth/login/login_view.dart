@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:tago_driver/data/models/logIn_data.dart';
+import 'package:tago_driver/data/models/login_data.dart';
 import 'package:tago_driver/presentation/auth/login/login_view_model.dart';
 import 'package:tago_driver/presentation/common/primaryButton.dart';
 import 'package:tago_driver/presentation/common/textInputfield.dart';
@@ -121,7 +121,7 @@ class _LoginScreenState extends State<LoginScreen> {
               } else {
                 String message = "로그인에 실패했습니다.";
 
-                switch (result.error) {
+                switch (result.error ?? LoginError.unknown) {
                   case LoginError.userNotFound:
                     message = "해당 이메일로 가입된 계정을 찾을 수 없습니다.";
                     break;
@@ -130,6 +130,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     break;
                   case LoginError.invalidEmail:
                     message = "이메일 형식이 올바르지 않습니다.";
+                    break;
+                  case LoginError.cancelled:
+                    message = "로그인을 취소했어요.";
                     break;
                   default:
                     message = "알 수 없는 오류가 발생했습니다. 잠시 후 다시 시도해주세요";
