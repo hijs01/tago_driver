@@ -15,6 +15,22 @@ class LoginViewModel extends ChangeNotifier {
 
   AppUser? currentUser; // 로그인한 유저 정보
 
+  void setCurrentUser(AppUser user) {
+    currentUser = user;
+    notifyListeners();
+  }
+
+  Future<void> logout() async {
+    try {
+      await _auth.signOut();
+    } catch (_) {}
+    try {
+      await _googleSignIn.signOut();
+    } catch (_) {}
+    currentUser = null;
+    notifyListeners();
+  }
+
   /// 이메일/비밀번호 로그인
   Future<LoginResult> login(String email, String pw) async {
     if (email.isEmpty || pw.isEmpty) {

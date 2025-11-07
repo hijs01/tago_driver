@@ -182,7 +182,7 @@ class _LoginScreenState extends State<LoginScreen> {
           Center(
             child: TextButton(
               onPressed: () {
-                Navigator.pushReplacementNamed(context, '/signup');
+                Navigator.pushNamed(context, '/signup');
               },
               child: Text(
                 "아직 계정 없나요? 회원가입 하기 >",

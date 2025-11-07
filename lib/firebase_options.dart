@@ -60,12 +60,13 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyDNNH8Q05gG_9UBMi-Gk7RXPqneacLRDXc',
-    appId: '1:949517781565:ios:c9a8ba74a9a44a1354b854',
+    appId: '1:949517781565:ios:dd4af3c1cbe2bda854b854',
     messagingSenderId: '949517781565',
     projectId: 'tago-a8067',
     storageBucket: 'tago-a8067.firebasestorage.app',
-    iosClientId: '949517781565-n6fa81eu8v2oqpekjr4247hp0dofvlc4.apps.googleusercontent.com',
-    iosBundleId: 'com.example.tagoDriver',
+    iosClientId:
+        '949517781565-pqucd1fil4nh4f145665ja3nn9du8jm0.apps.googleusercontent.com',
+    iosBundleId: 'com.tagodriver.ploride',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
@@ -74,7 +75,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '949517781565',
     projectId: 'tago-a8067',
     storageBucket: 'tago-a8067.firebasestorage.app',
-    iosClientId: '949517781565-n6fa81eu8v2oqpekjr4247hp0dofvlc4.apps.googleusercontent.com',
+    iosClientId:
+        '949517781565-n6fa81eu8v2oqpekjr4247hp0dofvlc4.apps.googleusercontent.com',
     iosBundleId: 'com.example.tagoDriver',
   );
 

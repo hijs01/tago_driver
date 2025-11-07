@@ -10,11 +10,9 @@ import 'package:tago_driver/presentation/pages/home/home_view.dart';
 import 'package:tago_driver/presentation/auth/login/login_view.dart';
 import 'package:tago_driver/presentation/pages/main_view/main_view.dart';
 import 'package:tago_driver/presentation/rideRequest/ride_request_view_model.dart';
+import 'package:tago_driver/presentation/auth/auth_gate.dart';
 import 'firebase_options.dart'; // flutterfire configure로 자동 생성된 파일
 import 'package:provider/provider.dart';
-import 'package:tago_driver/presentation/auth/login/login_view.dart';
-import 'package:tago_driver/presentation/auth/login/login_view_model.dart';
-import 'package:tago_driver/presentation/pages/main_view/main_view.dart';
 import 'package:intl/date_symbol_data_local.dart';
 void main() async {
   // Flutter 엔진이 위젯을 그리기 전에 비동기 코드(Firebase init 등) 실행 가능하게 함
@@ -47,8 +45,8 @@ class TagoDriverApp extends StatelessWidget {
       title: 'TAGO Driver',
       theme: ThemeData.dark().copyWith(scaffoldBackgroundColor: Colors.black),
 
-      // 🔹 초기 화면 (로그인)
-      home: const LoginScreen(),
+      // 🔹 초기 화면 (AuthGate: 자동 로그인 처리)
+      home: const AuthGate(),
 
       // 🔹 화면 라우트 정의
       routes: {

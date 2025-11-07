@@ -39,6 +39,10 @@ class _SignUpViewState extends State<SignUpView> {
       appBar: AppBar(
         backgroundColor: Colors.black,
         elevation: 0,
+        leading: IconButton(
+          onPressed: () => Navigator.pop(context),
+          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+        ),
         title:  Text(
             "TAGO 계정을 만들어볼까요?",
             style: TextStyle(

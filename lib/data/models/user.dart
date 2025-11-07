@@ -24,12 +24,8 @@ class AppUser {
     );
   }
 
-  //  Firestore로 저장할 때 무조건 Map형태여야함 
+  //  Firestore로 저장할 때 무조건 Map형태여야함
   Map<String, dynamic> toMap() {
-    return {
-      'email': email,
-      'name': name,
-      'role': role,
-    };
+    return {'email': email, 'name': name, 'role': role};
   }
 }
