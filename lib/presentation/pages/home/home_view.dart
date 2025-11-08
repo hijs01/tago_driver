@@ -85,7 +85,7 @@ class HomeView extends StatelessWidget {
             // 여정 리스트
             Expanded(
               child: StreamBuilder<List<RideRequest>>(
-                stream: rideVm.pendingRequestsStream,
+                stream: rideVm.activeRequestsStream,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(
