@@ -16,8 +16,8 @@ class SignUpViewModel extends ChangeNotifier {
 
   //1. 이메일 비밀번호 회원가입
 
-  Future<LoginResult> signUp (String name, String email, String pw) async {
-    if (name.isEmpty || email.isEmpty || pw.isEmpty) {
+  Future<LoginResult> signUp (String name, String comapnyName, String email, String pw) async {
+    if (name.isEmpty || email.isEmpty || pw.isEmpty || comapnyName.isEmpty) {
       return LoginResult.fail(LoginError.invalidEmail);
     }
     isLoading = true;

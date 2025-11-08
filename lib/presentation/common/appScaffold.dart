@@ -1,52 +1,54 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class AppScaffold extends StatelessWidget {
-  /// AppBar를 직접 지정 (없으면 null로 두면 됨)
   final PreferredSizeWidget? appBar;
-
-  /// Scaffold 배경색
-  final Color backgroundColor;
-
-  /// 본문
+  final Widget? endDrawer;
+  final Color? backgroundColor;
+  final Gradient? backgroundGradient;
   final Widget body;
-
-  /// SafeArea 안쪽 padding
   final EdgeInsetsGeometry bodyPadding;
-
-  /// body를 스크롤 가능하게 감쌀지 여부
   final bool scrollable;
-
-  /// 하단 footer (선택)
   final Widget? footer;
-
-  /// footer와 body 사이 간격
   final double footerSpacing;
-
   final Widget? bottomNavigationBar;
 
   const AppScaffold({
     super.key,
     this.appBar,
-    this.backgroundColor = Colors.black,
+    this.backgroundColor,
+    this.endDrawer,
+    this.backgroundGradient,
     required this.body,
     this.bodyPadding = const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
     this.scrollable = false,
     this.footer,
     this.footerSpacing = 16.0,
-    this.bottomNavigationBar
+    this.bottomNavigationBar,
   });
 
   @override
   Widget build(BuildContext context) {
-    // Body + Footer 구성
+    // StatusBar 스타일 설정 (그라디언트 사용 시)
+    if (backgroundGradient != null) {
+      SystemChrome.setSystemUIOverlayStyle(
+        const SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: Brightness.light,
+          statusBarBrightness: Brightness.dark,
+        ),
+      );
+    }
+
     Widget content = Padding(
       padding: bodyPadding,
-      child: scrollable
-          ? SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: body,
-            )
-          : body,
+      child:
+          scrollable
+              ? SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: body,
+              )
+              : body,
     );
 
     if (footer != null) {
@@ -56,12 +58,13 @@ class AppScaffold extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Expanded(
-              child: scrollable
-                  ? SingleChildScrollView(
-                      physics: const BouncingScrollPhysics(),
-                      child: body,
-                    )
-                  : body,
+              child:
+                  scrollable
+                      ? SingleChildScrollView(
+                        physics: const BouncingScrollPhysics(),
+                        child: body,
+                      )
+                      : body,
             ),
             SizedBox(height: footerSpacing),
             Center(child: footer!),
@@ -70,9 +73,34 @@ class AppScaffold extends StatelessWidget {
       );
     }
 
+    // ===== 🔥 그라디언트 사용 시 완전히 다른 구조 =====
+    if (backgroundGradient != null) {
+      return Scaffold(
+        backgroundColor: Colors.transparent,
+        extendBodyBehindAppBar: true,
+        extendBody: true,
+        appBar: appBar,
+        endDrawer: endDrawer,
+        body: Container(
+          // 그라디언트를 최상단에 배치
+          decoration: BoxDecoration(gradient: backgroundGradient),
+          // SafeArea는 그라디언트 안쪽에
+          child: SafeArea(
+            // ===== 🔥 top: false로 StatusBar 영역까지 사용 =====
+            top: false,
+            child: content,
+          ),
+        ),
+        bottomNavigationBar: bottomNavigationBar,
+      );
+    }
+
+    // ===== 단색 배경 사용 시 기존 방식 =====
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: backgroundColor ?? Colors.black,
       appBar: appBar,
+      endDrawer: endDrawer,
+      extendBody: true,
       body: SafeArea(child: content),
       bottomNavigationBar: bottomNavigationBar,
     );

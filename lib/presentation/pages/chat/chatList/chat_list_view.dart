@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart' as fb; // ✅ 추가
 import 'package:tago_driver/presentation/common/appScaffold.dart';
 import 'package:tago_driver/presentation/pages/chat/widget/chat_tile.dart';
 
@@ -8,6 +9,22 @@ class ChatView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // ✅ 현재 로그인한 유저 uid
+    final myUid = fb.FirebaseAuth.instance.currentUser?.uid;
+
+    if (myUid == null) {
+      // 로그인 안 돼있을 때 처리
+      return const Scaffold(
+        backgroundColor: Colors.black,
+        body: Center(
+          child: Text(
+            '로그인이 필요합니다.',
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+      );
+    }
+
     // rideRequests/airport_to_school/items 컬렉션
     final chatRoomsRef = FirebaseFirestore.instance
         .collection('rideRequests')
@@ -24,7 +41,10 @@ class ChatView extends StatelessWidget {
       ),
       backgroundColor: Colors.black,
       body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-        stream: chatRoomsRef.snapshots(),
+        // ✅ members 배열에 내 uid가 포함된 문서만 가져오기
+        stream: chatRoomsRef
+            .where('members', arrayContains: myUid)
+            .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -44,7 +64,7 @@ class ChatView extends StatelessWidget {
           if (docs.isEmpty) {
             return const Center(
               child: Text(
-                "채팅방이 없습니다.",
+                "참여중인 채팅방이 없습니다.",
                 style: TextStyle(color: Colors.white70),
               ),
             );

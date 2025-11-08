@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:tago_driver/data/models/ride_request_model.dart';
 
 class RideRequestViewModel extends ChangeNotifier {
   final _db = FirebaseFirestore.instance;
+  final _auth = fb.FirebaseAuth.instance;
 
   /// 대기중(pending) 여정 스트림
   Stream<List<RideRequest>> get pendingRequestsStream {
@@ -16,15 +18,18 @@ class RideRequestViewModel extends ChangeNotifier {
         );
   }
 
-  /// 라이드를 배정하면서 status 업데이트
+  /// 라이드를 배정하면서 status 업데이트 + members에 현재 드라이버 uid 추가
   Future<void> assignRide({
     required RideRequest request,
-    required String driverId,
   }) async {
+    final driver = _auth.currentUser;
+    if (driver == null) return; // 혹시 모를 로그인 안 된 경우 방어
+
     await request.ref.update({
       'status': 'accepted',
-      'driverId': driverId,
+      'driverId': driver.uid,
       'acceptedAt': FieldValue.serverTimestamp(),
+      'members': FieldValue.arrayUnion([driver.uid]), // 🔥 여기 중요
     });
   }
 }

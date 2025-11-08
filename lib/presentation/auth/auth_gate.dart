@@ -13,7 +13,7 @@ class AuthGate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<fb.User?> (
+    return StreamBuilder<fb.User?>(
       stream: fb.FirebaseAuth.instance.authStateChanges(),
       builder: (context, snap) {
         if (snap.connectionState == ConnectionState.waiting) {
@@ -28,7 +28,7 @@ class AuthGate extends StatelessWidget {
           return const LoginScreen();
         }
 
-        return FutureBuilder<AppUser?> (
+        return FutureBuilder<AppUser?>(
           future: UserServices().getUser(fbUser.uid),
           builder: (context, userSnap) {
             if (userSnap.connectionState == ConnectionState.waiting) {
@@ -38,21 +38,28 @@ class AuthGate extends StatelessWidget {
               );
             }
 
-            AppUser appUser = userSnap.data ?? AppUser(
-              uid: fbUser.uid,
-              email: fbUser.email ?? '',
-              name: fbUser.displayName ?? '',
-              role: 'driver',
-            );
+            AppUser appUser = userSnap.data ??
+                AppUser(
+                  uid: fbUser.uid,
+                  email: fbUser.email ?? '',
+                  name: fbUser.displayName ?? '',
+                  role: 'driver',
+                );
 
             if (userSnap.data == null) {
               UserServices().saveUser(appUser);
             }
 
-            final loginVm = context.read<LoginViewModel>();
-            if (loginVm.currentUser == null || loginVm.currentUser!.uid != appUser.uid) {
-              loginVm.setCurrentUser(appUser);
-            }
+            // 🔽🔽🔽 여기만 변경
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              final loginVm = context.read<LoginViewModel>();
+
+              if (loginVm.currentUser == null ||
+                  loginVm.currentUser!.uid != appUser.uid) {
+                loginVm.setCurrentUser(appUser);
+              }
+            });
+            // 🔼🔼🔼
 
             return const MainView();
           },
@@ -61,5 +68,3 @@ class AuthGate extends StatelessWidget {
     );
   }
 }
-
-

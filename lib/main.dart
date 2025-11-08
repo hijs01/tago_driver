@@ -9,6 +9,7 @@ import 'package:tago_driver/presentation/pages/chat/chatRoom/chat_room_view.dart
 import 'package:tago_driver/presentation/pages/home/home_view.dart';
 import 'package:tago_driver/presentation/auth/login/login_view.dart';
 import 'package:tago_driver/presentation/pages/main_view/main_view.dart';
+import 'package:tago_driver/presentation/pages/setting/settings_view_model.dart';
 import 'package:tago_driver/presentation/rideRequest/ride_request_view_model.dart';
 import 'package:tago_driver/presentation/auth/auth_gate.dart';
 import 'firebase_options.dart'; // flutterfire configure로 자동 생성된 파일
@@ -28,6 +29,7 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => LoginViewModel()),
         ChangeNotifierProvider(create: (_) => SignUpViewModel()),
+        ChangeNotifierProvider(create: (_) => SettingsViewModel()),
         ChangeNotifierProvider(create: (_) => RideRequestViewModel()),
       ],
       child: const TagoDriverApp(),

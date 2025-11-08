@@ -16,6 +16,7 @@ class SignUpView extends StatefulWidget {
 class _SignUpViewState extends State<SignUpView> {
   final nameCtrl = TextEditingController();
   final emailCtrl = TextEditingController();
+  final companyCtrl = TextEditingController();
   final pwCtrl = TextEditingController();
   final pwConfirmCtrl = TextEditingController();
 
@@ -23,6 +24,7 @@ class _SignUpViewState extends State<SignUpView> {
   void dispose() {
     nameCtrl.dispose();
     emailCtrl.dispose();
+    companyCtrl.dispose();
     pwCtrl.dispose();
     pwConfirmCtrl.dispose();
     super.dispose();
@@ -43,25 +45,20 @@ class _SignUpViewState extends State<SignUpView> {
           onPressed: () => Navigator.pop(context),
           icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
         ),
-        title:  Text(
-            "TAGO 계정을 만들어볼까요?",
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
+        title: Text(
+          "TAGO 계정을 만들어볼까요?",
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
         ),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-
           // ✅ 이름 입력
-          Textinputfield(
-            label: "이름",
-            hint: "예: 홍길동",
-            controller: nameCtrl,
-          ),
+          Textinputfield(label: "이름", hint: "예: 홍길동", controller: nameCtrl),
           const SizedBox(height: 16),
 
           // 이메일
@@ -70,6 +67,14 @@ class _SignUpViewState extends State<SignUpView> {
             hint: "abc123@gmail.com",
             controller: emailCtrl,
             keyboardType: TextInputType.emailAddress,
+          ),
+          const SizedBox(height: 16),
+          // 회사 이름
+          Textinputfield(
+            label: "회사 이름",
+            hint: "PSU Taxi",
+            controller: companyCtrl,
+            keyboardType: TextInputType.text,
           ),
           const SizedBox(height: 16),
 
@@ -110,6 +115,7 @@ class _SignUpViewState extends State<SignUpView> {
               // 2) 실제 회원가입 호출
               final result = await vm.signUp(
                 nameCtrl.text.trim(),
+                companyCtrl.text.trim(),
                 emailCtrl.text.trim(),
                 pwCtrl.text.trim(),
               );
@@ -134,8 +140,7 @@ class _SignUpViewState extends State<SignUpView> {
                     message = "이미 사용 중인 이메일입니다.";
                     break;
                   default:
-                    message =
-                        "알 수 없는 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
+                    message = "알 수 없는 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
                     break;
                 }
 
@@ -143,7 +148,7 @@ class _SignUpViewState extends State<SignUpView> {
                   SnackBar(
                     content: Text(message),
                     backgroundColor: Colors.redAccent,
-                  ),  
+                  ),
                 );
               }
             },

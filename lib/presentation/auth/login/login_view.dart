@@ -147,38 +147,6 @@ class _LoginScreenState extends State<LoginScreen> {
               }
             },
           ),
-          const SizedBox(height: 24),
-
-          ElevatedButton.icon(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
-              foregroundColor: Colors.black,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-          icon: Image.asset(
-            'assets/google_logo.png',
-            scale: 10,
-          ),
-          // onPressed: null,
-            onPressed: () async{
-              final vm = context.read<LoginViewModel>();
-              final result = await vm.loginWithGoogle();
-              if(result.success && context.mounted){
-                Navigator.pushReplacementNamed(context, '/main');
-
-              }else{
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("구글로 로그인 실패"),
-                  backgroundColor: Colors.redAccent,)
-                  
-                );
-              }
-            },
-            label: Text("구글 계정으로 로그인"),
-          ),
-
           SizedBox(height: 16,),
 
           // 회원가입 이동 버튼

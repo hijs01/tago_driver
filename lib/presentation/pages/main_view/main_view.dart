@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tago_driver/presentation/common/appScaffold.dart';
 import 'package:tago_driver/presentation/common/bottomNavBar.dart';
-import 'package:tago_driver/presentation/pages/chat/chat_view.dart';
+import 'package:tago_driver/presentation/pages/chat/chatList/chat_list_view.dart';
 import 'package:tago_driver/presentation/pages/home/home_view.dart';
 import 'package:tago_driver/presentation/pages/status/status_view.dart';
 import 'package:tago_driver/presentation/pages/setting/setting_view.dart';
@@ -23,7 +23,7 @@ class _MainViewState extends State<MainView> {
     HomeView(),
     StatusView(),
     ChatView(),
-    SettingView(),
+    SettingsView(),
   ];
 
   @override

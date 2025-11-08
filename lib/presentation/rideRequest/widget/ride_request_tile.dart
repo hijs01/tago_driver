@@ -24,50 +24,52 @@ class RideRequestTile extends StatelessWidget {
   });
 
   Future<void> _assignRide(BuildContext context) async {
-    final vm = context.read<LoginViewModel>();
-    final driverId = vm.currentUser?.uid;
+  final vm = context.read<LoginViewModel>();
+  final driverId = vm.currentUser?.uid;
 
-    if (driverId == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('로그인 정보가 없습니다.')));
-      return;
-    }
-
-    try {
-      await docRef.update({
-        'status': 'accepted',
-        'driverId': driverId,
-        'acceptedAt': FieldValue.serverTimestamp(),
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('$from → $to 배정 완료 ✅'),
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: const Color(0xFF4CAF50),
-        ),
-      );
-
-      Navigator.pushNamed(
-        context,
-        '/chatRoom',
-        arguments: {
-          'rideRequestId': id,
-          'rideRequestRefPath': docRef.path,
-          'fromName': from,
-          'toName': to,
-        },
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('배정 중 오류 발생: $e'),
-          backgroundColor: Colors.redAccent,
-        ),
-      );
-    }
+  if (driverId == null) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('로그인 정보가 없습니다.')));
+    return;
   }
+
+  try {
+    await docRef.update({
+      'status': 'accepted',
+      'driverId': driverId,
+      'acceptedAt': FieldValue.serverTimestamp(),
+      // ✅ 드라이버를 members 배열에 추가 (중복 없이)
+      'members': FieldValue.arrayUnion([driverId]),
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('$from → $to 배정 완료 ✅'),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: const Color(0xFF4CAF50),
+      ),
+    );
+
+    Navigator.pushNamed(
+      context,
+      '/chatRoom',
+      arguments: {
+        'rideRequestId': id,
+        'rideRequestRefPath': docRef.path,
+        'fromName': from,
+        'toName': to,
+      },
+    );
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('배정 중 오류 발생: $e'),
+        backgroundColor: Colors.redAccent,
+      ),
+    );
+  }
+}
 
   @override
   Widget build(BuildContext context) {
