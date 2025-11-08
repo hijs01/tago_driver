@@ -312,7 +312,16 @@ class RideRequestTile extends StatelessWidget {
               child: Material(
                 color: Colors.transparent,
                 child: InkWell(
-                  onTap: () => _assignRide(context),
+                  onTap: () {
+                    Navigator.pushNamed(
+                      context,
+                      '/chatRoom',
+                      arguments: {
+                        'rideRequestId': id,
+                        'rideRequestRefPath': docRef.path,
+                      },
+                    );
+                  },
                   borderRadius: const BorderRadius.only(
                     bottomLeft: Radius.circular(16),
                     bottomRight: Radius.circular(16),
@@ -329,7 +338,7 @@ class RideRequestTile extends StatelessWidget {
                         ),
                         SizedBox(width: 8),
                         Text(
-                          '라이드 배정',
+                          '채팅방 입장',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 14,
