@@ -4,13 +4,13 @@ import 'package:provider/provider.dart';
 import 'package:tago_driver/presentation/auth/login/login_view_model.dart';
 
 class RideRequestTile extends StatelessWidget {
-  final String id; // ✅ Firestore 문서 id
+  final String id;
   final String from;
   final String to;
   final String timeText;
   final int peopleCount;
   final String? note;
-  final DocumentReference<Map<String, dynamic>> docRef; // ✅ Firestore 참조
+  final DocumentReference<Map<String, dynamic>> docRef;
 
   const RideRequestTile({
     super.key,
@@ -28,14 +28,13 @@ class RideRequestTile extends StatelessWidget {
     final driverId = vm.currentUser?.uid;
 
     if (driverId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('로그인 정보가 없습니다.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('로그인 정보가 없습니다.')));
       return;
     }
 
     try {
-      // ✅ 1) Firestore status 변경
       await docRef.update({
         'status': 'accepted',
         'driverId': driverId,
@@ -46,10 +45,10 @@ class RideRequestTile extends StatelessWidget {
         SnackBar(
           content: Text('$from → $to 배정 완료 ✅'),
           behavior: SnackBarBehavior.floating,
+          backgroundColor: const Color(0xFF4CAF50),
         ),
       );
 
-      // ✅ 2) 채팅방 이동 (ChatRoomView)
       Navigator.pushNamed(
         context,
         '/chatRoom',
@@ -62,7 +61,10 @@ class RideRequestTile extends StatelessWidget {
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('배정 중 오류 발생: $e')),
+        SnackBar(
+          content: Text('배정 중 오류 발생: $e'),
+          backgroundColor: Colors.redAccent,
+        ),
       );
     }
   }
@@ -71,163 +73,276 @@ class RideRequestTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      margin: const EdgeInsets.symmetric(vertical: 4),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: const Color(0xFF1C1C1C),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey[850]!),
+        color: const Color(0xFF1A1F2E),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withOpacity(0.1), width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 출발/도착
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 🔹 왼쪽 영역을 Expanded로 감싸서 오른쪽 뱃지와 공간 나눠 쓰게 함
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        const Icon(
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 상단: 출발/도착 + 인원
+            Container(
+              padding: const EdgeInsets.all(14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 인원 + 시간 (한 줄로)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // 시간 정보
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.05),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.access_time,
+                              size: 13,
+                              color: Colors.white.withOpacity(0.7),
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              timeText,
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.9),
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      // 인원 뱃지
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF2196F3).withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: const Color(0xFF2196F3).withOpacity(0.4),
+                            width: 1,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.person,
+                              size: 13,
+                              color: Color(0xFF2196F3),
+                            ),
+                            const SizedBox(width: 5),
+                            Text(
+                              '$peopleCount명',
+                              style: const TextStyle(
+                                color: Color(0xFF2196F3),
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  // 출발지
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF4CAF50).withOpacity(0.2),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
                           Icons.radio_button_checked,
-                          size: 14,
-                          color: Colors.greenAccent,
+                          size: 12,
+                          color: Color(0xFF4CAF50),
                         ),
-                        const SizedBox(width: 6),
-                        // 🔹 텍스트가 너무 길면 ... 처리
-                        Expanded(
-                          child: Text(
-                            from,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          from,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  // 연결선
+                  Padding(
+                    padding: const EdgeInsets.only(left: 9),
+                    child: Column(
+                      children: List.generate(
+                        2,
+                        (index) => Container(
+                          margin: const EdgeInsets.symmetric(vertical: 1.5),
+                          width: 2,
+                          height: 3,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.3),
+                            borderRadius: BorderRadius.circular(1),
                           ),
                         ),
-                      ],
+                      ),
                     ),
-                    Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 8),
-                      height: 14,
-                      width: 1,
-                      color: Colors.grey[700],
-                    ),
-                    Row(
-                      children: [
-                        const Icon(
+                  ),
+
+                  // 도착지
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF44336).withOpacity(0.2),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
                           Icons.location_on,
-                          size: 14,
-                          color: Colors.redAccent,
+                          size: 12,
+                          color: Color(0xFFF44336),
                         ),
-                        const SizedBox(width: 6),
-                        Expanded(
-                          child: Text(
-                            to,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          to,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
                           ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
+                      ),
+                    ],
+                  ),
 
-              const SizedBox(width: 8),
-
-              // 인원 뱃지
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: Colors.blueAccent,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.person, size: 13, color: Colors.white),
-                    const SizedBox(width: 4),
-                    Text(
-                      '$peopleCount명',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
+                  // 메모
+                  if (note != null && note!.isNotEmpty) ...[
+                    const SizedBox(height: 10),
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.03),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.1),
+                          width: 1,
+                        ),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(
+                            Icons.note_outlined,
+                            size: 13,
+                            color: Colors.white.withOpacity(0.5),
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              note!,
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.7),
+                                fontSize: 11,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
+                ],
+              ),
+            ),
+
+            // 하단: 배정 버튼
+            Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF4CAF50), Color(0xFF45A049)],
+                ),
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(16),
+                  bottomRight: Radius.circular(16),
                 ),
               ),
-            ],
-          ),
-
-          const SizedBox(height: 20),
-
-          // 시간
-          Text(
-            timeText,
-            style: TextStyle(
-              color: Colors.grey[300],
-              fontSize: 15,
-            ),
-          ),
-
-          // 메모
-          if (note != null && note!.isNotEmpty) ...[
-            const SizedBox(height: 3),
-            Text(
-              note!,
-              style: TextStyle(
-                color: Colors.grey[500],
-                fontSize: 12,
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () => _assignRide(context),
+                  borderRadius: const BorderRadius.only(
+                    bottomLeft: Radius.circular(16),
+                    bottomRight: Radius.circular(16),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        Icon(
+                          Icons.directions_car,
+                          color: Colors.white,
+                          size: 16,
+                        ),
+                        SizedBox(width: 8),
+                        Text(
+                          '라이드 배정',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.3,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
             ),
           ],
-
-          const SizedBox(height: 10),
-
-          // 배정 버튼
-          Align(
-            alignment: Alignment.bottomRight,
-            child: ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2E8B57),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 6,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              onPressed: () => _assignRide(context),
-              icon: const Icon(Icons.directions_car, size: 17),
-              label:  Text(
-                '라이드 배정',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 13,
-                ),
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
