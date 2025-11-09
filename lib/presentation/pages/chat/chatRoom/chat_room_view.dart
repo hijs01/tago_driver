@@ -8,6 +8,9 @@ import 'package:tago_driver/presentation/auth/login/login_view_model.dart';
 import 'package:tago_driver/presentation/common/appScaffold.dart';
 import 'package:tago_driver/presentation/pages/chat/chatRoom/chat_room_view_model.dart';
 import 'package:tago_driver/presentation/pages/chat/widget/chat_bubble.dart';
+import 'package:tago_driver/data/services/translation_service.dart';
+import 'package:tago_driver/data/services/translation_config.dart';
+import 'package:flutter/foundation.dart';
 
 class ChatRoomView extends StatefulWidget {
   const ChatRoomView({super.key});
@@ -18,11 +21,57 @@ class ChatRoomView extends StatefulWidget {
 
 class _ChatRoomViewState extends State<ChatRoomView> {
   final _controller = TextEditingController();
+  final Map<String, String> _translatedCache = {};
+  late final TranslationService _translationService;
+  final Set<String> _showOriginal = {};
+
+  @override
+  void initState() {
+    super.initState();
+    final url = TranslationConfig.translateCallableUrl;
+    if (url.isNotEmpty) {
+      _translationService = TranslationService.withCallableUrl(url);
+    } else {
+      _translationService = TranslationService.withRegion(TranslationConfig.translateRegion);
+    }
+  }
 
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+
+  // (이전 버전의 표시 전용 함수는 제거했습니다. 이제 _ensureTranslationOrNull을 사용합니다.)
+
+  /// 번역문을 확보하되, 번역 실패/동일 결과면 null을 반환 (토글 버튼 숨김 목적)
+  Future<String?> _ensureTranslationOrNull({
+    required ChatMessage message,
+    required bool isMe,
+  }) async {
+    if (isMe) return null;
+    final String original = message.text;
+    if (original.trim().isEmpty) return null;
+    if (_translatedCache.containsKey(message.id)) {
+      final String translated = _translatedCache[message.id]!;
+      if (translated.trim().isEmpty || translated == original) return null;
+      return translated;
+    }
+    try {
+      final String translated = await _translationService.translateText(
+        text: original,
+        targetLanguage: 'ko',
+      );
+      _translatedCache[message.id] = translated;
+      if (translated.trim().isEmpty || translated == original) return null;
+      return translated;
+    } catch (e) {
+      if (kDebugMode) {
+        // ignore: avoid_print
+        print('ensureTranslation failed: $e');
+      }
+      return null;
+    }
   }
 
   @override
@@ -41,7 +90,7 @@ class _ChatRoomViewState extends State<ChatRoomView> {
     final loginVm = context.watch<LoginViewModel>();
     final me = loginVm.currentUser!;
     final myId = me.uid;
-    final myName = me.name ?? '기사';
+    final myName = me.name;
 
     return ChangeNotifierProvider(
       create: (_) => ChatViewModel(rideRequestRef),
@@ -367,11 +416,51 @@ class _ChatRoomViewState extends State<ChatRoomView> {
                           final msg = messages[index];
                           final isMe = msg.senderId == myId;
 
-                          return ChatBubble(
-                            text: msg.text,
-                            isMe: isMe,
-                            senderName: msg.senderName,
-                            createdAt: msg.createdAt,
+                          return FutureBuilder<String?>(
+                            future: _ensureTranslationOrNull(message: msg, isMe: isMe),
+                            builder: (context, snapshot) {
+                              final String? translated = snapshot.data;
+                              final bool hasTranslation = translated != null;
+                              final bool showOriginal = _showOriginal.contains(msg.id);
+                              final String displayText =
+                                  hasTranslation && !showOriginal ? translated : msg.text;
+
+                              return Column(
+                                crossAxisAlignment:
+                                    isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                                children: [
+                                  ChatBubble(
+                                    text: displayText,
+                                    isMe: isMe,
+                                    senderName: msg.senderName,
+                                    createdAt: msg.createdAt,
+                                  ),
+                                  if (hasTranslation && !isMe)
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 2, left: 8, right: 8),
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            if (showOriginal) {
+                                              _showOriginal.remove(msg.id);
+                                            } else {
+                                              _showOriginal.add(msg.id);
+                                            }
+                                          });
+                                        },
+                                        child: Text(
+                                          showOriginal ? '번역 보기' : '원문 보기',
+                                          style: const TextStyle(
+                                            color: Colors.white54,
+                                            fontSize: 12,
+                                            decoration: TextDecoration.underline,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              );
+                            },
                           );
                         },
                       );
