@@ -16,6 +16,7 @@ import 'package:tago_driver/presentation/auth/auth_gate.dart';
 import 'firebase_options.dart'; // flutterfire configure로 자동 생성된 파일
 import 'package:provider/provider.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:tago_driver/data/services/notification_service.dart';
 
 void main() async {
   // Flutter 엔진이 위젯을 그리기 전에 비동기 코드(Firebase init 등) 실행 가능하게 함
@@ -24,6 +25,8 @@ void main() async {
   //  Firebase Core 초기화 (firebase_options.dart에서 플랫폼별 설정을 불러옴)
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await initializeDateFormatting('ko_KR', null);
+
+  await NotificationService().initialize();
 
   //  Provider를 앱 전역에 주입 (MVVM 구조 유지)
   runApp(

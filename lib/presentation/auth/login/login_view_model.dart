@@ -1,11 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:flutter/services.dart';
 
 import 'package:tago_driver/data/models/user.dart';
 import 'package:tago_driver/data/services/user_services.dart';
 import 'package:tago_driver/data/models/login_data.dart'; // LoginResult / LoginError 정의된 파일
+
+import 'package:tago_driver/data/services/notification_service.dart';
 
 class LoginViewModel extends ChangeNotifier {
   bool isLoading = false;
@@ -75,6 +76,8 @@ class LoginViewModel extends ChangeNotifier {
       // 4) ViewModel 메모리에 currentUser 보관
       currentUser = appUser;
 
+      await _saveFCMToken(appUser.uid);
+
       return LoginResult.ok(appUser);
     } on FirebaseAuthException catch (e) {
       debugPrint("FirebaseAuthException: ${e.code} / ${e.message}");
@@ -96,6 +99,28 @@ class LoginViewModel extends ChangeNotifier {
     } finally {
       isLoading = false;
       notifyListeners();
+    }
+  }
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // FCM 토큰 저장 헬퍼
+  // ──────────────────────────────────────────────────────────────────────────
+  Future<void> _saveFCMToken(String userId) async {
+    try {
+      print('📱 로그인 성공 - FCM 토큰 저장 시작');
+      final notificationService = NotificationService();
+      final token = await notificationService.getFCMToken(userId);
+      
+      if (token != null) {
+        notificationService.listenToTokenRefresh(userId);
+        print('✅ 로그인: FCM 토큰 저장 완료');
+      } else {
+        print('⚠️ 로그인: FCM 토큰이 null');
+      }
+    } catch (e, stackTrace) {
+      print('❌ 로그인: FCM 토큰 저장 실패: $e');
+      print('스택 트레이스: $stackTrace');
+      // 로그인은 성공했으므로 에러를 throw하지 않음
     }
   }
 

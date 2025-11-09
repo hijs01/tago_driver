@@ -7,6 +7,7 @@ import 'package:tago_driver/presentation/pages/main_view/main_view.dart';
 import 'package:tago_driver/data/services/user_services.dart';
 import 'package:tago_driver/data/models/user.dart';
 import 'package:tago_driver/presentation/auth/login/login_view_model.dart';
+import 'package:tago_driver/data/services/notification_service.dart';
 
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key});
@@ -50,13 +51,17 @@ class AuthGate extends StatelessWidget {
               UserServices().saveUser(appUser);
             }
 
-            // 🔽🔽🔽 여기만 변경
+            // 🔽🔽🔽 자동 로그인 시 currentUser 설정 & FCM 토큰 저장
             WidgetsBinding.instance.addPostFrameCallback((_) {
               final loginVm = context.read<LoginViewModel>();
 
               if (loginVm.currentUser == null ||
                   loginVm.currentUser!.uid != appUser.uid) {
                 loginVm.setCurrentUser(appUser);
+                
+                // 자동 로그인 시에도 FCM 토큰 저장
+                print('🔄 자동 로그인 감지 - FCM 토큰 저장 시작');
+                _saveFCMTokenOnAutoLogin(appUser.uid);
               }
             });
             // 🔼🔼🔼
@@ -66,5 +71,23 @@ class AuthGate extends StatelessWidget {
         );
       },
     );
+  }
+
+  /// 자동 로그인 시 FCM 토큰 저장
+  Future<void> _saveFCMTokenOnAutoLogin(String userId) async {
+    try {
+      final notificationService = NotificationService();
+      final token = await notificationService.getFCMToken(userId);
+      
+      if (token != null) {
+        notificationService.listenToTokenRefresh(userId);
+        print('✅ 자동 로그인: FCM 토큰 저장 완료');
+      } else {
+        print('⚠️ 자동 로그인: FCM 토큰이 null');
+      }
+    } catch (e, stackTrace) {
+      print('❌ 자동 로그인: FCM 토큰 저장 실패: $e');
+      print('스택 트레이스: $stackTrace');
+    }
   }
 }
