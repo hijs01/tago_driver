@@ -1,359 +1,206 @@
+// lib/presentation/rideRequest/widget/ride_request_tile.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:tago_driver/presentation/auth/login/login_view_model.dart';
 
 class RideRequestTile extends StatelessWidget {
-  final String id;
-  final String from;
-  final String to;
-  final String timeText;
-  final int peopleCount;
-  final String? note;
-  final DocumentReference<Map<String, dynamic>> docRef;
+  final String text; // 버튼 라벨 (ex. '채팅방 입장')
+  final String id; // 요청 ID
+  final String origin; // 출발지
+  final String destination; // 도착지
+  final String time; // 시간 텍스트 (이미 포맷된 문자열)
+  final int passengers; // 인원 수
+  final String status; // ✅ status 필드 추가
+  final DocumentReference<Map<String, dynamic>>? docRef; // 파이어스토어 문서 참조
+  final VoidCallback? onTap; // 선택: 버튼 onTap
 
   const RideRequestTile({
     super.key,
+    required this.text,
     required this.id,
-    required this.from,
-    required this.to,
-    required this.timeText,
-    required this.peopleCount,
-    this.note,
+    required this.origin,
+    required this.destination,
+    required this.time,
+    required this.passengers,
+    required this.status, // ✅ status 필드 추가
     required this.docRef,
+    this.onTap,
   });
-
-  Future<void> _assignRide(BuildContext context) async {
-    final vm = context.read<LoginViewModel>();
-    final driverId = vm.currentUser?.uid;
-
-    if (driverId == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('로그인 정보가 없습니다.')));
-      return;
-    }
-
-    try {
-      await docRef.update({
-        'status': 'accepted',
-        'driverId': driverId,
-        'acceptedAt': FieldValue.serverTimestamp(),
-        // ✅ 드라이버를 members 배열에 추가 (중복 없이)
-        'members': FieldValue.arrayUnion([driverId]),
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('$from → $to 배정 완료 ✅'),
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: const Color(0xFF4CAF50),
-        ),
-      );
-
-      Navigator.pushNamed(
-        context,
-        '/chatRoom',
-        arguments: {
-          'rideRequestId': id,
-          'rideRequestRefPath': docRef.path,
-          'fromName': from,
-          'toName': to,
-        },
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('배정 중 오류 발생: $e'),
-          backgroundColor: Colors.redAccent,
-        ),
-      );
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1A1F2E),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.1), width: 1),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.2),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
+    return Card(
+      color: const Color(0xFF161B22),
+      elevation: 0,
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 상단: 출발/도착 + 인원
-            Container(
-              padding: const EdgeInsets.all(14),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // 인원 + 시간 (한 줄로)
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // 시간 정보
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.05),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.access_time,
-                              size: 13,
-                              color: Colors.white.withOpacity(0.7),
-                            ),
-                            const SizedBox(width: 6),
-                            Text(
-                              timeText,
-                              style: TextStyle(
-                                color: Colors.white.withOpacity(0.9),
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      // 인원 뱃지
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF2196F3).withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: const Color(0xFF2196F3).withOpacity(0.4),
-                            width: 1,
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(
-                              Icons.person,
-                              size: 13,
-                              color: Color(0xFF2196F3),
-                            ),
-                            const SizedBox(width: 5),
-                            Text(
-                              '$peopleCount명',
-                              style: const TextStyle(
-                                color: Color(0xFF2196F3),
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  // 출발지
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF4CAF50).withOpacity(0.2),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.radio_button_checked,
-                          size: 12,
-                          color: Color(0xFF4CAF50),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          from,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  // 연결선
-                  Padding(
-                    padding: const EdgeInsets.only(left: 9),
-                    child: Column(
-                      children: List.generate(
-                        2,
-                        (index) => Container(
-                          margin: const EdgeInsets.symmetric(vertical: 1.5),
-                          width: 2,
-                          height: 3,
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.3),
-                            borderRadius: BorderRadius.circular(1),
-                          ),
-                        ),
+            // 상단: 출발지 -> 도착지
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 점/선 아이콘 스택
+                Column(
+                  children: [
+                    Container(
+                      width: 10,
+                      height: 10,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFF4CAF50),
+                        shape: BoxShape.circle,
                       ),
                     ),
-                  ),
-
-                  // 도착지
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF44336).withOpacity(0.2),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.location_on,
-                          size: 12,
-                          color: Color(0xFFF44336),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          to,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  // 메모
-                  if (note != null && note!.isNotEmpty) ...[
-                    const SizedBox(height: 10),
                     Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.03),
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: Colors.white.withOpacity(0.1),
-                          width: 1,
-                        ),
-                      ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Icon(
-                            Icons.note_outlined,
-                            size: 13,
-                            color: Colors.white.withOpacity(0.5),
-                          ),
-                          const SizedBox(width: 6),
-                          Expanded(
-                            child: Text(
-                              note!,
-                              style: TextStyle(
-                                color: Colors.white.withOpacity(0.7),
-                                fontSize: 11,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
+                      width: 2,
+                      height: 28,
+                      margin: const EdgeInsets.symmetric(vertical: 4),
+                      color: Colors.white.withOpacity(0.15),
+                    ),
+                    Container(
+                      width: 10,
+                      height: 10,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFF90CAF9),
+                        shape: BoxShape.circle,
                       ),
                     ),
                   ],
-                ],
-              ),
+                ),
+                const SizedBox(width: 12),
+                // 텍스트들
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _kv('출발지', origin),
+                      const SizedBox(height: 6),
+                      _kv('도착지', destination),
+                    ],
+                  ),
+                ),
+                // 우측 status 뱃지 (ID 대신 status 표시)
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.06),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
+                  child: Text(
+                    status, // ✅ this.status 명시적으로 사용
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.7),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
             ),
 
-            // 하단: 배정 버튼
-            Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF4CAF50), Color(0xFF45A049)],
+            const SizedBox(height: 12),
+            Divider(color: Colors.white.withOpacity(0.08), height: 1),
+
+            const SizedBox(height: 12),
+            // 하단: 시간/인원
+            Row(
+              children: [
+                Icon(
+                  Icons.access_time,
+                  size: 18,
+                  color: Colors.white.withOpacity(0.7),
                 ),
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(16),
-                  bottomRight: Radius.circular(16),
-                ),
-              ),
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: () {
-                    Navigator.pushNamed(
-                      context,
-                      '/chatRoom',
-                      arguments: {
-                        'rideRequestId': id,
-                        'rideRequestRefPath': docRef.path,
-                      },
-                    );
-                  },
-                  borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(16),
-                    bottomRight: Radius.circular(16),
+                const SizedBox(width: 6),
+                Text(
+                  time,
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.9),
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w500,
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
-                        Icon(
-                          Icons.directions_car,
-                          color: Colors.white,
-                          size: 16,
-                        ),
-                        SizedBox(width: 8),
-                        Text(
-                          '채팅방 입장',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 0.3,
-                          ),
-                        ),
-                      ],
-                    ),
+                ),
+                const SizedBox(width: 16),
+                Icon(
+                  Icons.people_rounded,
+                  size: 18,
+                  color: Colors.white.withOpacity(0.7),
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  '$passengers명',
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.9),
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const Spacer(),
+                // docRef 존재 여부 간단 표시 (선택)
+                if (docRef != null)
+                  Icon(
+                    Icons.link,
+                    size: 16,
+                    color: Colors.white.withOpacity(0.45),
+                  ),
+              ],
+            ),
+
+            const SizedBox(height: 16),
+            // 버튼
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: onTap ?? () {},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF4CAF50),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 0,
+                ),
+                child: Text(
+                  text,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  // key-value 라인 위젯
+  static Widget _kv(String k, String v) {
+    return RichText(
+      text: TextSpan(
+        children: [
+          TextSpan(
+            text: '$k  ',
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.6),
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          TextSpan(
+            text: v,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
       ),
     );
   }

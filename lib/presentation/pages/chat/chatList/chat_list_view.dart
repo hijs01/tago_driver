@@ -216,7 +216,7 @@ class ChatView extends StatelessWidget {
           // 채팅 리스트
           Expanded(
             child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-              stream: vm.getChatRoomsForAllTypes(myId),
+              stream: vm.getChatRoomsForDriver(myId),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(

@@ -40,6 +40,21 @@ class RideRequestViewModel extends ChangeNotifier {
         .map((snap) => snap.docs.map((d) => RideRequest.fromDoc(d)).toList());
   }
 
+  /// 진행중인(on progress) 여정 스트림
+  Stream<List<RideRequest>> getOnProgressRequestsStream(String? driverId) {
+    // ✅ 메서드명 수정
+    if (driverId == null || driverId.isEmpty) {
+      return Stream.value(<RideRequest>[]);
+    }
+
+    return _db
+        .collectionGroup('items')
+        .where('status', isEqualTo: 'on progress')
+        .where('driverId', isEqualTo: driverId)
+        .snapshots()
+        .map((snap) => snap.docs.map((d) => RideRequest.fromDoc(d)).toList());
+  }
+
   /// 라이드를 배정하면서 status 업데이트 + members에 현재 드라이버 uid 추가
   Future<void> assignRide({required RideRequest request}) async {
     final driver = _auth.currentUser;

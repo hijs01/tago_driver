@@ -159,12 +159,20 @@ class HomeView extends StatelessWidget {
                       }
 
                       return RideRequestTile(
+                        text: '요청 수락하기',
                         id: r.id,
-                        from: r.fromName,
-                        to: r.toName,
-                        timeText: timeText,
-                        peopleCount: r.peopleCount,
+                        origin: r.fromName,
+                        destination: r.toName,
+                        time: timeText,
+                        passengers: r.peopleCount,
+                        status: r.status, // ✅ status 추가
                         docRef: r.ref,
+                        onTap: () {
+                          rideVm.assignRide(request: r);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('요청이 수락되었습니다.')),
+                          );
+                        },
                       );
                     },
                   );

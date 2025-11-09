@@ -11,17 +11,19 @@ import 'package:tago_driver/presentation/auth/login/login_view.dart';
 import 'package:tago_driver/presentation/pages/main_view/main_view.dart';
 import 'package:tago_driver/presentation/pages/setting/settings_view_model.dart';
 import 'package:tago_driver/presentation/rideRequest/ride_request_view_model.dart';
+import 'package:tago_driver/presentation/pages/chat/chatList/chat_list_view_model.dart';
 import 'package:tago_driver/presentation/auth/auth_gate.dart';
 import 'firebase_options.dart'; // flutterfire configure로 자동 생성된 파일
 import 'package:provider/provider.dart';
 import 'package:intl/date_symbol_data_local.dart';
+
 void main() async {
   // Flutter 엔진이 위젯을 그리기 전에 비동기 코드(Firebase init 등) 실행 가능하게 함
   WidgetsFlutterBinding.ensureInitialized();
 
   //  Firebase Core 초기화 (firebase_options.dart에서 플랫폼별 설정을 불러옴)
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-    await initializeDateFormatting('ko_KR', null);
+  await initializeDateFormatting('ko_KR', null);
 
   //  Provider를 앱 전역에 주입 (MVVM 구조 유지)
   runApp(
@@ -31,6 +33,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => SignUpViewModel()),
         ChangeNotifierProvider(create: (_) => SettingsViewModel()),
         ChangeNotifierProvider(create: (_) => RideRequestViewModel()),
+        ChangeNotifierProvider(create: (_) => ChatListViewModel()), // ✅ 추가
       ],
       child: const TagoDriverApp(),
     ),
@@ -57,7 +60,6 @@ class TagoDriverApp extends StatelessWidget {
         '/home': (_) => const HomeView(),
         '/signup': (_) => const SignUpView(),
         '/chatRoom': (_) => const ChatRoomView(),
-
       },
     );
   }
