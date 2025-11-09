@@ -4,8 +4,6 @@ import 'package:tago_driver/data/models/login_data.dart';
 import 'package:tago_driver/data/models/user.dart';
 import 'package:tago_driver/data/services/user_services.dart';
 
-
-
 class SignUpViewModel extends ChangeNotifier {
   bool isLoading = false;
 
@@ -16,15 +14,23 @@ class SignUpViewModel extends ChangeNotifier {
 
   //1. 이메일 비밀번호 회원가입
 
-  Future<LoginResult> signUp (String name, String comapnyName, String email, String pw) async {
-    if (name.isEmpty || email.isEmpty || pw.isEmpty || comapnyName.isEmpty) {
+  Future<LoginResult> signUp(
+    String name,
+    String companyName,
+    String email,
+    String pw,
+  ) async {
+    if (name.isEmpty || email.isEmpty || pw.isEmpty || companyName.isEmpty) {
       return LoginResult.fail(LoginError.invalidEmail);
     }
     isLoading = true;
     notifyListeners();
 
-    try{
-      final credential = await _auth.createUserWithEmailAndPassword(email: email, password: pw);
+    try {
+      final credential = await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: pw,
+      );
       final user = credential.user;
 
       if (user == null) {
@@ -32,7 +38,13 @@ class SignUpViewModel extends ChangeNotifier {
       }
 
       final uid = user.uid;
-      final appUser = AppUser(uid: uid, email: email, name: name, role: 'driver');
+      final appUser = AppUser(
+        uid: uid,
+        email: email,
+        name: name,
+        role: 'driver',
+        company: companyName,
+      );
       await _userServices.saveUser(appUser);
 
       currentUser = appUser;
@@ -48,7 +60,7 @@ class SignUpViewModel extends ChangeNotifier {
         default:
           return LoginResult.fail(LoginError.unknown);
       }
-    }catch (e) {
+    } catch (e) {
       debugPrint("Unknown sign up error: $e");
       return LoginResult.fail(LoginError.unknown);
     } finally {
