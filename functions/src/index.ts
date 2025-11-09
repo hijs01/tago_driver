@@ -1,5 +1,5 @@
 // Firebase Functions v2 사용 (Gen 2)
-import {onDocumentUpdated} from 'firebase-functions/v2/firestore';
+import { onDocumentUpdated } from 'firebase-functions/v2/firestore';
 import * as admin from 'firebase-admin';
 
 // Firebase Admin SDK 초기화
@@ -25,7 +25,7 @@ export const onNewRideRequest = onDocumentUpdated(
   async (event) => {
     const beforeData = event.data?.before.data();
     const afterData = event.data?.after.data();
-    
+
     if (!beforeData || !afterData) {
       console.log('문서 데이터가 없습니다');
       return;
@@ -65,11 +65,11 @@ export const onNewRideRequest = onDocumentUpdated(
       // ✅ 체크 3: 각 드라이버의 FCM 토큰 수집
       // 이유: FCM 토큰이 있어야 푸시 알림을 보낼 수 있음
       const allTokens: string[] = [];
-      
+
       for (const driverDoc of driversSnapshot.docs) {
         const driverId = driverDoc.id;
         console.log(`🔍 드라이버 ${driverId}의 FCM 토큰 조회 중...`);
-        
+
         // 해당 드라이버의 모든 FCM 토큰 가져오기 (여러 디바이스 대응)
         const tokensSnapshot = await db
           .collection('users')
@@ -98,10 +98,10 @@ export const onNewRideRequest = onDocumentUpdated(
 
       // ✅ 체크 4: 알림 메시지 구성
       // rideType에 따라 한글 표시 변환
-      const rideTypeKor = rideType === 'airport_to_school' 
-        ? '공항 → 학교' 
+      const rideTypeKor = rideType === 'airport_to_school'
+        ? '공항 → 학교'
         : '학교 → 공항';
-      
+
       // 출발 시간 포맷팅 (있는 경우)
       let departureTime = '미정';
       if (afterData.departureAt) {
@@ -152,7 +152,7 @@ export const onNewRideRequest = onDocumentUpdated(
       // ✅ 체크 6: 알림 전송
       console.log(`📨 ${allTokens.length}개의 토큰으로 알림 전송 중...`);
       const response = await messaging.sendEachForMulticast(payload);
-      
+
       console.log('✅ [드라이버 알림] 라이드 요청 알림 전송 완료:', {
         totalTokens: allTokens.length,
         successCount: response.successCount,
