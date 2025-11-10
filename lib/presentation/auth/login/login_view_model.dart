@@ -22,6 +22,22 @@ class LoginViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Firestore에서 현재 로그인한 사용자의 정보를 가져오는 메서드
+  Future<void> loadUserFromFirestore() async {
+    try {
+      final user = _auth.currentUser;
+      if (user == null) return;
+
+      final appUser = await _userServices.getUser(user.uid);
+      if (appUser != null) {
+        currentUser = appUser;
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint("사용자 정보 로드 실패: $e");
+    }
+  }
+
   Future<void> logout() async {
     try {
       await _auth.signOut();
@@ -110,7 +126,7 @@ class LoginViewModel extends ChangeNotifier {
       print('📱 로그인 성공 - FCM 토큰 저장 시작');
       final notificationService = NotificationService();
       final token = await notificationService.getFCMToken(userId);
-      
+
       if (token != null) {
         notificationService.listenToTokenRefresh(userId);
         print('✅ 로그인: FCM 토큰 저장 완료');
@@ -123,6 +139,4 @@ class LoginViewModel extends ChangeNotifier {
       // 로그인은 성공했으므로 에러를 throw하지 않음
     }
   }
-
- 
 }

@@ -7,8 +7,22 @@ import 'package:tago_driver/presentation/rideRequest/widget/ride_request_tile.da
 import 'package:tago_driver/presentation/rideRequest/ride_request_view_model.dart';
 import 'package:tago_driver/data/models/ride_request_model.dart';
 
-class HomeView extends StatelessWidget {
+class HomeView extends StatefulWidget {
   const HomeView({super.key});
+
+  @override
+  State<HomeView> createState() => _HomeViewState();
+}
+
+class _HomeViewState extends State<HomeView> {
+  @override
+  void initState() {
+    super.initState();
+    // 설정 화면처럼 Firestore에서 사용자 정보 로드
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<LoginViewModel>().loadUserFromFirestore();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
