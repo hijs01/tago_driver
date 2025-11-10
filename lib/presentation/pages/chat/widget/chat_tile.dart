@@ -31,13 +31,13 @@ class ChatListTile extends StatelessWidget {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: Colors.grey[800],
+                color: const Color(0xFF4CAF50).withOpacity(0.15),
                 shape: BoxShape.circle,
               ),
               alignment: Alignment.center,
               child: const Icon(
                 Icons.local_taxi,
-                color: Colors.white,
+                color: Color(0xFF4CAF50),
                 size: 22,
               ),
             ),
@@ -51,8 +51,8 @@ class ChatListTile extends StatelessWidget {
                   // 방 제목
                   Text(
                     title,
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.9),
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),
@@ -64,7 +64,7 @@ class ChatListTile extends StatelessWidget {
                   Text(
                     lastMessage,
                     style: TextStyle(
-                      color: Colors.grey[400],
+                      color: Colors.white.withOpacity(0.5),
                       fontSize: 13,
                     ),
                     maxLines: 1,
@@ -83,7 +83,7 @@ class ChatListTile extends StatelessWidget {
                 Text(
                   timeText,
                   style: TextStyle(
-                    color: Colors.grey[500],
+                    color: Colors.white.withOpacity(0.4),
                     fontSize: 11,
                   ),
                 ),
@@ -93,7 +93,7 @@ class ChatListTile extends StatelessWidget {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     decoration: BoxDecoration(
-                      color: Colors.redAccent,
+                      color: const Color(0xFF4CAF50),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(

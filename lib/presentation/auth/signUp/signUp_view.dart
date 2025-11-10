@@ -249,7 +249,7 @@ class _SignUpViewState extends State<SignUpView>
                                 // 회사 확인 코드 입력
                                 _buildGlassInput(
                                   label: "회사 확인 코드",
-                                  hint: "예: admin123",
+                                  hint: "관리자에게 받은 확인 코드 입력",
                                   controller: companyCodeCtrl,
                                   icon: Icons.verified_user_outlined,
                                 ),

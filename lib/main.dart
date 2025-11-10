@@ -135,6 +135,17 @@ void main() async {
     );
   }
 
+  // ✅ Status bar 설정을 앱 전체에 적용
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent, // 투명하게
+      statusBarIconBrightness: Brightness.light, // 아이콘 밝게
+    ),
+  );
+
+  // Android에서 edge-to-edge 활성화
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+
   // Provider를 앱 전역에 주입 (MVVM 구조 유지)
   runApp(
     MultiProvider(

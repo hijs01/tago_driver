@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -15,7 +14,6 @@ class StatusView extends StatelessWidget {
   Widget build(BuildContext context) {
     final loginVm = context.watch<LoginViewModel>();
     final rideVm = context.watch<RideRequestViewModel>();
-    final userName = loginVm.currentUser?.name ?? '기사';
     final driverId = loginVm.currentUser?.uid;
     // driverId를 사용해서 스트림 생성
     final acceptedStream = rideVm.getacceptedRequestsStream(driverId);
@@ -23,74 +21,78 @@ class StatusView extends StatelessWidget {
 
     return AppScaffold(
       backgroundColor: const Color(0xFF0F1419),
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 헤더
-            const SizedBox(height: 32),
+      bodyPadding: EdgeInsets.zero,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 헤더
+          SizedBox(height: MediaQuery.of(context).padding.top + 32),
 
-            // "다음 여정" 헤더
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Row(
-                children: [
-                  Container(
-                    width: 4,
-                    height: 20,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF4CAF50),
-                      borderRadius: BorderRadius.circular(2),
-                    ),
+          // "다음 여정" 헤더
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Row(
+              children: [
+                Container(
+                  width: 4,
+                  height: 20,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF4CAF50),
+                    borderRadius: BorderRadius.circular(2),
                   ),
-                  const SizedBox(width: 12),
-                  const Text(
-                    '배정된 라이드 여정',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                    ),
+                ),
+                const SizedBox(width: 12),
+                const Text(
+                  '배정된 라이드 여정',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
+          ),
 
-            const SizedBox(height: 20),
+          const SizedBox(height: 20),
 
-            // 여정 리스트
-            Expanded(
-              child: StreamBuilder<List<RideRequest>>(
-                stream: acceptedStream,
-                builder: (context, acceptedSnapshot) {
-                  return StreamBuilder<List<RideRequest>>(
-                    stream: onProgressStream,
-                    builder: (context, onProgressSnapshot) {
-                      // 두 스트림 모두 로딩 중인지 확인
-                      if (acceptedSnapshot.connectionState ==
-                              ConnectionState.waiting ||
-                          onProgressSnapshot.connectionState ==
-                              ConnectionState.waiting) {
-                        return Center(
-                          child: CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              const Color(0xFF4CAF50),
-                            ),
-                            strokeWidth: 3,
+          // 여정 리스트
+          Expanded(
+            child: StreamBuilder<List<RideRequest>>(
+              stream: acceptedStream,
+              builder: (context, acceptedSnapshot) {
+                return StreamBuilder<List<RideRequest>>(
+                  stream: onProgressStream,
+                  builder: (context, onProgressSnapshot) {
+                    // 두 스트림 모두 로딩 중인지 확인
+                    if (acceptedSnapshot.connectionState ==
+                            ConnectionState.waiting ||
+                        onProgressSnapshot.connectionState ==
+                            ConnectionState.waiting) {
+                      return Center(
+                        child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            const Color(0xFF4CAF50),
                           ),
-                        );
-                      }
+                          strokeWidth: 3,
+                        ),
+                      );
+                    }
 
-                      // 두 스트림의 데이터를 합침
-                      final acceptedRequests = acceptedSnapshot.data ?? [];
-                      final onProgressRequests = onProgressSnapshot.data ?? [];
-                      final allRequests = [
-                        ...acceptedRequests,
-                        ...onProgressRequests,
-                      ];
+                    // 두 스트림의 데이터를 합침
+                    final acceptedRequests = acceptedSnapshot.data ?? [];
+                    final onProgressRequests = onProgressSnapshot.data ?? [];
+                    final allRequests = [
+                      ...acceptedRequests,
+                      ...onProgressRequests,
+                    ];
 
-                      if (allRequests.isEmpty) {
-                        return Center(
+                    if (allRequests.isEmpty) {
+                      return Padding(
+                        padding: EdgeInsets.only(
+                          bottom: MediaQuery.of(context).padding.bottom,
+                        ),
+                        child: Center(
                           child: Padding(
                             padding: const EdgeInsets.all(24),
                             child: Column(
@@ -128,58 +130,63 @@ class StatusView extends StatelessWidget {
                               ],
                             ),
                           ),
-                        );
-                      }
-
-                      // 🔥 여러 개의 요청을 ListView로 표시
-                      return ListView.builder(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        itemCount: allRequests.length,
-                        itemBuilder: (context, index) {
-                          final r = allRequests[index];
-
-                          // DateTime -> 문자열
-                          String timeText;
-                          if (r.departureAt != null) {
-                            final formatter = DateFormat(
-                              'M월 d일 • h:mm a',
-                              'ko_KR',
-                            );
-                            timeText = formatter.format(r.departureAt!);
-                          } else {
-                            timeText = '시간 정보 없음';
-                          }
-
-                          return RideRequestTile(
-                            text: '채팅방 입장',
-                            id: r.id,
-                            origin: r.fromName,
-                            destination: r.toName,
-                            time: timeText,
-                            passengers: r.peopleCount,
-                            status: r.status, // ✅ status 추가
-                            docRef: r.ref,
-                            onTap: () {
-                              Navigator.pushNamed(
-                                context,
-                                '/chatRoom',
-                                arguments: {
-                                  'rideRequestRefPath': r.ref.path,
-                                  'fromName': r.fromName,
-                                  'toName': r.toName,
-                                },
-                              );
-                            },
-                          );
-                        },
+                        ),
                       );
-                    },
-                  );
-                },
-              ),
+                    }
+
+                    // 🔥 여러 개의 요청을 ListView로 표시
+                    return ListView.builder(
+                      padding: EdgeInsets.fromLTRB(
+                        16,
+                        0,
+                        16,
+                        MediaQuery.of(context).padding.bottom + 16,
+                      ),
+                      itemCount: allRequests.length,
+                      itemBuilder: (context, index) {
+                        final r = allRequests[index];
+
+                        // DateTime -> 문자열
+                        String timeText;
+                        if (r.departureAt != null) {
+                          final formatter = DateFormat(
+                            'M월 d일 • h:mm a',
+                            'ko_KR',
+                          );
+                          timeText = formatter.format(r.departureAt!);
+                        } else {
+                          timeText = '시간 정보 없음';
+                        }
+
+                        return RideRequestTile(
+                          text: '채팅방 입장',
+                          id: r.id,
+                          origin: r.fromName,
+                          destination: r.toName,
+                          time: timeText,
+                          passengers: r.peopleCount,
+                          status: r.status, // ✅ status 추가
+                          docRef: r.ref,
+                          onTap: () {
+                            Navigator.pushNamed(
+                              context,
+                              '/chatRoom',
+                              arguments: {
+                                'rideRequestRefPath': r.ref.path,
+                                'fromName': r.fromName,
+                                'toName': r.toName,
+                              },
+                            );
+                          },
+                        );
+                      },
+                    );
+                  },
+                );
+              },
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

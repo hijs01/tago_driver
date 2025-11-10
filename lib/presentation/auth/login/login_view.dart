@@ -137,7 +137,7 @@ class _LoginScreenState extends State<LoginScreen>
                       children: [
                         // 타이틀 영역
                         Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Text(
                               "TAGO Driver",

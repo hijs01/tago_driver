@@ -5,7 +5,6 @@ import 'package:tago_driver/presentation/pages/chat/chatList/chat_list_view.dart
 import 'package:tago_driver/presentation/pages/home/home_view.dart';
 import 'package:tago_driver/presentation/pages/status/status_view.dart';
 import 'package:tago_driver/presentation/pages/setting/setting_view.dart';
-import 'package:tago_driver/presentation/pages/home/home_view.dart';
 
 class MainView extends StatefulWidget {
   const MainView({super.key});
@@ -28,9 +27,9 @@ class _MainViewState extends State<MainView> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: AppScaffold(
+    return AppScaffold(
       backgroundColor: Colors.black,
+      bodyPadding: EdgeInsets.zero,
 
       // ✅ Body - 현재 탭의 콘텐츠
       // IndexedStack을 쓰면 탭 전환해도 state 유지돼 (스크롤 위치 등)
@@ -38,7 +37,6 @@ class _MainViewState extends State<MainView> {
         index: _currentIndex,
         children: _screens,
       ),
-      bodyPadding: EdgeInsets.all(0),
 
       // ✅ Bottom Navigation Bar - 한 군데에서만 관리
       bottomNavigationBar: TagoBottomNavBar(
@@ -49,9 +47,7 @@ class _MainViewState extends State<MainView> {
           });
         },
       ),
-    )
     );
-    
   }
 
 }

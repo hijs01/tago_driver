@@ -84,24 +84,24 @@ class AppScaffold extends StatelessWidget {
         body: Container(
           // 그라디언트를 최상단에 배치
           decoration: BoxDecoration(gradient: backgroundGradient),
-          // SafeArea는 그라디언트 안쪽에
-          child: SafeArea(
-            // ===== 🔥 top: false로 StatusBar 영역까지 사용 =====
-            top: false,
-            child: content,
-          ),
+          // ✅ SafeArea 완전히 제거 - 각 화면에서 필요한 곳에 padding 적용
+          child: content,
         ),
         bottomNavigationBar: bottomNavigationBar,
       );
     }
 
-    // ===== 단색 배경 사용 시 기존 방식 =====
+    // ===== 단색 배경 사용 시 =====
     return Scaffold(
       backgroundColor: backgroundColor ?? Colors.black,
+      extendBodyBehindAppBar: true, // ✅ 추가
+      extendBody: true,
       appBar: appBar,
       endDrawer: endDrawer,
-      extendBody: true,
-      body: SafeArea(child: content),
+      body: Container(
+        color: backgroundColor ?? Colors.black, // ✅ body 전체를 색상으로 채우기
+        child: content, // ✅ SafeArea 완전히 제거 - 각 화면에서 필요한 곳에 padding 적용
+      ),
       bottomNavigationBar: bottomNavigationBar,
     );
   }

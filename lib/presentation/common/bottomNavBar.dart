@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 
 class TagoBottomNavBar extends StatelessWidget {
@@ -12,35 +13,89 @@ class TagoBottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BottomNavigationBar(
-      backgroundColor: Colors.black,
-      type: BottomNavigationBarType.fixed,
-      selectedItemColor: Colors.blue,
-      unselectedItemColor: Colors.grey,
-      currentIndex: currentIndex,
-      onTap: onTap,
-      selectedFontSize: 13,
-      unselectedFontSize: 12,
-      showUnselectedLabels: true,
-      items: [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home),
-          activeIcon: Icon(Icons.home_filled),
-          label: "홈",
-        ),  BottomNavigationBarItem(
-          icon: Icon(Icons.travel_explore_outlined),
-          activeIcon: Icon(Icons.travel_explore),
-          label: "여정",
-        ),  BottomNavigationBarItem(
-          icon: Icon(Icons.chat_bubble_outline),
-          activeIcon: Icon(Icons.chat),
-          label: "채팅",
-        ),  BottomNavigationBarItem(
-          icon: Icon(Icons.settings_outlined),
-          activeIcon: Icon(Icons.settings),
-          label: "설정",
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(
+          top: BorderSide(
+            color: const Color(0xFF10B981).withOpacity(0.2),
+            width: 1,
+          ),
         ),
-      ],
+      ),
+      child: ClipRect(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+          child: Container(
+            color: Colors.black.withOpacity(0.6),
+            child: BottomNavigationBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              type: BottomNavigationBarType.fixed,
+              selectedItemColor: const Color(0xFF10B981), // 에메랄드 그린
+              unselectedItemColor: Colors.grey.shade600,
+              currentIndex: currentIndex,
+              onTap: onTap,
+              selectedFontSize: 12,
+              unselectedFontSize: 11,
+              showUnselectedLabels: true,
+              selectedLabelStyle: const TextStyle(
+                fontWeight: FontWeight.w600,
+                letterSpacing: -0.3,
+              ),
+              unselectedLabelStyle: const TextStyle(
+                fontWeight: FontWeight.w400,
+                letterSpacing: -0.3,
+              ),
+              items: const [
+                BottomNavigationBarItem(
+                  icon: Padding(
+                    padding: EdgeInsets.only(bottom: 4),
+                    child: Icon(Icons.home_outlined, size: 24),
+                  ),
+                  activeIcon: Padding(
+                    padding: EdgeInsets.only(bottom: 4),
+                    child: Icon(Icons.home, size: 24),
+                  ),
+                  label: "홈",
+                ),
+                BottomNavigationBarItem(
+                  icon: Padding(
+                    padding: EdgeInsets.only(bottom: 4),
+                    child: Icon(Icons.explore_outlined, size: 24),
+                  ),
+                  activeIcon: Padding(
+                    padding: EdgeInsets.only(bottom: 4),
+                    child: Icon(Icons.explore, size: 24),
+                  ),
+                  label: "여정",
+                ),
+                BottomNavigationBarItem(
+                  icon: Padding(
+                    padding: EdgeInsets.only(bottom: 4),
+                    child: Icon(Icons.chat_bubble_outline, size: 24),
+                  ),
+                  activeIcon: Padding(
+                    padding: EdgeInsets.only(bottom: 4),
+                    child: Icon(Icons.chat_bubble, size: 24),
+                  ),
+                  label: "채팅",
+                ),
+                BottomNavigationBarItem(
+                  icon: Padding(
+                    padding: EdgeInsets.only(bottom: 4),
+                    child: Icon(Icons.person_outline, size: 24),
+                  ),
+                  activeIcon: Padding(
+                    padding: EdgeInsets.only(bottom: 4),
+                    child: Icon(Icons.person, size: 24),
+                  ),
+                  label: "설정",
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

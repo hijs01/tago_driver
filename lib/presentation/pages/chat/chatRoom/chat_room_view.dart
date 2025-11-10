@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'dart:ui';
 
 import 'package:tago_driver/data/models/chat_message_model.dart';
 import 'package:tago_driver/presentation/auth/login/login_view_model.dart';
@@ -23,6 +22,7 @@ class ChatRoomView extends StatefulWidget {
 
 class _ChatRoomViewState extends State<ChatRoomView> {
   final _controller = TextEditingController();
+  final _scrollController = ScrollController();
   final Map<String, String> _translatedCache = {};
   late final TranslationService _translationService;
   final Set<String> _showOriginal = {};
@@ -43,7 +43,23 @@ class _ChatRoomViewState extends State<ChatRoomView> {
   @override
   void dispose() {
     _controller.dispose();
+    _scrollController.dispose();
     super.dispose();
+  }
+
+  // 메시지 목록이 업데이트될 때 맨 아래로 스크롤
+  void _scrollToBottom() {
+    if (_scrollController.hasClients) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (_scrollController.hasClients) {
+          _scrollController.animateTo(
+            _scrollController.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+          );
+        }
+      });
+    }
   }
 
   // (이전 버전의 표시 전용 함수는 제거했습니다. 이제 _ensureTranslationOrNull을 사용합니다.)
@@ -78,6 +94,151 @@ class _ChatRoomViewState extends State<ChatRoomView> {
     }
   }
 
+  /// 참여자 정보를 가져오는 메서드
+  Future<List<Map<String, dynamic>>> _fetchParticipants(
+    Map<String, dynamic>? rideData,
+  ) async {
+    if (rideData == null) return [];
+
+    try {
+      final args =
+          ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+      final rideRequestRefPath = args['rideRequestRefPath'] as String;
+      final rideRequestRef = FirebaseFirestore.instance.doc(rideRequestRefPath);
+
+      final participants = <Map<String, dynamic>>[];
+
+      // 1. 드라이버 정보 추가
+      final driverId = rideData['driverId'] as String?;
+      if (driverId != null && driverId.isNotEmpty) {
+        try {
+          final driverDoc = await FirebaseFirestore.instance
+              .collection('drivers')
+              .doc(driverId)
+              .get();
+
+          if (driverDoc.exists) {
+            final driverData = driverDoc.data();
+            if (driverData != null) {
+              final driverName = driverData['name'] ??
+                  driverData['userName'] ??
+                  driverData['displayName'] ??
+                  '드라이버';
+
+              participants.add({
+                'name': driverName,
+                'bagCount': 0,
+                'membersCount': 0,
+                'isDriver': true,
+              });
+
+              if (kDebugMode) {
+                print('🚗 드라이버 추가: $driverName');
+              }
+            }
+          }
+        } catch (e) {
+          if (kDebugMode) {
+            print('❌ 드라이버 조회 오류: $e');
+          }
+        }
+      }
+
+      // 2. people 서브컬렉션에서 승객 정보 가져오기
+      final peopleSnapshot = await rideRequestRef.collection('people').get();
+
+      if (peopleSnapshot.docs.isEmpty) {
+        if (kDebugMode) {
+          print('⚠️ people 컬렉션이 비어있습니다');
+        }
+        return participants; // 드라이버만 있어도 반환
+      }
+
+      if (kDebugMode) {
+        print('👥 people 컬렉션에서 ${peopleSnapshot.docs.length}명 발견');
+      }
+
+      for (final doc in peopleSnapshot.docs) {
+        final data = doc.data();
+        final uid = data['uid'] as String?;
+        final membersCount = data['membersCount'] as int? ?? 0;
+        final luggageCount = data['luggageCount'] as int? ?? 0;
+
+        if (kDebugMode) {
+          print('👤 참여자 데이터: uid=$uid, membersCount=$membersCount, luggageCount=$luggageCount');
+        }
+
+        String name = '익명';
+
+        // people 문서 자체에서 이름 찾기
+        name = data['name'] ??
+            data['userName'] ??
+            data['displayName'] ??
+            data['nickname'] ??
+            data['user_name'] ??
+            '익명';
+
+        // uid가 있으면 users 컬렉션에서 이름 조회
+        if (uid != null && uid.isNotEmpty && name == '익명') {
+          try {
+            var userDoc = await FirebaseFirestore.instance
+                .collection('users')
+                .doc(uid)
+                .get();
+
+            if (userDoc.exists) {
+              final userData = userDoc.data();
+              if (userData != null) {
+                name = userData['name'] ??
+                    userData['userName'] ??
+                    userData['displayName'] ??
+                    userData['nickname'] ??
+                    '익명';
+                
+                if (kDebugMode) {
+                  print('✅ users 컬렉션에서 이름 찾음: $name');
+                }
+              }
+            } else {
+              if (kDebugMode) {
+                print('⚠️ users 컬렉션에 uid=$uid 문서가 없습니다');
+              }
+            }
+          } catch (e) {
+            if (kDebugMode) {
+              print('❌ users 조회 오류: $e');
+            }
+          }
+        }
+
+        participants.add({
+          'name': name,
+          'bagCount': luggageCount,
+          'membersCount': membersCount,
+          'isDriver': false,
+        });
+      }
+
+      if (kDebugMode) {
+        print('✅ 최종 참여자 목록: ${participants.length}명');
+        for (var p in participants) {
+          if (p['isDriver'] == true) {
+            print('  - ${p['name']} (드라이버)');
+          } else {
+            print('  - ${p['name']}: ${p['membersCount']}명, 가방 ${p['bagCount']}개');
+          }
+        }
+      }
+
+      return participants;
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ Error fetching participants: $e');
+      }
+      return [];
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // ✅ 라우트로 넘어온 파라미터
@@ -99,19 +260,45 @@ class _ChatRoomViewState extends State<ChatRoomView> {
     return ChangeNotifierProvider(
       create: (_) => ChatViewModel(rideRequestRef),
       child: AppScaffold(
-        backgroundColor: Colors.black,
+        backgroundColor: const Color(0xFF0F1419),
         appBar: AppBar(
-          toolbarHeight: 100,
-          backgroundColor: Colors.black,
-          title: Text(
-            '$fromName\n↓\n$toName',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-            textAlign: TextAlign.center,
+          backgroundColor: const Color(0xFF0F1419),
+          title: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Flexible(
+                child: Text(
+                  fromName,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Icon(
+                  Icons.arrow_forward,
+                  color: const Color(0xFF4CAF50),
+                  size: 20,
+                ),
+              ),
+              Flexible(
+                child: Text(
+                  toName,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
           ),
+          centerTitle: true,
           iconTheme: const IconThemeData(color: Colors.white),
         ),
 
@@ -206,76 +393,397 @@ class _ChatRoomViewState extends State<ChatRoomView> {
         //     ),
         //   ),
         // ),
-        endDrawer: ClipRRect(
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(20),
-            bottomLeft: Radius.circular(20),
-          ),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: Drawer(
-              backgroundColor: Colors.black.withOpacity(0.3),
-              child: Column(
+        endDrawer: Drawer(
+          backgroundColor: const Color(0xFF0F1419),
+          child: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+            stream: rideRequestRef.snapshots(),
+            builder: (context, snapshot) {
+              final rideData = snapshot.data?.data();
+              final peopleCount = rideData?['peopleCount'] as int? ?? 0;
+              final luggageCount = rideData?['luggageCount'] as int? ?? 0;
+
+              return Column(
                 children: [
-                  SizedBox(height: MediaQuery.of(context).padding.top),
-                  Container(
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      border: Border(
-                        bottom: BorderSide(
-                          color: Colors.white.withOpacity(0.1),
-                          width: 1,
-                        ),
-                      ),
-                    ),
+                  SizedBox(height: MediaQuery.of(context).padding.top + 20),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Row(
                       children: [
-                        Icon(
-                          Icons.chat_bubble,
-                          color: Colors.white.withOpacity(0.8),
-                          size: 24,
+                        Container(
+                          width: 4,
+                          height: 20,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF4CAF50),
+                            borderRadius: BorderRadius.circular(2),
+                          ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
-                            '$toName 님과의 대화',
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.9),
+                            '여정 정보',
+                            style: const TextStyle(
+                              color: Colors.white,
                               fontSize: 18,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
                         ),
                       ],
                     ),
                   ),
+                  const SizedBox(height: 24),
+
+                  // 🔹 여정 통계 정보
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.05),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.1),
+                          width: 1,
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.people_outline,
+                                color: Color(0xFF4CAF50),
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              const Text(
+                                '탑승 인원',
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              const Spacer(),
+                              Text(
+                                '$peopleCount명',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.luggage_outlined,
+                                color: Color(0xFF4CAF50),
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              const Text(
+                                '총 가방',
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              const Spacer(),
+                              Text(
+                                '$luggageCount개',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // 🔹 참여자 목록
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: FutureBuilder<List<Map<String, dynamic>>>(
+                      future: _fetchParticipants(rideData),
+                      builder: (context, futureSnapshot) {
+                        if (futureSnapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.05),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0.1),
+                                width: 1,
+                              ),
+                            ),
+                            child: const Center(
+                              child: Text(
+                                '참여자 정보를 불러오는 중...',
+                                style: TextStyle(
+                                  color: Colors.white54,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ),
+                          );
+                        }
+
+                        final participants = futureSnapshot.data ?? [];
+
+                        if (participants.isEmpty) {
+                          return Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.05),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0.1),
+                                width: 1,
+                              ),
+                            ),
+                            child: const Center(
+                              child: Text(
+                                '참여자가 없습니다',
+                                style: TextStyle(
+                                  color: Colors.white54,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ),
+                          );
+                        }
+
+                        // 승객 수 계산 (드라이버 제외)
+                        final passengerCount = participants
+                            .where((p) => p['isDriver'] != true)
+                            .length;
+                        final hasDriver = participants
+                            .any((p) => p['isDriver'] == true);
+
+                        return Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.05),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: Colors.white.withOpacity(0.1),
+                              width: 1,
+                            ),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(
+                                    Icons.group,
+                                    color: Color(0xFF4CAF50),
+                                    size: 20,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      hasDriver
+                                          ? '참여자 목록 (승객 ${passengerCount}명 + 기사 1명)'
+                                          : '참여자 목록 (${participants.length}명)',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              const Divider(
+                                color: Colors.white12,
+                                height: 1,
+                              ),
+                              const SizedBox(height: 12),
+                              ...participants.map((participant) {
+                                final name =
+                                    participant['name'] as String? ?? '익명';
+                                final bags =
+                                    participant['bagCount'] as int? ?? 0;
+                                final membersCount =
+                                    participant['membersCount'] as int? ?? 0;
+                                final isDriver =
+                                    participant['isDriver'] as bool? ?? false;
+
+                                return Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 6),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        width: 32,
+                                        height: 32,
+                                        decoration: BoxDecoration(
+                                          color:
+                                              isDriver
+                                                  ? Colors.blue.withOpacity(0.2)
+                                                  : const Color(0xFF4CAF50)
+                                                      .withOpacity(0.2),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Center(
+                                          child:
+                                              isDriver
+                                                  ? const Icon(
+                                                    Icons.local_taxi,
+                                                    color: Colors.blue,
+                                                    size: 18,
+                                                  )
+                                                  : Text(
+                                                    name.isNotEmpty
+                                                        ? name[0].toUpperCase()
+                                                        : '?',
+                                                    style: const TextStyle(
+                                                      color: Color(0xFF4CAF50),
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 14,
+                                                    ),
+                                                  ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              children: [
+                                                Text(
+                                                  name,
+                                                  style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                ),
+                                                if (isDriver) ...[
+                                                  const SizedBox(width: 6),
+                                                  Container(
+                                                    padding:
+                                                        const EdgeInsets
+                                                            .symmetric(
+                                                      horizontal: 6,
+                                                      vertical: 2,
+                                                    ),
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.blue
+                                                          .withOpacity(0.3),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                        4,
+                                                      ),
+                                                    ),
+                                                    child: const Text(
+                                                      '드라이버',
+                                                      style: TextStyle(
+                                                        color: Colors.blue,
+                                                        fontSize: 10,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ],
+                                            ),
+                                            if (!isDriver &&
+                                                (membersCount > 0 || bags > 0))
+                                              const SizedBox(height: 4),
+                                            if (!isDriver)
+                                              Row(
+                                                children: [
+                                                  if (membersCount > 0) ...[
+                                                    const Icon(
+                                                      Icons.people,
+                                                      color: Colors.white54,
+                                                      size: 12,
+                                                    ),
+                                                    const SizedBox(width: 4),
+                                                    Text(
+                                                      '$membersCount명',
+                                                      style: const TextStyle(
+                                                        color: Colors.white54,
+                                                        fontSize: 12,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                  if (membersCount > 0 &&
+                                                      bags > 0)
+                                                    const SizedBox(width: 12),
+                                                  if (bags > 0) ...[
+                                                    const Icon(
+                                                      Icons.luggage,
+                                                      color: Colors.white54,
+                                                      size: 12,
+                                                    ),
+                                                    const SizedBox(width: 4),
+                                                    Text(
+                                                      '$bags개',
+                                                      style: const TextStyle(
+                                                        color: Colors.white54,
+                                                        fontSize: 12,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ],
+                                              ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }).toList(),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 16),
 
                   // 🔹 Drawer 내부 버튼들
                   Padding(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Column(
                       children: [
                         // ✅ 라이드 시작하기
                         _buildDrawerItem(
                           context: context,
-                          icon: Icons.play_arrow, // ✅ 아이콘 변경
-                          title: '라이드 시작하기', // ✅ 텍스트 변경
-                          color: Colors.white,
+                          icon: Icons.play_arrow,
+                          title: '라이드 시작하기',
+                          color: const Color(0xFF4CAF50),
                           onTap: () async {
                             Navigator.pop(context);
                             try {
                               await rideRequestRef.update({
                                 'status': 'on progress',
-                              }); // ✅ status 변경
+                              });
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: const Text(
-                                      '라이드를 시작합니다.', // ✅ 텍스트 변경
+                                      '라이드를 시작합니다.',
                                     ),
-                                    backgroundColor: Colors.green.withOpacity(
-                                      0.8,
-                                    ),
+                                    backgroundColor: const Color(0xFF4CAF50),
                                     behavior: SnackBarBehavior.floating,
                                   ),
                                 );
@@ -285,9 +793,7 @@ class _ChatRoomViewState extends State<ChatRoomView> {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text('업데이트 중 오류 발생: $e'),
-                                    backgroundColor: Colors.red.withOpacity(
-                                      0.8,
-                                    ),
+                                    backgroundColor: Colors.red,
                                     behavior: SnackBarBehavior.floating,
                                   ),
                                 );
@@ -331,10 +837,8 @@ class _ChatRoomViewState extends State<ChatRoomView> {
                                   // ✅ status를 'active'로 변경하고 driverId 제거
                                   transaction.update(rideRef, {
                                     'members': members,
-                                    'status':
-                                        'active', // ✅ accepted -> active로 변경
-                                    'driverId':
-                                        FieldValue.delete(), // ✅ driverId 제거
+                                    'status': 'active',
+                                    'driverId': FieldValue.delete(),
                                   });
                                 }
                               });
@@ -367,25 +871,22 @@ class _ChatRoomViewState extends State<ChatRoomView> {
                           },
                         ),
 
-                        // "채팅방 나가기" 버튼 다음에 추가
-                        const SizedBox(height: 300),
+                        const SizedBox(height: 12),
 
                         // ✅ 여정 경로 확인하기 버튼 추가
                         _buildDrawerItem(
                           context: context,
                           icon: Icons.map,
                           title: '여정 경로 확인하기',
-                          color: Colors.white,
+                          color: const Color(0xFF4CAF50),
                           onTap: () async {
                             Navigator.pop(context);
                             try {
                               final doc = await rideRequestRef.get();
                               final data = doc.data();
-                              final fromAddress =
-                                  data?['fromAddress'] as String?;
+                              final fromAddress = data?['fromAddress'] as String?;
                               final toAddress = data?['toAddress'] as String?;
-                              final status =
-                                  data?['status'] as String? ?? 'pending';
+                              final status = data?['status'] as String? ?? 'pending';
                               final useCurrentLocation =
                                   status.toLowerCase() == 'on progress';
 
@@ -393,15 +894,13 @@ class _ChatRoomViewState extends State<ChatRoomView> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder:
-                                        (context) => RideMapView(
-                                          fromAddress: fromAddress,
-                                          toAddress: toAddress,
-                                          fromName: fromName,
-                                          toName: toName,
-                                          useCurrentLocation:
-                                              useCurrentLocation,
-                                        ),
+                                    builder: (context) => RideMapView(
+                                      fromAddress: fromAddress,
+                                      toAddress: toAddress,
+                                      fromName: fromName,
+                                      toName: toName,
+                                      useCurrentLocation: useCurrentLocation,
+                                    ),
                                   ),
                                 );
                               }
@@ -422,9 +921,10 @@ class _ChatRoomViewState extends State<ChatRoomView> {
                       ],
                     ),
                   ),
+                  const SizedBox(height: 20),
                 ],
-              ),
-            ),
+              );
+            },
           ),
         ),
 
@@ -445,14 +945,23 @@ class _ChatRoomViewState extends State<ChatRoomView> {
                     stream: vm.messagesStream,
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
+                        return Center(
+                          child: CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              const Color(0xFF4CAF50),
+                            ),
+                            strokeWidth: 3,
+                          ),
+                        );
                       }
 
                       if (snapshot.hasError) {
                         return Center(
                           child: Text(
                             '오류 발생: ${snapshot.error}',
-                            style: const TextStyle(color: Colors.white),
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.9),
+                            ),
                           ),
                         );
                       }
@@ -460,16 +969,22 @@ class _ChatRoomViewState extends State<ChatRoomView> {
                       final messages = snapshot.data ?? [];
 
                       if (messages.isEmpty) {
-                        return const Center(
+                        return Center(
                           child: Text(
                             '첫 메세지를 보내보세요 🙂',
-                            style: TextStyle(color: Colors.white54),
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.5),
+                            ),
                           ),
                         );
                       }
 
+                      // 메시지가 로드되면 맨 아래로 스크롤
+                      _scrollToBottom();
+
                       // ✅ reverse 안 씀, index도 그대로
                       return ListView.builder(
+                        controller: _scrollController,
                         padding: const EdgeInsets.symmetric(
                           horizontal: 16,
                           vertical: 8,
@@ -562,49 +1077,84 @@ class _ChatRoomViewState extends State<ChatRoomView> {
         ),
 
         // ✏️ 입력창 (AppScaffold의 footer에 붙임)
-        footer: Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: _controller,
-                style: const TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  hintText: '메세지를 입력하세요',
-                  hintStyle: const TextStyle(color: Colors.white54),
-                  filled: true,
-                  fillColor: const Color(0xFF1E1E1E),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 10,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
-                    borderSide: BorderSide.none,
+        footer: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: const Color(0xFF0F1419),
+            border: Border(
+              top: BorderSide(
+                color: Colors.white.withOpacity(0.1),
+                width: 1,
+              ),
+            ),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _controller,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    hintText: '메세지를 입력하세요',
+                    hintStyle: TextStyle(
+                      color: Colors.white.withOpacity(0.4),
+                    ),
+                    filled: true,
+                    fillColor: Colors.white.withOpacity(0.05),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      borderSide: BorderSide(
+                        color: Colors.white.withOpacity(0.1),
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      borderSide: BorderSide(
+                        color: Colors.white.withOpacity(0.1),
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      borderSide: const BorderSide(
+                        color: Color(0xFF4CAF50),
+                        width: 2,
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(width: 8),
-            Consumer<ChatViewModel>(
-              builder: (context, vm, _) {
-                return IconButton(
-                  onPressed: () async {
-                    final text = _controller.text.trim();
-                    if (text.isEmpty) return;
+              const SizedBox(width: 8),
+              Consumer<ChatViewModel>(
+                builder: (context, vm, _) {
+                  return Container(
+                    decoration: const BoxDecoration(
+                      color: Color(0xFF4CAF50),
+                      shape: BoxShape.circle,
+                    ),
+                    child: IconButton(
+                      onPressed: () async {
+                        final text = _controller.text.trim();
+                        if (text.isEmpty) return;
 
-                    await vm.sendMessage(
-                      text: text,
-                      senderId: myId,
-                      senderName: myName,
-                    );
-                    _controller.clear();
-                  },
-                  icon: const Icon(Icons.send),
-                  color: Colors.blueAccent,
-                );
-              },
-            ),
-          ],
+                        await vm.sendMessage(
+                          text: text,
+                          senderId: myId,
+                          senderName: myName,
+                        );
+                        _controller.clear();
+                      },
+                      icon: const Icon(Icons.send),
+                      color: Colors.white,
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -617,38 +1167,32 @@ class _ChatRoomViewState extends State<ChatRoomView> {
     required Color color,
     required VoidCallback onTap,
   }) {
-    return ClipRRect(
+    return InkWell(
+      onTap: onTap,
       borderRadius: BorderRadius.circular(12),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-        child: InkWell(
-          onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.05),
           borderRadius: BorderRadius.circular(12),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: Colors.white.withOpacity(0.15),
-                width: 1,
+          border: Border.all(
+            color: Colors.white.withOpacity(0.1),
+            width: 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: color, size: 22),
+            const SizedBox(width: 16),
+            Text(
+              title,
+              style: TextStyle(
+                color: color,
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
               ),
             ),
-            child: Row(
-              children: [
-                Icon(icon, color: color, size: 22),
-                const SizedBox(width: 16),
-                Text(
-                  title,
-                  style: TextStyle(
-                    color: color,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ),
+          ],
         ),
       ),
     );

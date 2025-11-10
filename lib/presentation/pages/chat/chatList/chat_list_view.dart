@@ -132,10 +132,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'dart:ui';
 import 'package:tago_driver/presentation/common/appScaffold.dart';
 import 'package:tago_driver/presentation/pages/chat/chatList/chat_list_view_model.dart';
-import 'package:tago_driver/presentation/pages/chat/widget/chat_tile.dart';
 import 'package:tago_driver/presentation/auth/login/login_view_model.dart';
 
 class ChatView extends StatelessWidget {
@@ -147,71 +145,43 @@ class ChatView extends StatelessWidget {
     final loginVm = context.watch<LoginViewModel>();
     final me = loginVm.currentUser!;
     final myId = me.uid;
-    final myName = me.name ?? '기사';
 
     return AppScaffold(
-      appBar: null,
-
-      backgroundGradient: const LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        colors: [
-          Color(0xFF89CFF0),
-          Color(0xFF4169E1),
-          Color(0xFF4169E1),
-          Color(0xFF000000),
-          Color(0xFF000000),
-        ],
-        stops: [0.0, 0.2, 0.2, 0.53, 1.0],
-      ),
-
-      scrollable: false,
+      backgroundColor: const Color(0xFF0F1419),
       bodyPadding: EdgeInsets.zero,
-
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(height: MediaQuery.of(context).padding.top),
+          // 헤더
+          SizedBox(height: MediaQuery.of(context).padding.top + 32),
 
-          // 글래스모피즘 AppBar
+          // "채팅방 목록" 헤더
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                child: Container(
-                  padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Row(
+              children: [
+                Container(
+                  width: 4,
+                  height: 20,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: Colors.white.withOpacity(0.2),
-                      width: 1.5,
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.chat_bubble_outline,
-                        color: Colors.white.withOpacity(0.9),
-                        size: 24,
-                      ),
-                      const SizedBox(width: 12),
-                      const Text(
-                        '채팅방 목록',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: -0.5,
-                        ),
-                      ),
-                    ],
+                    color: const Color(0xFF4CAF50),
+                    borderRadius: BorderRadius.circular(2),
                   ),
                 ),
-              ),
+                const SizedBox(width: 12),
+                const Text(
+                  '채팅방 목록',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
             ),
           ),
+
+          const SizedBox(height: 20),
 
           // 채팅 리스트
           Expanded(
@@ -221,55 +191,56 @@ class ChatView extends StatelessWidget {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(
                     child: CircularProgressIndicator(
-                      color: Colors.white.withOpacity(0.7),
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        const Color(0xFF4CAF50),
+                      ),
+                      strokeWidth: 3,
                     ),
                   );
                 }
 
                 if (snapshot.hasError) {
-                  return Center(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(16),
-                      child: BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                        child: Container(
-                          padding: const EdgeInsets.all(24),
-                          margin: const EdgeInsets.symmetric(horizontal: 24),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: Colors.white.withOpacity(0.2),
-                            ),
-                          ),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
+                  return Padding(
+                    padding: EdgeInsets.only(
+                      bottom: MediaQuery.of(context).padding.bottom,
+                    ),
+                    child: Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(24),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.05),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
                                 Icons.error_outline,
-                                color: Colors.white.withOpacity(0.7),
-                                size: 48,
+                                size: 64,
+                                color: Colors.white.withOpacity(0.3),
                               ),
-                              const SizedBox(height: 16),
-                              Text(
-                                "오류 발생",
-                                style: TextStyle(
-                                  color: Colors.white.withOpacity(0.9),
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                            ),
+                            const SizedBox(height: 24),
+                            Text(
+                              '오류가 발생했습니다',
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.9),
+                                fontSize: 17,
+                                fontWeight: FontWeight.w600,
                               ),
-                              const SizedBox(height: 8),
-                              Text(
-                                "${snapshot.error}",
-                                style: TextStyle(
-                                  color: Colors.white.withOpacity(0.6),
-                                  fontSize: 14,
-                                ),
-                                textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              '${snapshot.error}',
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.5),
+                                fontSize: 14,
                               ),
-                            ],
-                          ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -279,40 +250,46 @@ class ChatView extends StatelessWidget {
                 final docs = snapshot.data?.docs ?? [];
 
                 if (docs.isEmpty) {
-                  return Center(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(16),
-                      child: BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                        child: Container(
-                          padding: const EdgeInsets.all(32),
-                          margin: const EdgeInsets.symmetric(horizontal: 24),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: Colors.white.withOpacity(0.2),
-                            ),
-                          ),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
+                  return Padding(
+                    padding: EdgeInsets.only(
+                      bottom: MediaQuery.of(context).padding.bottom,
+                    ),
+                    child: Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(24),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.05),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
                                 Icons.chat_bubble_outline,
-                                color: Colors.white.withOpacity(0.5),
                                 size: 64,
+                                color: Colors.white.withOpacity(0.3),
                               ),
-                              const SizedBox(height: 16),
-                              Text(
-                                "채팅방이 없습니다",
-                                style: TextStyle(
-                                  color: Colors.white.withOpacity(0.7),
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                            ),
+                            const SizedBox(height: 24),
+                            Text(
+                              '채팅방이 없습니다',
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.9),
+                                fontSize: 17,
+                                fontWeight: FontWeight.w600,
                               ),
-                            ],
-                          ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              '라이드를 배정하면 채팅방이 생성됩니다',
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.5),
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -320,10 +297,11 @@ class ChatView extends StatelessWidget {
                 }
 
                 return ListView.builder(
-                  physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 8,
+                  padding: EdgeInsets.fromLTRB(
+                    16,
+                    0,
+                    16,
+                    MediaQuery.of(context).padding.bottom + 16,
                   ),
                   itemCount: docs.length,
                   itemBuilder: (context, index) {
@@ -344,94 +322,86 @@ class ChatView extends StatelessWidget {
                     }
 
                     return Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: BackdropFilter(
-                          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                          child: InkWell(
-                            onTap: () async {
-                              await vm.handleChatRoomTap(
-                                context: context,
-                                doc: doc,
-                                fromName: fromName,
-                                toName: toName,
-                              );
-                            },
-                            borderRadius: BorderRadius.circular(12),
-                            child: Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.15),
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                  color: Colors.white.withOpacity(0.25),
-                                  width: 1.5,
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: InkWell(
+                        onTap: () async {
+                          await vm.handleChatRoomTap(
+                            context: context,
+                            doc: doc,
+                            fromName: fromName,
+                            toName: toName,
+                          );
+                        },
+                        borderRadius: BorderRadius.circular(16),
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.05),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: Colors.white.withOpacity(0.1),
+                              width: 1,
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              // 아이콘
+                              Container(
+                                width: 48,
+                                height: 48,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF4CAF50).withOpacity(0.15),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: const Icon(
+                                  Icons.chat_bubble_outline,
+                                  color: Color(0xFF4CAF50),
+                                  size: 24,
                                 ),
                               ),
-                              child: Row(
-                                children: [
-                                  // 아이콘
-                                  Container(
-                                    width: 36,
-                                    height: 36,
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.2),
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    child: Icon(
-                                      Icons.chat,
-                                      color: Colors.white.withOpacity(0.9),
-                                      size: 18,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
+                              const SizedBox(width: 16),
 
-                                  // 텍스트 영역
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          title,
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold,
-                                            letterSpacing: -0.3,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 3),
-                                        Text(
-                                          lastMessage,
-                                          style: TextStyle(
-                                            color: Colors.white.withOpacity(
-                                              0.75,
-                                            ),
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w400,
-                                          ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-
-                                  // 시간
-                                  if (timeText.isNotEmpty)
+                              // 텍스트 영역
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
                                     Text(
-                                      timeText,
+                                      title,
                                       style: TextStyle(
-                                        color: Colors.white.withOpacity(0.6),
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.w500,
+                                        color: Colors.white.withOpacity(0.9),
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
                                       ),
                                     ),
-                                ],
+                                    const SizedBox(height: 6),
+                                    Text(
+                                      lastMessage,
+                                      style: TextStyle(
+                                        color: Colors.white.withOpacity(0.5),
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w400,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
+
+                              // 시간
+                              if (timeText.isNotEmpty) ...[
+                                const SizedBox(width: 12),
+                                Text(
+                                  timeText,
+                                  style: TextStyle(
+                                    color: Colors.white.withOpacity(0.4),
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ],
                           ),
                         ),
                       ),

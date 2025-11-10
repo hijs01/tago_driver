@@ -24,7 +24,8 @@ class ChatBubble extends StatelessWidget {
           '${createdAt!.hour.toString().padLeft(2, '0')}:${createdAt!.minute.toString().padLeft(2, '0')}';
     }
 
-    final bubbleColor = isMe ? Colors.blueAccent : const Color.fromARGB(255, 96, 96, 96);
+    final bubbleColor =
+        isMe ? const Color(0xFF4CAF50) : Colors.white.withOpacity(0.1);
 
     final textColor = Colors.white;
 
@@ -50,28 +51,31 @@ class ChatBubble extends StatelessWidget {
                   if (!isMe && senderName != null)
                     Text(
                       senderName!,
-                      style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.9),
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   if (!isMe && senderName != null && timeText != null)
                     SizedBox(width: 6),
-                  
                 ],
               ),
             ),
           Row(
             mainAxisAlignment:
                 isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-                 if (isMe && timeText != null)
+              if (isMe && timeText != null)
                 Padding(
                   padding: const EdgeInsets.only(right: 4, bottom: 2),
                   child: Text(
                     timeText,
-                    style:  TextStyle(
-                      color: Colors.white38,
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.4),
                       fontSize: 12,
-                      fontWeight: FontWeight.bold
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
@@ -92,21 +96,19 @@ class ChatBubble extends StatelessWidget {
                   ),
                 ),
               ),
-                // ✅ 상대방의 경우: 말풍선 → 시간 순서
+              // ✅ 상대방의 경우: 말풍선 → 시간 순서
               if (!isMe && timeText != null)
-                
                 Padding(
                   padding: const EdgeInsets.only(left: 4, bottom: 2),
                   child: Text(
                     timeText,
-                    style:  TextStyle(
-                      color: Colors.white38,
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.4),
                       fontSize: 12,
-                      fontWeight: FontWeight.bold
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
-          
             ],
           ),
         ],
