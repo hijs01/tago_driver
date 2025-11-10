@@ -8,6 +8,7 @@ import 'package:tago_driver/presentation/auth/login/login_view_model.dart';
 import 'package:tago_driver/presentation/common/appScaffold.dart';
 import 'package:tago_driver/presentation/pages/chat/chatRoom/chat_room_view_model.dart';
 import 'package:tago_driver/presentation/pages/chat/widget/chat_bubble.dart';
+import 'package:tago_driver/presentation/pages/chat/widget/system/driver_guide_notice.dart';
 import 'package:tago_driver/data/services/translation_service.dart';
 import 'package:tago_driver/data/services/translation_config.dart';
 import 'package:flutter/foundation.dart';
@@ -434,6 +435,12 @@ class _ChatRoomViewState extends State<ChatRoomView> {
             Expanded(
               child: Consumer<ChatViewModel>(
                 builder: (context, vm, _) {
+                  // 🔹 채팅방에 들어올 때 시스템 안내가 없으면 한 번 생성
+                  vm.ensureDriverJoinNoticeSent(
+                    driverName: myName,
+                    fareText: '앱에 표시된 금액', // TODO: 실제 요금 문자열로 바꾸기
+                    tipText: '자유롭게 주시면 됩니다', // TODO: 정책에 맞게 바꾸기
+                  );
                   return StreamBuilder<List<ChatMessage>>(
                     stream: vm.messagesStream,
                     builder: (context, snapshot) {
@@ -470,6 +477,18 @@ class _ChatRoomViewState extends State<ChatRoomView> {
                         itemCount: messages.length,
                         itemBuilder: (context, index) {
                           final msg = messages[index];
+
+                          // 🔹 1) 시스템 메시지: 드라이버 입장 안내
+                          if (msg.type == ChatMessageType.system &&
+                              msg.systemType == 'driver_join') {
+                            return DriverGuideNotice(
+                              driverName: msg.driverName,
+                              fareText: msg.fareText ?? '앱에 표시된 금액',
+                              tipText: msg.tipText ?? '선택 사항입니다',
+                            );
+                          }
+
+                          // 🔹 2) 일반 채팅 메시지
                           final isMe = msg.senderId == myId;
 
                           return FutureBuilder<String?>(
