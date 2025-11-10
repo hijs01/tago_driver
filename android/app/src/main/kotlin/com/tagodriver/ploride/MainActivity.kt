@@ -1,4 +1,4 @@
-package com.example.tago_driver
+package com.tagodriver.ploride
 
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
