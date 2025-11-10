@@ -1,8 +1,11 @@
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:tago_driver/data/services/geocoding_service.dart';
 import 'package:tago_driver/data/services/directions_service.dart';
+import 'dart:async';
 
 class RideMapView extends StatefulWidget {
   final String? fromAddress; // 출발지 주소
@@ -29,29 +32,367 @@ class _RideMapViewState extends State<RideMapView> {
   Position? _currentPosition;
   bool _isLoadingLocation = false;
   bool _isLoadingRoute = false;
-  bool _isMapReady = false; // ✅ API 키 설정 확인용
+  bool _isMapReady = false;
 
   LatLng? _originLatLng;
   LatLng? _destinationLatLng;
   Set<Polyline> _polylines = {};
   Set<Marker> _markers = {};
+  BitmapDescriptor? _originMarkerIcon;
+  BitmapDescriptor? _destinationMarkerIcon;
+  Timer? _routeUpdateTimer;
+
+  // ✨ Glassmorphism 마커 생성
+  Future<BitmapDescriptor> _createGlassMarkerIcon(
+    Color color,
+    IconData icon,
+  ) async {
+    final recorder = ui.PictureRecorder();
+    final canvas = Canvas(recorder);
+    final size = 110.0; // 80.0 → 110.0 (더 크게)
+
+    // 외부 글로우 효과
+    final glowPaint =
+        Paint()
+          ..color = color.withOpacity(0.3)
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12);
+    canvas.drawCircle(Offset(size / 2, size / 2), 30, glowPaint); // 22 → 30
+
+    // Glassmorphism 배경
+    final gradientPaint =
+        Paint()
+          ..shader = ui.Gradient.radial(Offset(size / 2, size / 2), 28, [
+            // 20 → 28
+            Colors.white.withOpacity(0.3),
+            Colors.white.withOpacity(0.1),
+          ]);
+    canvas.drawCircle(Offset(size / 2, size / 2), 28, gradientPaint); // 20 → 28
+
+    // 테두리
+    final borderPaint =
+        Paint()
+          ..color = Colors.white.withOpacity(0.5)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 2.5; // 2 → 2.5
+    canvas.drawCircle(Offset(size / 2, size / 2), 28, borderPaint); // 20 → 28
+
+    // 아이콘 그리기
+    final textPainter = TextPainter(textDirection: TextDirection.ltr);
+    textPainter.text = TextSpan(
+      text: String.fromCharCode(icon.codePoint),
+      style: TextStyle(
+        fontSize: 32, // 24 → 32
+        fontFamily: icon.fontFamily,
+        color: color,
+        shadows: [
+          Shadow(
+            color: Colors.black.withOpacity(0.3),
+            offset: const Offset(0, 2),
+            blurRadius: 4,
+          ),
+        ],
+      ),
+    );
+    textPainter.layout();
+    textPainter.paint(
+      canvas,
+      Offset((size - textPainter.width) / 2, (size - textPainter.height) / 2),
+    );
+
+    // 하단 포인터
+    final pointerPath = Path();
+    pointerPath.moveTo(size / 2 - 8, size / 2 + 28); // 크기 조정
+    pointerPath.lineTo(size / 2, size / 2 + 40); // 30 → 40
+    pointerPath.lineTo(size / 2 + 8, size / 2 + 28);
+    pointerPath.close();
+
+    final pointerPaint =
+        Paint()
+          ..shader = ui.Gradient.linear(
+            Offset(size / 2, size / 2 + 28),
+            Offset(size / 2, size / 2 + 40),
+            [Colors.white.withOpacity(0.3), Colors.white.withOpacity(0.1)],
+          );
+    canvas.drawPath(pointerPath, pointerPaint);
+    canvas.drawPath(pointerPath, borderPaint);
+
+    final picture = recorder.endRecording();
+    final img = await picture.toImage(
+      size.toInt(),
+      (size + 40).toInt(),
+    ); // 30 → 40
+    final data = await img.toByteData(format: ui.ImageByteFormat.png);
+
+    return BitmapDescriptor.fromBytes(data!.buffer.asUint8List());
+  }
+
+  // ✨ 세련된 다크 테마 지도 스타일
+  static const String _mapStyle = '''
+  [
+    {
+      "elementType": "geometry",
+      "stylers": [
+        {
+          "color": "#212121"
+        }
+      ]
+    },
+    {
+      "elementType": "labels.icon",
+      "stylers": [
+        {
+          "visibility": "off"
+        }
+      ]
+    },
+    {
+      "elementType": "labels.text.fill",
+      "stylers": [
+        {
+          "color": "#757575"
+        }
+      ]
+    },
+    {
+      "elementType": "labels.text.stroke",
+      "stylers": [
+        {
+          "color": "#212121"
+        }
+      ]
+    },
+    {
+      "featureType": "administrative",
+      "elementType": "geometry",
+      "stylers": [
+        {
+          "color": "#757575"
+        },
+        {
+          "visibility": "off"
+        }
+      ]
+    },
+    {
+      "featureType": "administrative.country",
+      "elementType": "labels.text.fill",
+      "stylers": [
+        {
+          "color": "#9e9e9e"
+        }
+      ]
+    },
+    {
+      "featureType": "administrative.land_parcel",
+      "stylers": [
+        {
+          "visibility": "off"
+        }
+      ]
+    },
+    {
+      "featureType": "administrative.locality",
+      "elementType": "labels.text.fill",
+      "stylers": [
+        {
+          "color": "#bdbdbd"
+        }
+      ]
+    },
+    {
+      "featureType": "poi",
+      "stylers": [
+        {
+          "visibility": "off"
+        }
+      ]
+    },
+    {
+      "featureType": "poi",
+      "elementType": "labels.text.fill",
+      "stylers": [
+        {
+          "color": "#757575"
+        }
+      ]
+    },
+    {
+      "featureType": "poi.park",
+      "elementType": "geometry",
+      "stylers": [
+        {
+          "color": "#181818"
+        }
+      ]
+    },
+    {
+      "featureType": "poi.park",
+      "elementType": "labels.text.fill",
+      "stylers": [
+        {
+          "color": "#616161"
+        }
+      ]
+    },
+    {
+      "featureType": "poi.park",
+      "elementType": "labels.text.stroke",
+      "stylers": [
+        {
+          "color": "#1b1b1b"
+        }
+      ]
+    },
+    {
+      "featureType": "road",
+      "elementType": "geometry.fill",
+      "stylers": [
+        {
+          "color": "#2c2c2c"
+        }
+      ]
+    },
+    {
+      "featureType": "road",
+      "elementType": "labels.icon",
+      "stylers": [
+        {
+          "visibility": "off"
+        }
+      ]
+    },
+    {
+      "featureType": "road",
+      "elementType": "labels.text.fill",
+      "stylers": [
+        {
+          "color": "#8a8a8a"
+        }
+      ]
+    },
+    {
+      "featureType": "road.arterial",
+      "elementType": "geometry",
+      "stylers": [
+        {
+          "color": "#373737"
+        }
+      ]
+    },
+    {
+      "featureType": "road.arterial",
+      "elementType": "labels",
+      "stylers": [
+        {
+          "visibility": "off"
+        }
+      ]
+    },
+    {
+      "featureType": "road.highway",
+      "elementType": "geometry",
+      "stylers": [
+        {
+          "color": "#3c3c3c"
+        }
+      ]
+    },
+    {
+      "featureType": "road.highway",
+      "elementType": "labels",
+      "stylers": [
+        {
+          "visibility": "off"
+        }
+      ]
+    },
+    {
+      "featureType": "road.highway.controlled_access",
+      "elementType": "geometry",
+      "stylers": [
+        {
+          "color": "#4e4e4e"
+        }
+      ]
+    },
+    {
+      "featureType": "road.local",
+      "stylers": [
+        {
+          "visibility": "off"
+        }
+      ]
+    },
+    {
+      "featureType": "road.local",
+      "elementType": "labels.text.fill",
+      "stylers": [
+        {
+          "color": "#616161"
+        }
+      ]
+    },
+    {
+      "featureType": "transit",
+      "stylers": [
+        {
+          "visibility": "off"
+        }
+      ]
+    },
+    {
+      "featureType": "transit",
+      "elementType": "labels.text.fill",
+      "stylers": [
+        {
+          "color": "#757575"
+        }
+      ]
+    },
+    {
+      "featureType": "water",
+      "elementType": "geometry",
+      "stylers": [
+        {
+          "color": "#000000"
+        }
+      ]
+    },
+    {
+      "featureType": "water",
+      "elementType": "labels.text.fill",
+      "stylers": [
+        {
+          "color": "#3d3d3d"
+        }
+      ]
+    }
+  ]
+  ''';
 
   @override
   void initState() {
     super.initState();
-    // ✅ iOS에서 API 키가 설정되었는지 확인하고 지도 초기화
+    _initializeCustomMarkers();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _waitForApiKeyAndInitialize();
     });
   }
 
-  // ✅ API 키가 설정될 때까지 대기한 후 지도 초기화
-  Future<void> _waitForApiKeyAndInitialize() async {
-    // ✅ 최소 1초 대기 (main.dart에서 API 키 설정 완료 대기)
-    await Future.delayed(const Duration(milliseconds: 1000));
+  // ✨ 커스텀 마커 아이콘 초기화
+  Future<void> _initializeCustomMarkers() async {
+    _originMarkerIcon = await _createGlassMarkerIcon(
+      const Color(0xFF32CD32), // Green
+      Icons.circle,
+    );
+    _destinationMarkerIcon = await _createGlassMarkerIcon(
+      const Color(0xFFFF4444), // Red
+      Icons.location_on,
+    );
+  }
 
-    // ✅ iOS에서 GMSServices.provideAPIKey()가 완료될 시간을 확보
-    // Google Maps SDK 초기화가 완료되도록 추가 시간 대기
+  Future<void> _waitForApiKeyAndInitialize() async {
+    await Future.delayed(const Duration(milliseconds: 1000));
     await Future.delayed(const Duration(milliseconds: 500));
 
     if (mounted) {
@@ -62,15 +403,14 @@ class _RideMapViewState extends State<RideMapView> {
     }
   }
 
-  // ✅ 초기화를 별도 메서드로 분리하여 안전하게 처리
   Future<void> _initializeMap() async {
     try {
-      // 현재 위치 가져오기 (실패해도 계속 진행)
       await _getCurrentLocation();
 
-      // 경로 로드 (목적지가 있을 때만)
       if (widget.toAddress != null && mounted) {
-        await _loadRoute();
+        await _loadRoute(shouldFitBounds: true);
+
+        _startRouteUpdateTimer(10);
       }
     } catch (e) {
       debugPrint('❌ 지도 초기화 실패: $e');
@@ -85,8 +425,7 @@ class _RideMapViewState extends State<RideMapView> {
     }
   }
 
-  // 경로 로드 (수정)
-  Future<void> _loadRoute() async {
+  Future<void> _loadRoute({bool shouldFitBounds = false}) async {
     if (widget.toAddress == null || !mounted) return;
 
     setState(() {
@@ -96,8 +435,6 @@ class _RideMapViewState extends State<RideMapView> {
     try {
       LatLng origin;
 
-      // ✅ useCurrentLocation이 true이고 현재 위치가 있으면 현재 위치 사용
-      // 그렇지 않으면 fromAddress 사용
       if (widget.useCurrentLocation && _currentPosition != null) {
         origin = LatLng(
           _currentPosition!.latitude,
@@ -111,32 +448,23 @@ class _RideMapViewState extends State<RideMapView> {
         final originCoords = await GeocodingService.geocodeAddress(
           widget.fromAddress!,
         );
-        final originLat = originCoords['latitude'];
-        final originLng = originCoords['longitude'];
-        if (originLat == null || originLng == null) {
-          throw StateError('출발지 주소를 좌표로 변환할 수 없습니다: ${widget.fromAddress}');
-        }
-        origin = LatLng(originLat, originLng);
+        origin = LatLng(originCoords['latitude']!, originCoords['longitude']!);
       } else {
         throw StateError('출발지 정보가 없습니다. 위치 권한을 확인해주세요.');
       }
 
-      // 목적지 좌표 변환
       debugPrint('📍 목적지 주소 변환 중: ${widget.toAddress}');
       final destCoords = await GeocodingService.geocodeAddress(
         widget.toAddress!,
       );
-      final destLat = destCoords['latitude'];
-      final destLng = destCoords['longitude'];
-      if (destLat == null || destLng == null) {
-        throw StateError('목적지 주소를 좌표로 변환할 수 없습니다: ${widget.toAddress}');
-      }
-      _destinationLatLng = LatLng(destLat, destLng);
+      _destinationLatLng = LatLng(
+        destCoords['latitude']!,
+        destCoords['longitude']!,
+      );
       _originLatLng = origin;
 
-      debugPrint('✅ 출발지: $_originLatLng, 목적지: $_destinationLatLng');
+      debugPrint('✅ 출발지: ${_originLatLng}, 목적지: ${_destinationLatLng}');
 
-      // 경로 가져오기
       debugPrint('🛣️ 경로 가져오는 중...');
       final routePoints = await DirectionsService.getRoute(
         origin: _originLatLng!,
@@ -145,57 +473,54 @@ class _RideMapViewState extends State<RideMapView> {
 
       debugPrint('✅ 경로 포인트 수: ${routePoints.length}');
 
-      // ✅ mounted 체크 후 setState
       if (!mounted) return;
 
-      // 마커 추가
-      setState(() {
-        _markers = {
-          Marker(
-            markerId: const MarkerId('origin'),
-            position: _originLatLng!,
-            infoWindow: InfoWindow(
-              title:
-                  widget.useCurrentLocation && _currentPosition != null
-                      ? '현재 위치'
-                      : (widget.fromName ?? '출발지'),
-              snippet:
-                  widget.useCurrentLocation && _currentPosition != null
-                      ? '내 위치'
-                      : widget.fromAddress,
+
+            setState(() {
+        // 커스텀 glassmorphism 마커 추가
+        // ✅ useCurrentLocation이 true일 때는 초록색 마커(origin)를 표시하지 않음
+        final markers = <Marker>[];
+        
+        // useCurrentLocation이 false일 때만 출발지 마커 표시
+        if (!widget.useCurrentLocation) {
+          markers.add(
+            Marker(
+              markerId: const MarkerId('origin'),
+              position: _originLatLng!,
+              icon: _originMarkerIcon ?? BitmapDescriptor.defaultMarker,
+              anchor: const Offset(0.5, 0.85),
             ),
-            icon: BitmapDescriptor.defaultMarkerWithHue(
-              BitmapDescriptor.hueGreen,
-            ),
-          ),
+          );
+        }
+        
+        // 목적지 마커는 항상 표시
+        markers.add(
           Marker(
             markerId: const MarkerId('destination'),
             position: _destinationLatLng!,
-            infoWindow: InfoWindow(
-              title: widget.toName ?? '목적지',
-              snippet: widget.toAddress,
-            ),
-            icon: BitmapDescriptor.defaultMarkerWithHue(
-              BitmapDescriptor.hueRed,
-            ),
+            icon: _destinationMarkerIcon ?? BitmapDescriptor.defaultMarker,
+            anchor: const Offset(0.5, 0.85),
           ),
-        };
+        );
+        
+        _markers = markers.toSet();
 
-        // Polyline 추가
         _polylines = {
           Polyline(
             polylineId: const PolylineId('route'),
             points: routePoints,
-            color: Colors.blue,
+            color: const Color(0xFF00B4D8), // Bright cyan for dark theme
             width: 5,
+            startCap: Cap.roundCap,
+            endCap: Cap.roundCap,
           ),
         };
 
         _isLoadingRoute = false;
       });
 
-      // 지도 카메라를 경로 전체가 보이도록 조정
-      if (mounted &&
+      if (shouldFitBounds &&
+          mounted &&
           _mapController != null &&
           _originLatLng != null &&
           _destinationLatLng != null) {
@@ -218,51 +543,61 @@ class _RideMapViewState extends State<RideMapView> {
     }
   }
 
-  // 경로 전체가 보이도록 카메라 조정
+  //경로 재탐색하는 타이머
+    //경로 재탐색하는 타이머
+  void _startRouteUpdateTimer(int interval){
+    _routeUpdateTimer?.cancel();
+    _routeUpdateTimer = Timer.periodic(
+      Duration(seconds: interval),
+      (timer) async {
+        if (mounted && widget.toAddress != null){
+          // ✅ useCurrentLocation이 true일 때 현재 위치를 먼저 업데이트
+          if (widget.useCurrentLocation) {
+            await _getCurrentLocation();
+          }
+          // 경로 업데이트 (shouldFitBounds는 false로 유지하여 카메라 이동 방지)
+          await _loadRoute();
+        } else{
+          timer.cancel();
+        }
+      }
+    );
+  }
+
   Future<void> _fitBounds() async {
     if (_originLatLng == null ||
         _destinationLatLng == null ||
-        _mapController == null ||
-        !mounted) {
+        _mapController == null)
       return;
-    }
 
-    try {
-      double minLat =
-          _originLatLng!.latitude < _destinationLatLng!.latitude
-              ? _originLatLng!.latitude
-              : _destinationLatLng!.latitude;
-      double maxLat =
-          _originLatLng!.latitude > _destinationLatLng!.latitude
-              ? _originLatLng!.latitude
-              : _destinationLatLng!.latitude;
-      double minLng =
-          _originLatLng!.longitude < _destinationLatLng!.longitude
-              ? _originLatLng!.longitude
-              : _destinationLatLng!.longitude;
-      double maxLng =
-          _originLatLng!.longitude > _destinationLatLng!.longitude
-              ? _originLatLng!.longitude
-              : _destinationLatLng!.longitude;
+    double minLat =
+        _originLatLng!.latitude < _destinationLatLng!.latitude
+            ? _originLatLng!.latitude
+            : _destinationLatLng!.latitude;
+    double maxLat =
+        _originLatLng!.latitude > _destinationLatLng!.latitude
+            ? _originLatLng!.latitude
+            : _destinationLatLng!.latitude;
+    double minLng =
+        _originLatLng!.longitude < _destinationLatLng!.longitude
+            ? _originLatLng!.longitude
+            : _destinationLatLng!.longitude;
+    double maxLng =
+        _originLatLng!.longitude > _destinationLatLng!.longitude
+            ? _originLatLng!.longitude
+            : _destinationLatLng!.longitude;
 
-      if (mounted && _mapController != null) {
-        await _mapController!.animateCamera(
-          CameraUpdate.newLatLngBounds(
-            LatLngBounds(
-              southwest: LatLng(minLat - 0.01, minLng - 0.01),
-              northeast: LatLng(maxLat + 0.01, maxLng + 0.01),
-            ),
-            100.0,
-          ),
-        );
-      }
-    } catch (e) {
-      debugPrint('❌ 카메라 조정 실패: $e');
-      // 에러가 발생해도 앱이 크래시되지 않도록 처리
-    }
+    await _mapController!.animateCamera(
+      CameraUpdate.newLatLngBounds(
+        LatLngBounds(
+          southwest: LatLng(minLat - 0.01, minLng - 0.01),
+          northeast: LatLng(maxLat + 0.01, maxLng + 0.01),
+        ),
+        100.0,
+      ),
+    );
   }
 
-  // 현재 위치 가져오기
   Future<void> _getCurrentLocation() async {
     if (!mounted) return;
 
@@ -306,11 +641,19 @@ class _RideMapViewState extends State<RideMapView> {
         return;
       }
 
-      // ✅ iOS에서 안전하게 위치 가져오기
       Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
-        timeLimit: const Duration(seconds: 10), // ✅ 타임아웃 설정
+        timeLimit: const Duration(seconds: 10),
       );
+
+      if (_mapController != null){
+        await _mapController!.animateCamera(
+          CameraUpdate.newLatLngZoom(
+            LatLng(position.latitude, position.longitude),
+            15.0,
+          ),
+        );
+      }
 
       if (mounted) {
         setState(() {
@@ -329,9 +672,320 @@ class _RideMapViewState extends State<RideMapView> {
     }
   }
 
+  // ✨ 완전 투명 AppBar (버튼만)
+  Widget _buildGlassAppBar(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(), // 완전 투명
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              // Back Button
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Colors.white.withOpacity(0.15),
+                      Colors.white.withOpacity(0.08),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.2),
+                    width: 1,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: BackdropFilter(
+                    filter: ui.ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                    child: IconButton(
+                      icon: const Icon(Icons.arrow_back_ios_new, size: 20),
+                      color: Colors.white,
+                      padding: EdgeInsets.zero,
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ),
+                ),
+              ),
+
+              // Action Button
+              if (_isLoadingLocation || _isLoadingRoute)
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Colors.white.withOpacity(0.15),
+                        Colors.white.withOpacity(0.08),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: Colors.white.withOpacity(0.2),
+                      width: 1,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.2),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: BackdropFilter(
+                      filter: ui.ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                      child: const Center(
+                        child: SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                )
+              else
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Colors.white.withOpacity(0.15),
+                        Colors.white.withOpacity(0.08),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: Colors.white.withOpacity(0.2),
+                      width: 1,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.2),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: BackdropFilter(
+                      filter: ui.ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                      child: IconButton(
+                        icon: const Icon(Icons.my_location, size: 22),
+                        color: Colors.white,
+                        padding: EdgeInsets.zero,
+                        onPressed: _getCurrentLocation,
+                        tooltip: '현재 위치',
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ✨ Glassmorphism 정보 카드 (초소형)
+  Widget _buildInfoCard() {
+    if (_originLatLng == null || _destinationLatLng == null)
+      return const SizedBox.shrink();
+
+    return Positioned(
+      bottom: 12,
+      left: 12,
+      right: 12,
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Colors.white.withOpacity(0.15),
+              Colors.white.withOpacity(0.08),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.white.withOpacity(0.2), width: 1),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.3),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: BackdropFilter(
+            filter: ui.ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // 출발지
+                  Row(
+                    children: [
+                      Container(
+                        width: 6,
+                        height: 6,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF32CD32),
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF32CD32).withOpacity(0.5),
+                              blurRadius: 4,
+                              spreadRadius: 1,
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              widget.useCurrentLocation &&
+                                      _currentPosition != null
+                                  ? '현재 위치'
+                                  : (widget.fromName ?? '출발지'),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 12,
+                              ),
+                            ),
+                            if (widget.fromAddress != null &&
+                                !(widget.useCurrentLocation &&
+                                    _currentPosition != null))
+                              Text(
+                                widget.fromAddress!,
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.7),
+                                  fontSize: 10,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  // 연결선
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      left: 2.5,
+                      top: 4,
+                      bottom: 4,
+                    ),
+                    child: Container(
+                      width: 1,
+                      height: 12,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            const Color(0xFF32CD32).withOpacity(0.4),
+                            const Color(0xFFFF4444).withOpacity(0.4),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // 목적지
+                  Row(
+                    children: [
+                      Container(
+                        width: 6,
+                        height: 6,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFF4444),
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFFFF4444).withOpacity(0.5),
+                              blurRadius: 4,
+                              spreadRadius: 1,
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              widget.toName ?? '목적지',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 12,
+                              ),
+                            ),
+                            if (widget.toAddress != null)
+                              Text(
+                                widget.toAddress!,
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.7),
+                                  fontSize: 10,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    // 초기 카메라 위치
     LatLng initialLocation =
         _originLatLng ??
         (_currentPosition != null
@@ -339,40 +993,53 @@ class _RideMapViewState extends State<RideMapView> {
             : const LatLng(40.7982, -77.8599));
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          widget.fromName != null && widget.toName != null
-              ? '${widget.fromName} → ${widget.toName}'
-              : '지도 테스트',
-        ),
-        backgroundColor: Colors.black,
-        foregroundColor: Colors.white,
-        actions: [
-          if (_isLoadingLocation || _isLoadingRoute)
-            const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              ),
-            )
-          else
-            IconButton(
-              icon: const Icon(Icons.my_location),
-              onPressed: _getCurrentLocation,
-              tooltip: '현재 위치 새로고침',
-            ),
-        ],
+      extendBodyBehindAppBar: true,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(0),
+        child: Container(),
       ),
       body: Stack(
         children: [
-          // ✅ API 키가 설정될 때까지 로딩 표시
+          // 지도
           if (!_isMapReady)
             Container(
-              color: Colors.black,
-              child: const Center(
-                child: CircularProgressIndicator(color: Colors.white),
+              color: const Color(0xFF1a1a1a),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Colors.white.withOpacity(0.1),
+                            Colors.white.withOpacity(0.05),
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.2),
+                          width: 1,
+                        ),
+                      ),
+                      child: const CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      '지도 로딩 중...',
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.8),
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             )
           else
@@ -385,24 +1052,80 @@ class _RideMapViewState extends State<RideMapView> {
               polylines: _polylines,
               onMapCreated: (GoogleMapController controller) {
                 _mapController = controller;
+
+                // ✨ 커스텀 스타일 적용
+                controller.setMapStyle(_mapStyle);
+
                 debugPrint('✅ 지도 생성 완료');
 
-                // 경로가 있으면 카메라 조정 (안전하게 처리)
-                if (mounted && _originLatLng != null && _destinationLatLng != null) {
+                if (_originLatLng != null && _destinationLatLng != null) {
                   _fitBounds();
                 }
               },
               myLocationEnabled: true,
-              myLocationButtonEnabled: true,
-              zoomControlsEnabled: true,
+              myLocationButtonEnabled: false, // 커스텀 버튼 사용
+              zoomControlsEnabled: false, // 커스텀 UI를 위해 기본 컨트롤 숨김
               mapType: MapType.normal,
             ),
-          // 로딩 인디케이터
-          if (_isLoadingRoute && _isMapReady)
-            Container(
-              color: Colors.black.withOpacity(0.3),
-              child: const Center(child: CircularProgressIndicator()),
-            ),
+
+          // 로딩 오버레이
+          // if (_isLoadingRoute && _isMapReady)
+          //   Container(
+          //     color: Colors.black.withOpacity(0.5),
+          //     child: BackdropFilter(
+          //       filter: ui.ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+          //       child: Center(
+          //         child: Container(
+          //           padding: const EdgeInsets.all(32),
+          //           decoration: BoxDecoration(
+          //             gradient: LinearGradient(
+          //               begin: Alignment.topLeft,
+          //               end: Alignment.bottomRight,
+          //               colors: [
+          //                 Colors.white.withOpacity(0.15),
+          //                 Colors.white.withOpacity(0.08),
+          //               ],
+          //             ),
+          //             borderRadius: BorderRadius.circular(20),
+          //             border: Border.all(
+          //               color: Colors.white.withOpacity(0.2),
+          //               width: 1,
+          //             ),
+          //           ),
+          //           child: Column(
+          //             mainAxisSize: MainAxisSize.min,
+          //             children: [
+          //               const CircularProgressIndicator(
+          //                 valueColor: AlwaysStoppedAnimation<Color>(
+          //                   Colors.white,
+          //                 ),
+          //               ),
+          //               const SizedBox(height: 20),
+          //               Text(
+          //                 '경로 검색 중...',
+          //                 style: TextStyle(
+          //                   color: Colors.white.withOpacity(0.9),
+          //                   fontSize: 15,
+          //                   fontWeight: FontWeight.w500,
+          //                 ),
+          //               ),
+          //             ],
+          //           ),
+          //         ),
+          //       ),
+          //     ),
+          //   ),
+
+          // Glassmorphism AppBar (positioned at top)
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: _buildGlassAppBar(context),
+          ),
+
+          // 정보 카드
+          _buildInfoCard(),
         ],
       ),
     );
@@ -410,6 +1133,7 @@ class _RideMapViewState extends State<RideMapView> {
 
   @override
   void dispose() {
+    _routeUpdateTimer?.cancel();
     _mapController?.dispose();
     super.dispose();
   }
