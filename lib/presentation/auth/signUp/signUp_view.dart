@@ -140,210 +140,162 @@ class _SignUpViewState extends State<SignUpView>
 
               // 메인 콘텐츠 - SafeArea 적용
               SafeArea(
-                child: Column(
-                  children: [
-                    // 뒤로가기 버튼
-                    Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Row(
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.fromLTRB(24, 50, 24, 16),
+                  child: Column(
+                    children: [
+                      // 타이틀 영역 - 중앙 정렬
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: Colors.white.withOpacity(0.2),
-                                width: 1,
-                              ),
+                          Text(
+                            "회원가입",
+                            style: TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              letterSpacing: -1,
+                              height: 1.2,
                             ),
-                            child: IconButton(
-                              onPressed: () => Navigator.pop(context),
-                              icon: Icon(
-                                Icons.arrow_back_ios_new,
-                                color: Colors.white,
-                                size: 20,
-                              ),
+                          ),
+                          SizedBox(height: 6),
+                          Text(
+                            "TAGO 타고가실?",
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.white60,
+                              fontWeight: FontWeight.w400,
+                              letterSpacing: -0.2,
                             ),
                           ),
                         ],
                       ),
-                    ),
 
-                    // 스크롤 가능한 컨텐츠
-                    Expanded(
-                      child: SingleChildScrollView(
-                        padding: EdgeInsets.symmetric(horizontal: 24),
-                        child: Column(
-                          children: [
-                            SizedBox(height: 12),
+                      SizedBox(height: 16),
 
-                            // 타이틀 영역 - 중앙 정렬
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Text(
-                                  "회원가입",
-                                  style: TextStyle(
-                                    fontSize: 28,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                    letterSpacing: -1,
-                                    height: 1.2,
-                                  ),
+                      // Glassmorphic 회원가입 카드
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(20),
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                          child: Container(
+                            padding: EdgeInsets.all(18),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0.2),
+                                width: 1.5,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.1),
+                                  blurRadius: 20,
+                                  spreadRadius: 5,
                                 ),
-                                SizedBox(height: 6),
-                                Text(
-                                  "TAGO 타고가실?",
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.white60,
-                                    fontWeight: FontWeight.w400,
-                                    letterSpacing: -0.2,
+                              ],
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                // 이름 입력
+                                _buildGlassInput(
+                                  label: "이름",
+                                  hint: "예: 홍길동",
+                                  controller: nameCtrl,
+                                  icon: Icons.person_outline,
+                                ),
+                                SizedBox(height: 12),
+
+                                // 이메일 입력
+                                _buildGlassInput(
+                                  label: "이메일",
+                                  hint: "you@psu.edu",
+                                  controller: emailCtrl,
+                                  keyboardType: TextInputType.emailAddress,
+                                  icon: Icons.email_outlined,
+                                ),
+                                SizedBox(height: 12),
+
+                                // 회사 이름 입력
+                                _buildGlassInput(
+                                  label: "회사 이름",
+                                  hint: "PSU Taxi",
+                                  controller: companyCtrl,
+                                  icon: Icons.business_outlined,
+                                ),
+                                SizedBox(height: 12),
+
+                                // 비밀번호 입력
+                                _buildGlassInput(
+                                  label: "비밀번호",
+                                  hint: "••••••••",
+                                  controller: pwCtrl,
+                                  obscure: true,
+                                  icon: Icons.lock_outline,
+                                ),
+                                SizedBox(height: 12),
+
+                                // 비밀번호 확인 입력
+                                _buildGlassInput(
+                                  label: "비밀번호 확인",
+                                  hint: "••••••••",
+                                  controller: pwConfirmCtrl,
+                                  obscure: true,
+                                  icon: Icons.lock_outline,
+                                ),
+                                SizedBox(height: 12),
+
+                                // 회사 확인 코드 입력
+                                _buildGlassInput(
+                                  label: "회사 확인 코드",
+                                  hint: "예: admin123",
+                                  controller: companyCodeCtrl,
+                                  icon: Icons.verified_user_outlined,
+                                ),
+                                SizedBox(height: 20),
+
+                                // 회원가입 버튼
+                                _buildAnimatedGlassButton(
+                                  text: vm.isLoading ? "가입 중..." : "회원가입",
+                                  isLoading: vm.isLoading,
+                                  onPressed: () => _handleSignUp(context),
+                                ),
+
+                                SizedBox(height: 12),
+
+                                // 로그인 버튼
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  style: TextButton.styleFrom(
+                                    padding: EdgeInsets.symmetric(vertical: 8),
+                                  ),
+                                  child: Text(
+                                    "이미 계정이 있나요? 로그인하기",
+                                    style: TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
                                 ),
                               ],
                             ),
-
-                            SizedBox(height: 20),
-
-                            // Glassmorphic 회원가입 카드
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(20),
-                              child: BackdropFilter(
-                                filter: ImageFilter.blur(
-                                  sigmaX: 10,
-                                  sigmaY: 10,
-                                ),
-                                child: Container(
-                                  padding: EdgeInsets.all(18),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.1),
-                                    borderRadius: BorderRadius.circular(20),
-                                    border: Border.all(
-                                      color: Colors.white.withOpacity(0.2),
-                                      width: 1.5,
-                                    ),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.1),
-                                        blurRadius: 20,
-                                        spreadRadius: 5,
-                                      ),
-                                    ],
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.stretch,
-                                    children: [
-                                      // 이름 입력
-                                      _buildGlassInput(
-                                        label: "이름",
-                                        hint: "예: 홍길동",
-                                        controller: nameCtrl,
-                                        icon: Icons.person_outline,
-                                      ),
-                                      SizedBox(height: 12),
-
-                                      // 이메일 입력
-                                      _buildGlassInput(
-                                        label: "이메일",
-                                        hint: "you@psu.edu",
-                                        controller: emailCtrl,
-                                        keyboardType:
-                                            TextInputType.emailAddress,
-                                        icon: Icons.email_outlined,
-                                      ),
-                                      SizedBox(height: 12),
-
-                                      // 회사 이름 입력
-                                      _buildGlassInput(
-                                        label: "회사 이름",
-                                        hint: "PSU Taxi",
-                                        controller: companyCtrl,
-                                        icon: Icons.business_outlined,
-                                      ),
-                                      SizedBox(height: 12),
-
-                                      // 비밀번호 입력
-                                      _buildGlassInput(
-                                        label: "비밀번호",
-                                        hint: "••••••••",
-                                        controller: pwCtrl,
-                                        obscure: true,
-                                        icon: Icons.lock_outline,
-                                      ),
-                                      SizedBox(height: 12),
-
-                                      // 비밀번호 확인 입력
-                                      _buildGlassInput(
-                                        label: "비밀번호 확인",
-                                        hint: "••••••••",
-                                        controller: pwConfirmCtrl,
-                                        obscure: true,
-                                        icon: Icons.lock_outline,
-                                      ),
-                                      SizedBox(height: 12),
-
-                                      // 회사 확인 코드 입력
-                                      _buildGlassInput(
-                                        label: "회사 확인 코드",
-                                        hint: "예: admin123",
-                                        controller: companyCodeCtrl,
-                                        icon: Icons.verified_user_outlined,
-                                      ),
-                                      SizedBox(height: 20),
-
-                                      // 회원가입 버튼
-                                      _buildAnimatedGlassButton(
-                                        text: vm.isLoading ? "가입 중..." : "회원가입",
-                                        isLoading: vm.isLoading,
-                                        onPressed: () => _handleSignUp(context),
-                                      ),
-
-                                      SizedBox(height: 12),
-
-                                      // 로그인 버튼
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                        },
-                                        style: TextButton.styleFrom(
-                                          padding: EdgeInsets.symmetric(
-                                            vertical: 8,
-                                          ),
-                                        ),
-                                        child: Text(
-                                          "이미 계정이 있나요? 로그인하기",
-                                          style: TextStyle(
-                                            color: Colors.white70,
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-
-                            SizedBox(height: 16),
-
-                            // 버전 정보
-                            Text(
-                              "tago v0.1 preview",
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: Colors.white38,
-                              ),
-                            ),
-
-                            SizedBox(height: 16),
-                          ],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+
+                      SizedBox(height: 12),
+
+                      // 버전 정보
+                      Text(
+                        "tago v0.1 preview",
+                        style: TextStyle(fontSize: 11, color: Colors.white38),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
