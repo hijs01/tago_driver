@@ -8,6 +8,7 @@ import 'package:tago_driver/presentation/auth/login/login_view_model.dart';
 import 'package:tago_driver/presentation/common/appScaffold.dart';
 import 'package:tago_driver/presentation/pages/chat/chatRoom/chat_room_view_model.dart';
 import 'package:tago_driver/presentation/pages/chat/widget/chat_bubble.dart';
+import 'package:tago_driver/presentation/pages/map/ridemap_view.dart';
 
 class ChatRoomView extends StatefulWidget {
   const ChatRoomView({super.key});
@@ -307,6 +308,59 @@ class _ChatRoomViewState extends State<ChatRoomView> {
                                     content: Text('채팅방 나가기 중 오류 발생: $e'),
                                     behavior: SnackBarBehavior.floating,
                                     backgroundColor: Colors.redAccent,
+                                  ),
+                                );
+                              }
+                            }
+                          },
+                        ),
+
+                        // "채팅방 나가기" 버튼 다음에 추가
+                        const SizedBox(height: 300),
+
+                        // ✅ 여정 경로 확인하기 버튼 추가
+                        _buildDrawerItem(
+                          context: context,
+                          icon: Icons.map,
+                          title: '여정 경로 확인하기',
+                          color: Colors.white,
+                          onTap: () async {
+                            Navigator.pop(context);
+                            try {
+                              final doc = await rideRequestRef.get();
+                              final data = doc.data();
+                              final fromAddress =
+                                  data?['fromAddress'] as String?;
+                              final toAddress = data?['toAddress'] as String?;
+                              final status =
+                                  data?['status'] as String? ?? 'pending';
+                              final useCurrentLocation =
+                                  status.toLowerCase() == 'on progress';
+
+                              if (context.mounted) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (context) => RideMapView(
+                                          fromAddress: fromAddress,
+                                          toAddress: toAddress,
+                                          fromName: fromName,
+                                          toName: toName,
+                                          useCurrentLocation:
+                                              useCurrentLocation,
+                                        ),
+                                  ),
+                                );
+                              }
+                            } catch (e) {
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      '지도 정보를 불러오는 중 오류가 발생했습니다: $e',
+                                    ),
+                                    backgroundColor: Colors.red,
                                   ),
                                 );
                               }

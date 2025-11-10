@@ -24,6 +24,12 @@ dependencies {
   // ✅ Google 로그인 필수
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.android.gms:play-services-auth")
+    
+    // ✅ Google Maps SDK 추가 (MapsInitializer를 사용하기 위해 필요)
+    implementation("com.google.android.gms:play-services-maps:19.0.0")
+    
+    // ✅ Core library desugaring (flutter_local_notifications 필요)
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 }
 
 android {
@@ -34,6 +40,8 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+        // ✅ Core library desugaring 활성화
+        isCoreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
@@ -49,6 +57,9 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+
+        // ✅ TRANSLATE_API_KEY를 GOOGLE_MAPS_API_KEY로 사용
+        manifestPlaceholders["GOOGLE_MAPS_API_KEY"] = project.findProperty("TRANSLATE_API_KEY") as String? ?: ""
     }
 
     buildTypes {
