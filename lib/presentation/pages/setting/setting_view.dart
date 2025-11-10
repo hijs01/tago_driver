@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'dart:ui'; // BackdropFilter 사용
 import 'package:tago_driver/data/models/user.dart';
 import 'package:tago_driver/presentation/common/appScaffold.dart';
 import 'package:tago_driver/presentation/pages/setting/settings_view_model.dart';
@@ -8,14 +7,11 @@ import 'package:tago_driver/presentation/pages/setting/details/profile_edit/prof
 import 'package:tago_driver/presentation/pages/setting/details/profile_edit/profile_edit_view_model.dart';
 import 'package:tago_driver/presentation/pages/setting/details/password_change/password_change_view.dart';
 import 'package:tago_driver/presentation/pages/setting/details/password_change/password_change_view_model.dart';
-import 'package:tago_driver/presentation/pages/setting/details/faq/faq_view.dart';
-import 'package:tago_driver/presentation/pages/setting/details/contact/contact_view.dart';
-import 'package:tago_driver/presentation/pages/setting/details/emergency_report/emergency_report_view.dart';
 import 'package:tago_driver/presentation/pages/setting/details/terms/terms_view.dart';
 import 'package:tago_driver/presentation/pages/setting/details/privacy/privacy_view.dart';
 import 'package:tago_driver/presentation/pages/setting/details/developer_info/developer_info_view.dart';
 
-/// 설정 화면 - Liquid Glass 스타일
+/// 설정 화면 - Dark Minimal 스타일
 class SettingsView extends StatefulWidget {
   const SettingsView({super.key});
 
@@ -38,39 +34,20 @@ class _SettingsViewState extends State<SettingsView> {
 
     if (vm.isLoading) {
       return AppScaffold(
-        // ===== 🔥 그라디언트 배경 추가 =====
-        backgroundGradient: const LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Color(0xFF667eea),
-            Color(0xFF764ba2),
-            Color(0xFF5A189A),
-            Color(0xFF000000),
-            Color(0xFF000000),
-          ],
-          stops: [0.0, 0.15, 0.3, 0.55, 1.0],
-        ),
-        body: const Center(
-          child: CircularProgressIndicator(color: Colors.white),
+        backgroundColor: const Color(0xFF0F1419),
+        body: Center(
+          child: CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(
+              const Color(0xFF4CAF50),
+            ),
+            strokeWidth: 3,
+          ),
         ),
       );
     }
 
     return AppScaffold(
-      // ===== 🔥 그라디언트 배경 =====
-      backgroundGradient: const LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        colors: [
-          Color(0xFF89CFF0),
-          Color(0xFF4169E1),
-          Color(0xFF4169E1),
-          Color(0xFF000000),
-          Color(0xFF000000),
-        ],
-        stops: [0.0, 0.2, 0.2, 0.53, 1.0],
-      ),
+      backgroundColor: const Color(0xFF0F1419),
       scrollable: true,
       bodyPadding: const EdgeInsets.all(24),
       body: Column(
@@ -79,14 +56,26 @@ class _SettingsViewState extends State<SettingsView> {
           const SizedBox(height: 20),
 
           // 설정 타이틀
-          const Text(
-            '',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-              letterSpacing: -0.5,
-            ),
+          Row(
+            children: [
+              Container(
+                width: 4,
+                height: 20,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF4CAF50),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(width: 12),
+              const Text(
+                '설정',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
           ),
 
           const SizedBox(height: 32),
@@ -96,26 +85,12 @@ class _SettingsViewState extends State<SettingsView> {
 
           const SizedBox(height: 32),
 
-          // 푸시 알림
-          _buildNotificationSection(context, vm),
-
-          const SizedBox(height: 32),
-
           // 섹션 제목: 계정
           _buildSectionTitle("계정"),
           const SizedBox(height: 16),
 
           // 계정 카드 그리드
           _buildAccountGrid(context, vm),
-
-          const SizedBox(height: 32),
-
-          // 섹션 제목: 지원
-          _buildSectionTitle("지원"),
-          const SizedBox(height: 16),
-
-          // 지원 카드 그리드
-          _buildSupportGrid(context),
 
           const SizedBox(height: 32),
 
@@ -142,74 +117,63 @@ class _SettingsViewState extends State<SettingsView> {
     );
   }
 
-  /// 프로필 카드 - Liquid Glass 스타일
+  /// 프로필 카드 - Dark Minimal 스타일
   Widget _buildProfileCard(SettingsViewModel vm) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(20),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Container(
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: Colors.white.withOpacity(0.2),
-              width: 1.5,
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        children: [
+          // 프로필 아이콘
+          Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: const Color(0xFF4CAF50).withOpacity(0.2),
+            ),
+            child: Center(
+              child: Text(
+                vm.displayName.isNotEmpty
+                    ? vm.displayName[0].toUpperCase()
+                    : '?',
+                style: const TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF4CAF50),
+                ),
+              ),
             ),
           ),
-          child: Row(
-            children: [
-              // 프로필 아이콘
-              Container(
-                width: 70,
-                height: 70,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white.withOpacity(0.2),
-                ),
-                child: Center(
-                  child: Text(
-                    vm.displayName.isNotEmpty
-                        ? vm.displayName[0].toUpperCase()
-                        : '?',
-                    style: const TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+          const SizedBox(width: 16),
+          // 이름 & 이메일
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  vm.displayName,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
-              ),
-              const SizedBox(width: 20),
-              // 이름 & 이메일
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      vm.displayName,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: -0.3,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      vm.displayEmail,
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.6),
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
+                const SizedBox(height: 4),
+                Text(
+                  vm.displayEmail,
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.5),
+                    fontSize: 14,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -221,77 +185,10 @@ class _SettingsViewState extends State<SettingsView> {
       child: Text(
         title,
         style: TextStyle(
-          color: Colors.white.withOpacity(0.6),
+          color: Colors.white.withOpacity(0.5),
           fontSize: 13,
-          fontWeight: FontWeight.w600,
-          letterSpacing: 0.5,
-        ),
-      ),
-    );
-  }
-
-  /// 푸시 알림 스위치 - Liquid Glass
-  Widget _buildNotificationSection(BuildContext context, SettingsViewModel vm) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: Colors.white.withOpacity(0.2),
-              width: 1.5,
-            ),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Icon(
-                    Icons.notifications_outlined,
-                    color: Colors.white.withOpacity(0.8),
-                    size: 24,
-                  ),
-                  const SizedBox(width: 16),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        "푸시 알림",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        "모든 알림 받기",
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.5),
-                          fontSize: 13,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              Switch(
-                value: vm.isPushEnabled,
-                activeColor: Colors.white,
-                activeTrackColor: Colors.white.withOpacity(0.3),
-                inactiveThumbColor: Colors.white.withOpacity(0.5),
-                inactiveTrackColor: Colors.white.withOpacity(0.1),
-                onChanged: (value) {
-                  vm.togglePushNotification(value);
-                },
-              ),
-            ],
-          ),
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.3,
         ),
       ),
     );
@@ -345,70 +242,6 @@ class _SettingsViewState extends State<SettingsView> {
               );
             },
           ),
-        ),
-      ],
-    );
-  }
-
-  /// 지원 카드 그리드
-  Widget _buildSupportGrid(BuildContext context) {
-    return Column(
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: _buildGridCard(
-                icon: Icons.help_outline,
-                title: "FAQ",
-                subtitle: "자주 묻는 질문",
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const FAQView()),
-                  );
-                },
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildGridCard(
-                icon: Icons.mail_outline,
-                title: "문의하기",
-                subtitle: "고객 지원",
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const ContactView(),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: _buildGridCard(
-                icon: Icons.report_problem_outlined,
-                title: "긴급 신고",
-                subtitle: "긴급 상황",
-                iconColor: const Color(0xFFFF6B6B), // 빨간색 포인트
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const EmergencyReportView(),
-                    ),
-                  );
-                },
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(child: Container()),
-          ],
         ),
       ],
     );
@@ -477,7 +310,7 @@ class _SettingsViewState extends State<SettingsView> {
     );
   }
 
-  /// 그리드 카드 위젯 - Liquid Glass 스타일
+  /// 그리드 카드 위젯 - Dark Minimal 스타일
   Widget _buildGridCard({
     required IconData icon,
     required String title,
@@ -485,98 +318,76 @@ class _SettingsViewState extends State<SettingsView> {
     required VoidCallback onTap,
     Color? iconColor,
   }) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-        child: GestureDetector(
-          onTap: onTap,
-          child: Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.05),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: Colors.white.withOpacity(0.1),
-                width: 1,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.05),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // 아이콘
+            Icon(
+              icon,
+              color: iconColor ?? const Color(0xFF4CAF50),
+              size: 32,
+            ),
+            const SizedBox(height: 12),
+            // 제목
+            Text(
+              title,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
               ),
+              textAlign: TextAlign.center,
             ),
-            child: Column(
-              children: [
-                // 아이콘
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: (iconColor ?? Colors.white).withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(icon, color: iconColor ?? Colors.white, size: 28),
-                ),
-                const SizedBox(height: 12),
-                // 제목
-                Text(
-                  title,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 4),
-                // 부제목
-                Text(
-                  subtitle,
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.5),
-                    fontSize: 12,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ],
+            const SizedBox(height: 4),
+            // 부제목
+            Text(
+              subtitle,
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.5),
+                fontSize: 12,
+              ),
+              textAlign: TextAlign.center,
             ),
-          ),
+          ],
         ),
       ),
     );
   }
 
-  /// 로그아웃 버튼 - Liquid Glass
+  /// 로그아웃 버튼 - Dark Minimal
   Widget _buildLogoutButton(BuildContext context, SettingsViewModel vm) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-        child: Container(
-          width: double.infinity,
-          height: 56,
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.05),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: Colors.white.withOpacity(0.2),
-              width: 1.5,
-            ),
-          ),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: () async {
-                final confirm = await _showLogoutDialog(context);
-                if (confirm == true) {
-                  await vm.logout(context);
-                }
-              },
-              borderRadius: BorderRadius.circular(16),
-              child: const Center(
-                child: Text(
-                  "로그아웃",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+    return Container(
+      width: double.infinity,
+      height: 52,
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () async {
+            final confirm = await _showLogoutDialog(context);
+            if (confirm == true) {
+              await vm.logout(context);
+            }
+          },
+          borderRadius: BorderRadius.circular(12),
+          child: const Center(
+            child: Text(
+              "로그아웃",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ),
@@ -620,68 +431,68 @@ class _SettingsViewState extends State<SettingsView> {
     );
   }
 
-  /// 로그아웃 확인 다이얼로그 - Liquid Glass 스타일
+  /// 로그아웃 확인 다이얼로그 - Dark Minimal 스타일
   Future<bool?> _showLogoutDialog(BuildContext context) {
     return showDialog<bool>(
       context: context,
-      builder:
-          (context) => BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-            child: AlertDialog(
-              backgroundColor: Colors.black.withOpacity(0.8),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-                side: BorderSide(
-                  color: Colors.white.withOpacity(0.2),
-                  width: 1,
-                ),
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF1A1F26),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: const Text(
+          "로그아웃",
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        content: Text(
+          "정말 로그아웃 하시겠습니까?",
+          style: TextStyle(
+            color: Colors.white.withOpacity(0.7),
+            fontSize: 15,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(
+              "취소",
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.6),
+                fontWeight: FontWeight.w600,
               ),
-              title: const Text("로그아웃", style: TextStyle(color: Colors.white)),
-              content: Text(
-                "정말 로그아웃 하시겠습니까?",
-                style: TextStyle(color: Colors.white.withOpacity(0.7)),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context, false),
-                  child: Text(
-                    "취소",
-                    style: TextStyle(color: Colors.white.withOpacity(0.7)),
-                  ),
-                ),
-                TextButton(
-                  onPressed: () => Navigator.pop(context, true),
-                  child: const Text(
-                    "로그아웃",
-                    style: TextStyle(color: Color(0xFFFF6B6B)),
-                  ),
-                ),
-              ],
             ),
           ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text(
+              "로그아웃",
+              style: TextStyle(
+                color: Color(0xFFFF6B6B),
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
-  /// 회원 탈퇴 확인 다이얼로그 - Liquid Glass 스타일
+  /// 회원 탈퇴 확인 다이얼로그 - Dark Minimal 스타일
   Future<bool?> _showDeleteAccountDialog(BuildContext context) async {
     return showDialog<bool>(
       context: context,
       barrierDismissible: false,
       builder: (dialogContext) {
         final controller = TextEditingController();
-        bool isDeleteEnabled = false;
 
-        return BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-          child: AlertDialog(
-            backgroundColor: Colors.black.withOpacity(0.9),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-              side: BorderSide(
-                color: const Color(0xFFFF6B6B).withOpacity(0.3),
-                width: 1.5,
-              ),
-            ),
+        return AlertDialog(
+          backgroundColor: const Color(0xFF1A1F26),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
             title: const Row(
               children: [
                 Icon(Icons.warning, color: Color(0xFFFF6B6B)),
@@ -695,12 +506,10 @@ class _SettingsViewState extends State<SettingsView> {
                 ),
               ],
             ),
-            content: StatefulBuilder(
-              builder: (context, setDialogState) {
-                return Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
                     const Text(
                       "정말로 탈퇴하시겠습니까?",
                       style: TextStyle(
@@ -741,34 +550,27 @@ class _SettingsViewState extends State<SettingsView> {
                         filled: true,
                         fillColor: Colors.white.withOpacity(0.05),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(
-                            color: Color(0xFFFF6B6B),
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(
+                            color: const Color(0xFFFF6B6B).withOpacity(0.5),
                           ),
                         ),
                         enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(10),
                           borderSide: BorderSide(
                             color: const Color(0xFFFF6B6B).withOpacity(0.5),
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(10),
                           borderSide: const BorderSide(
                             color: Color(0xFFFF6B6B),
                             width: 2,
                           ),
                         ),
                       ),
-                      onChanged: (value) {
-                        setDialogState(() {
-                          isDeleteEnabled = value == "DELETE";
-                        });
-                      },
                     ),
-                  ],
-                );
-              },
+              ],
             ),
             actions: [
               TextButton(
@@ -777,7 +579,10 @@ class _SettingsViewState extends State<SettingsView> {
                 },
                 child: Text(
                   "취소",
-                  style: TextStyle(color: Colors.white.withOpacity(0.7)),
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.6),
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
               ValueListenableBuilder<TextEditingValue>(
@@ -793,21 +598,20 @@ class _SettingsViewState extends State<SettingsView> {
                       backgroundColor: const Color(0xFFFF6B6B),
                       disabledBackgroundColor: Colors.white.withOpacity(0.1),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(10),
                       ),
                     ),
                     child: const Text(
                       "탈퇴하기",
                       style: TextStyle(
                         color: Colors.white,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   );
                 },
               ),
             ],
-          ),
         );
       },
     );

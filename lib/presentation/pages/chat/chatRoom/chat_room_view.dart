@@ -112,15 +112,17 @@ class _ChatRoomViewState extends State<ChatRoomView> {
       final driverId = rideData['driverId'] as String?;
       if (driverId != null && driverId.isNotEmpty) {
         try {
-          final driverDoc = await FirebaseFirestore.instance
-              .collection('drivers')
-              .doc(driverId)
-              .get();
+          final driverDoc =
+              await FirebaseFirestore.instance
+                  .collection('drivers')
+                  .doc(driverId)
+                  .get();
 
           if (driverDoc.exists) {
             final driverData = driverDoc.data();
             if (driverData != null) {
-              final driverName = driverData['name'] ??
+              final driverName =
+                  driverData['name'] ??
                   driverData['userName'] ??
                   driverData['displayName'] ??
                   '드라이버';
@@ -165,13 +167,16 @@ class _ChatRoomViewState extends State<ChatRoomView> {
         final luggageCount = data['luggageCount'] as int? ?? 0;
 
         if (kDebugMode) {
-          print('👤 참여자 데이터: uid=$uid, membersCount=$membersCount, luggageCount=$luggageCount');
+          print(
+            '👤 참여자 데이터: uid=$uid, membersCount=$membersCount, luggageCount=$luggageCount',
+          );
         }
 
         String name = '익명';
 
         // people 문서 자체에서 이름 찾기
-        name = data['name'] ??
+        name =
+            data['name'] ??
             data['userName'] ??
             data['displayName'] ??
             data['nickname'] ??
@@ -181,20 +186,22 @@ class _ChatRoomViewState extends State<ChatRoomView> {
         // uid가 있으면 users 컬렉션에서 이름 조회
         if (uid != null && uid.isNotEmpty && name == '익명') {
           try {
-            var userDoc = await FirebaseFirestore.instance
-                .collection('users')
-                .doc(uid)
-                .get();
+            var userDoc =
+                await FirebaseFirestore.instance
+                    .collection('users')
+                    .doc(uid)
+                    .get();
 
             if (userDoc.exists) {
               final userData = userDoc.data();
               if (userData != null) {
-                name = userData['name'] ??
+                name =
+                    userData['name'] ??
                     userData['userName'] ??
                     userData['displayName'] ??
                     userData['nickname'] ??
                     '익명';
-                
+
                 if (kDebugMode) {
                   print('✅ users 컬렉션에서 이름 찾음: $name');
                 }
@@ -225,7 +232,9 @@ class _ChatRoomViewState extends State<ChatRoomView> {
           if (p['isDriver'] == true) {
             print('  - ${p['name']} (드라이버)');
           } else {
-            print('  - ${p['name']}: ${p['membersCount']}명, 가방 ${p['bagCount']}개');
+            print(
+              '  - ${p['name']}: ${p['membersCount']}명, 가방 ${p['bagCount']}개',
+            );
           }
         }
       }
@@ -564,11 +573,13 @@ class _ChatRoomViewState extends State<ChatRoomView> {
                         }
 
                         // 승객 수 계산 (드라이버 제외)
-                        final passengerCount = participants
-                            .where((p) => p['isDriver'] != true)
-                            .length;
-                        final hasDriver = participants
-                            .any((p) => p['isDriver'] == true);
+                        final passengerCount =
+                            participants
+                                .where((p) => p['isDriver'] != true)
+                                .length;
+                        final hasDriver = participants.any(
+                          (p) => p['isDriver'] == true,
+                        );
 
                         return Container(
                           padding: const EdgeInsets.all(16),
@@ -606,10 +617,7 @@ class _ChatRoomViewState extends State<ChatRoomView> {
                                 ],
                               ),
                               const SizedBox(height: 12),
-                              const Divider(
-                                color: Colors.white12,
-                                height: 1,
-                              ),
+                              const Divider(color: Colors.white12, height: 1),
                               const SizedBox(height: 12),
                               ...participants.map((participant) {
                                 final name =
@@ -622,8 +630,9 @@ class _ChatRoomViewState extends State<ChatRoomView> {
                                     participant['isDriver'] as bool? ?? false;
 
                                 return Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 6),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 6,
+                                  ),
                                   child: Row(
                                     children: [
                                       Container(
@@ -633,8 +642,9 @@ class _ChatRoomViewState extends State<ChatRoomView> {
                                           color:
                                               isDriver
                                                   ? Colors.blue.withOpacity(0.2)
-                                                  : const Color(0xFF4CAF50)
-                                                      .withOpacity(0.2),
+                                                  : const Color(
+                                                    0xFF4CAF50,
+                                                  ).withOpacity(0.2),
                                           shape: BoxShape.circle,
                                         ),
                                         child: Center(
@@ -678,18 +688,17 @@ class _ChatRoomViewState extends State<ChatRoomView> {
                                                   const SizedBox(width: 6),
                                                   Container(
                                                     padding:
-                                                        const EdgeInsets
-                                                            .symmetric(
-                                                      horizontal: 6,
-                                                      vertical: 2,
-                                                    ),
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 6,
+                                                          vertical: 2,
+                                                        ),
                                                     decoration: BoxDecoration(
                                                       color: Colors.blue
                                                           .withOpacity(0.3),
                                                       borderRadius:
                                                           BorderRadius.circular(
-                                                        4,
-                                                      ),
+                                                            4,
+                                                          ),
                                                     ),
                                                     child: const Text(
                                                       '드라이버',
@@ -780,9 +789,7 @@ class _ChatRoomViewState extends State<ChatRoomView> {
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: const Text(
-                                      '라이드를 시작합니다.',
-                                    ),
+                                    content: const Text('라이드를 시작합니다.'),
                                     backgroundColor: const Color(0xFF4CAF50),
                                     behavior: SnackBarBehavior.floating,
                                   ),
@@ -884,9 +891,11 @@ class _ChatRoomViewState extends State<ChatRoomView> {
                             try {
                               final doc = await rideRequestRef.get();
                               final data = doc.data();
-                              final fromAddress = data?['fromAddress'] as String?;
+                              final fromAddress =
+                                  data?['fromAddress'] as String?;
                               final toAddress = data?['toAddress'] as String?;
-                              final status = data?['status'] as String? ?? 'pending';
+                              final status =
+                                  data?['status'] as String? ?? 'pending';
                               final useCurrentLocation =
                                   status.toLowerCase() == 'on progress';
 
@@ -894,13 +903,15 @@ class _ChatRoomViewState extends State<ChatRoomView> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => RideMapView(
-                                      fromAddress: fromAddress,
-                                      toAddress: toAddress,
-                                      fromName: fromName,
-                                      toName: toName,
-                                      useCurrentLocation: useCurrentLocation,
-                                    ),
+                                    builder:
+                                        (context) => RideMapView(
+                                          fromAddress: fromAddress,
+                                          toAddress: toAddress,
+                                          fromName: fromName,
+                                          toName: toName,
+                                          useCurrentLocation:
+                                              useCurrentLocation,
+                                        ),
                                   ),
                                 );
                               }
@@ -916,6 +927,164 @@ class _ChatRoomViewState extends State<ChatRoomView> {
                                 );
                               }
                             }
+                          },
+                        ),
+                        const SizedBox(height: 12),
+
+                        // ✅ 라이드 종료 버튼 추가
+                        _buildDrawerItem(
+                          context: context,
+                          icon: Icons.check_circle,
+                          title: '라이드 종료',
+                          color: const Color(0xFFFF9800),
+                          onTap: () async {
+                            Navigator.pop(context);
+
+                            // 확인 다이얼로그 표시
+                            await showDialog<bool>(
+                              context: context,
+                              builder:
+                                  (context) => AlertDialog(
+                                    backgroundColor: const Color(0xFF1A1F26),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                      side: BorderSide(
+                                        color: Colors.white.withOpacity(0.1),
+                                        width: 1,
+                                      ),
+                                    ),
+                                    title: const Row(
+                                      children: [
+                                        Icon(
+                                          Icons.warning_amber_rounded,
+                                          color: Color(0xFFFF9800),
+                                          size: 28,
+                                        ),
+                                        SizedBox(width: 12),
+                                        Text(
+                                          '라이드 종료',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    content: const Text(
+                                      '라이드를 종료하시겠습니까?\n\n모든 채팅 기록과 여정 정보가 삭제됩니다.\n이 작업은 되돌릴 수 없습니다.',
+                                      style: TextStyle(
+                                        color: Colors.white70,
+                                        fontSize: 14,
+                                        height: 1.5,
+                                      ),
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed:
+                                            () => Navigator.pop(context, false),
+                                        child: const Text(
+                                          '취소',
+                                          style: TextStyle(
+                                            color: Colors.white54,
+                                            fontSize: 15,
+                                          ),
+                                        ),
+                                      ),
+                                      ElevatedButton(
+                                        onPressed: () async {
+                                          // 다이얼로그 닫기
+
+                                          try {
+                                            final firestore =
+                                                FirebaseFirestore.instance;
+                                            final batch = firestore.batch();
+
+                                            // 1. Chats 서브컬렉션의 모든 문서 조회 및 삭제
+                                            final chatsSnapshot =
+                                                await rideRequestRef
+                                                    .collection('Chats')
+                                                    .get();
+
+                                            for (final doc
+                                                in chatsSnapshot.docs) {
+                                              batch.delete(doc.reference);
+                                            }
+
+                                            // 2. rideRequest 문서 삭제
+                                            batch.delete(rideRequestRef);
+
+                                            // 3. 일괄 실행
+                                            await batch.commit();
+
+                                            if (context.mounted) {
+                                              ScaffoldMessenger.of(
+                                                context,
+                                              ).showSnackBar(
+                                                const SnackBar(
+                                                  content: Text(
+                                                    '라이드가 종료되었습니다.',
+                                                  ),
+                                                  backgroundColor: Color(
+                                                    0xFFFF9800,
+                                                  ),
+                                                  behavior:
+                                                      SnackBarBehavior.floating,
+                                                ),
+                                              );
+
+                                              // 4. 메인 화면으로 이동 (모든 이전 화면 제거)
+                                              Navigator.pushNamedAndRemoveUntil(
+                                                context,
+                                                '/main',
+                                                (route) => false,
+                                              );
+                                            }
+                                          } catch (e) {
+                                            if (context.mounted) {
+                                              ScaffoldMessenger.of(
+                                                context,
+                                              ).showSnackBar(
+                                                SnackBar(
+                                                  content: Text(
+                                                    '라이드 종료 중 오류 발생: $e',
+                                                  ),
+                                                  backgroundColor: Colors.red,
+                                                  behavior:
+                                                      SnackBarBehavior.floating,
+                                                ),
+                                              );
+                                            }
+                                          }
+
+                                          Navigator.pushNamedAndRemoveUntil(
+                                            context,
+                                            '/main',
+                                            (route) => false,
+                                          );
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: const Color(
+                                            0xFFFF9800,
+                                          ),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                          ),
+                                        ),
+                                        child: const Text(
+                                          '종료',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                            );
                           },
                         ),
                       ],
@@ -1082,10 +1251,7 @@ class _ChatRoomViewState extends State<ChatRoomView> {
           decoration: BoxDecoration(
             color: const Color(0xFF0F1419),
             border: Border(
-              top: BorderSide(
-                color: Colors.white.withOpacity(0.1),
-                width: 1,
-              ),
+              top: BorderSide(color: Colors.white.withOpacity(0.1), width: 1),
             ),
           ),
           child: Row(
@@ -1096,9 +1262,7 @@ class _ChatRoomViewState extends State<ChatRoomView> {
                   style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
                     hintText: '메세지를 입력하세요',
-                    hintStyle: TextStyle(
-                      color: Colors.white.withOpacity(0.4),
-                    ),
+                    hintStyle: TextStyle(color: Colors.white.withOpacity(0.4)),
                     filled: true,
                     fillColor: Colors.white.withOpacity(0.05),
                     contentPadding: const EdgeInsets.symmetric(
@@ -1175,10 +1339,7 @@ class _ChatRoomViewState extends State<ChatRoomView> {
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.05),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: Colors.white.withOpacity(0.1),
-            width: 1,
-          ),
+          border: Border.all(color: Colors.white.withOpacity(0.1), width: 1),
         ),
         child: Row(
           children: [
