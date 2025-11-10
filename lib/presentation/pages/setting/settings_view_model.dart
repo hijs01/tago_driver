@@ -271,7 +271,7 @@ class SettingsViewModel extends ChangeNotifier {
       // 3. Firebase Auth 계정 삭제
       await user.delete();
     } catch (e) {
-      debugPrint("회원 탈퇴 중 오류: $e");
+      // debugPrint("회원 탈퇴 중 오류: $e");
       rethrow; // 에러를 다시 던져서 UI에서 처리할 수 있게
     }
   }

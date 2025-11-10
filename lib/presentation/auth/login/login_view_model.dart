@@ -34,7 +34,7 @@ class LoginViewModel extends ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
-      debugPrint("사용자 정보 로드 실패: $e");
+      // debugPrint("사용자 정보 로드 실패: $e");
     }
   }
 
@@ -96,7 +96,7 @@ class LoginViewModel extends ChangeNotifier {
 
       return LoginResult.ok(appUser);
     } on FirebaseAuthException catch (e) {
-      debugPrint("FirebaseAuthException: ${e.code} / ${e.message}");
+      // debugPrint("FirebaseAuthException: ${e.code} / ${e.message}");
 
       // Firebase 에러코드를 우리 쪽 LoginError로 매핑
       switch (e.code) {
@@ -110,7 +110,7 @@ class LoginViewModel extends ChangeNotifier {
           return LoginResult.fail(LoginError.unknown);
       }
     } catch (e) {
-      debugPrint("Unknown login error: $e");
+      // debugPrint("Unknown login error: $e");
       return LoginResult.fail(LoginError.unknown);
     } finally {
       isLoading = false;
@@ -123,19 +123,19 @@ class LoginViewModel extends ChangeNotifier {
   // ──────────────────────────────────────────────────────────────────────────
   Future<void> _saveFCMToken(String userId) async {
     try {
-      print('📱 로그인 성공 - FCM 토큰 저장 시작');
+      // print('📱 로그인 성공 - FCM 토큰 저장 시작');
       final notificationService = NotificationService();
       final token = await notificationService.getFCMToken(userId);
 
       if (token != null) {
         notificationService.listenToTokenRefresh(userId);
-        print('✅ 로그인: FCM 토큰 저장 완료');
+        // print('✅ 로그인: FCM 토큰 저장 완료');
       } else {
-        print('⚠️ 로그인: FCM 토큰이 null');
+        // print('⚠️ 로그인: FCM 토큰이 null');
       }
     } catch (e, stackTrace) {
-      print('❌ 로그인: FCM 토큰 저장 실패: $e');
-      print('스택 트레이스: $stackTrace');
+      // print('❌ 로그인: FCM 토큰 저장 실패: $e');
+      // print('스택 트레이스: $stackTrace');
       // 로그인은 성공했으므로 에러를 throw하지 않음
     }
   }

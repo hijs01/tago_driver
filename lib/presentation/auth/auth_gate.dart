@@ -60,7 +60,7 @@ class AuthGate extends StatelessWidget {
                 loginVm.setCurrentUser(appUser);
                 
                 // 자동 로그인 시에도 FCM 토큰 저장
-                print('🔄 자동 로그인 감지 - FCM 토큰 저장 시작');
+                // print('🔄 자동 로그인 감지 - FCM 토큰 저장 시작');
                 _saveFCMTokenOnAutoLogin(appUser.uid);
               }
             });
@@ -81,13 +81,13 @@ class AuthGate extends StatelessWidget {
       
       if (token != null) {
         notificationService.listenToTokenRefresh(userId);
-        print('✅ 자동 로그인: FCM 토큰 저장 완료');
+        // print('✅ 자동 로그인: FCM 토큰 저장 완료');
       } else {
-        print('⚠️ 자동 로그인: FCM 토큰이 null');
+        // print('⚠️ 자동 로그인: FCM 토큰이 null');
       }
     } catch (e, stackTrace) {
-      print('❌ 자동 로그인: FCM 토큰 저장 실패: $e');
-      print('스택 트레이스: $stackTrace');
+      // print('❌ 자동 로그인: FCM 토큰 저장 실패: $e');
+      // print('스택 트레이스: $stackTrace');
     }
   }
 }

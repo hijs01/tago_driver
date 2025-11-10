@@ -23,8 +23,8 @@ class DirectionsService {
       });
 
       final rawData = result.data;
-      debugPrint('🔍 DirectionsService - rawData 타입: ${rawData.runtimeType}');
-      debugPrint('🔍 DirectionsService - rawData 내용: $rawData');
+      // debugPrint('🔍 DirectionsService - rawData 타입: ${rawData.runtimeType}');
+      // debugPrint('🔍 DirectionsService - rawData 내용: $rawData');
 
       if (rawData == null) {
         throw StateError('Firebase Functions에서 null 응답을 받았습니다.');
@@ -34,16 +34,16 @@ class DirectionsService {
           rawData is Map
               ? Map<String, dynamic>.from(rawData.cast<String, dynamic>())
               : throw StateError(
-                '예상하지 못한 응답 형식: ${rawData.runtimeType} - $rawData',
+                  '예상하지 못한 응답 형식: ${rawData.runtimeType} - $rawData',
               );
 
-      debugPrint('🔍 DirectionsService - 변환된 data: $data');
-      debugPrint('🔍 DirectionsService - data keys: ${data.keys.toList()}');
-      debugPrint('🔍 DirectionsService - data[status]: ${data['status']}');
+      // debugPrint('🔍 DirectionsService - 변환된 data: $data');
+      // debugPrint('🔍 DirectionsService - data keys: ${data.keys.toList()}');
+      // debugPrint('🔍 DirectionsService - data[status]: ${data['status']}');
 
       final status = data['status'];
       if (status == null) {
-        debugPrint('⚠️ DirectionsService - status가 null입니다. 전체 응답: $data');
+        // debugPrint('⚠️ DirectionsService - status가 null입니다. 전체 응답: $data');
         if (data.containsKey('error')) {
           throw StateError('Directions API 오류: ${data['error']}');
         }

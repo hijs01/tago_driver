@@ -51,7 +51,7 @@ class SignUpViewModel extends ChangeNotifier {
 
       return LoginResult.ok(appUser);
     } on FirebaseAuthException catch (e) {
-      debugPrint("FirebaseAuthException: ${e.code} / ${e.message}");
+      // debugPrint("FirebaseAuthException: ${e.code} / ${e.message}");
       switch (e.code) {
         case 'weak-password':
           return LoginResult.fail(LoginError.weakPassword);
@@ -61,7 +61,7 @@ class SignUpViewModel extends ChangeNotifier {
           return LoginResult.fail(LoginError.unknown);
       }
     } catch (e) {
-      debugPrint("Unknown sign up error: $e");
+      // debugPrint("Unknown sign up error: $e");
       return LoginResult.fail(LoginError.unknown);
     } finally {
       isLoading = false;

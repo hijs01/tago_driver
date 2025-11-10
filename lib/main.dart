@@ -35,7 +35,7 @@ void main() async {
   // ✅ 최대 3번 재시도
   for (int attempt = 1; attempt <= 3; attempt++) {
     try {
-      debugPrint('🔍 Firebase Functions에서 Maps API 키 가져오기 시도 ($attempt/3)...');
+      // debugPrint('🔍 Firebase Functions에서 Maps API 키 가져오기 시도 ($attempt/3)...');
       final functions = FirebaseFunctions.instance;
       final callable = functions.httpsCallable('getMapsApiKey');
 
@@ -47,80 +47,80 @@ void main() async {
         },
       );
 
-      debugPrint('🔍 Firebase Functions 응답 타입: ${result.data.runtimeType}');
-      debugPrint('🔍 Firebase Functions 응답: ${result.data}');
+      // debugPrint('🔍 Firebase Functions 응답 타입: ${result.data.runtimeType}');
+      // debugPrint('🔍 Firebase Functions 응답: ${result.data}');
 
       final rawData = result.data;
       if (rawData is Map) {
         final data = Map<String, dynamic>.from(rawData.cast<String, dynamic>());
         final apiKey = data['apiKey'] as String?;
 
-        debugPrint(
-          '🔍 추출된 API 키: ${apiKey != null ? "${apiKey.substring(0, 10)}..." : "null"}',
-        );
+        // debugPrint(
+        //   '🔍 추출된 API 키: ${apiKey != null ? "${apiKey.substring(0, 10)}..." : "null"}',
+        // );
 
         if (apiKey != null && apiKey.isNotEmpty) {
           const platform = MethodChannel('com.tago/maps_api_key');
           try {
             await platform.invokeMethod('setApiKey', apiKey);
             apiKeySet = true;
-            debugPrint(
-              '✅ Google Maps API key 전달 완료 (Firebase Functions에서 가져옴)',
-            );
+            // debugPrint(
+            //   '✅ Google Maps API key 전달 완료 (Firebase Functions에서 가져옴)',
+            // );
             // ✅ iOS에서 GMSServices.provideAPIKey()가 완료될 시간을 확보
             // Google Maps SDK 초기화가 완료되도록 충분한 시간 대기
             await Future.delayed(const Duration(milliseconds: 1000));
             break; // 성공하면 재시도 루프 종료
           } catch (e) {
-            debugPrint('❌ Google Maps API key 전달 실패: $e');
+            // debugPrint('❌ Google Maps API key 전달 실패: $e');
             if (attempt < 3) {
-              debugPrint('🔄 재시도 중...');
+              // debugPrint('🔄 재시도 중...');
               await Future.delayed(Duration(milliseconds: 500 * attempt));
               continue;
             }
           }
         } else {
-          debugPrint(
-            '⚠️ Firebase Functions에서 API 키를 가져올 수 없습니다. (apiKey가 null이거나 비어있음)',
-          );
+          // debugPrint(
+          //   '⚠️ Firebase Functions에서 API 키를 가져올 수 없습니다. (apiKey가 null이거나 비어있음)',
+          // );
           if (attempt < 3) {
-            debugPrint('🔄 재시도 중...');
+            // debugPrint('🔄 재시도 중...');
             await Future.delayed(Duration(milliseconds: 500 * attempt));
             continue;
           }
         }
       } else {
-        debugPrint(
-          '⚠️ Firebase Functions 응답 형식이 예상과 다릅니다: ${rawData.runtimeType}',
-        );
+        // debugPrint(
+        //   '⚠️ Firebase Functions 응답 형식이 예상과 다릅니다: ${rawData.runtimeType}',
+        // );
         if (attempt < 3) {
-          debugPrint('🔄 재시도 중...');
+          // debugPrint('🔄 재시도 중...');
           await Future.delayed(Duration(milliseconds: 500 * attempt));
           continue;
         }
       }
     } on FirebaseFunctionsException catch (e) {
-      debugPrint(
-        '❌ Firebase Functions 예외 발생 ($attempt/3): ${e.code} - ${e.message}',
-      );
-      debugPrint('❌ 상세 정보: ${e.details}');
+      // debugPrint(
+      //   '❌ Firebase Functions 예외 발생 ($attempt/3): ${e.code} - ${e.message}',
+      // );
+      // debugPrint('❌ 상세 정보: ${e.details}');
       if (attempt < 3) {
-        debugPrint('🔄 재시도 중...');
+        // debugPrint('🔄 재시도 중...');
         await Future.delayed(Duration(milliseconds: 1000 * attempt));
         continue;
       }
     } on TimeoutException catch (e) {
-      debugPrint('❌ 타임아웃 발생 ($attempt/3): $e');
+      // debugPrint('❌ 타임아웃 발생 ($attempt/3): $e');
       if (attempt < 3) {
-        debugPrint('🔄 재시도 중...');
+        // debugPrint('🔄 재시도 중...');
         await Future.delayed(Duration(milliseconds: 1000 * attempt));
         continue;
       }
     } catch (e, stackTrace) {
-      debugPrint('❌ Firebase Functions에서 API 키 가져오기 실패 ($attempt/3): $e');
-      debugPrint('❌ 스택 트레이스: $stackTrace');
+      // debugPrint('❌ Firebase Functions에서 API 키 가져오기 실패 ($attempt/3): $e');
+      // debugPrint('❌ 스택 트레이스: $stackTrace');
       if (attempt < 3) {
-        debugPrint('🔄 재시도 중...');
+        // debugPrint('🔄 재시도 중...');
         await Future.delayed(Duration(milliseconds: 1000 * attempt));
         continue;
       }
@@ -128,11 +128,11 @@ void main() async {
   }
 
   if (!apiKeySet) {
-    debugPrint('⚠️ API 키가 설정되지 않았지만 앱을 계속 실행합니다.');
-    debugPrint('⚠️ 지도 기능이 작동하지 않을 수 있습니다.');
-    debugPrint(
-      '⚠️ Firebase Functions 배포 상태를 확인해주세요: firebase deploy --only functions',
-    );
+    // debugPrint('⚠️ API 키가 설정되지 않았지만 앱을 계속 실행합니다.');
+    // debugPrint('⚠️ 지도 기능이 작동하지 않을 수 있습니다.');
+    // debugPrint(
+    //   '⚠️ Firebase Functions 배포 상태를 확인해주세요: firebase deploy --only functions',
+    // );
   }
 
   // ✅ Status bar 설정을 앱 전체에 적용

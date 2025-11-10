@@ -88,7 +88,7 @@ class _ChatRoomViewState extends State<ChatRoomView> {
     } catch (e) {
       if (kDebugMode) {
         // ignore: avoid_print
-        print('ensureTranslation failed: $e');
+        // print('ensureTranslation failed: $e');
       }
       return null;
     }
@@ -135,13 +135,13 @@ class _ChatRoomViewState extends State<ChatRoomView> {
               });
 
               if (kDebugMode) {
-                print('🚗 드라이버 추가: $driverName');
+                // print('🚗 드라이버 추가: $driverName');
               }
             }
           }
         } catch (e) {
           if (kDebugMode) {
-            print('❌ 드라이버 조회 오류: $e');
+            // print('❌ 드라이버 조회 오류: $e');
           }
         }
       }
@@ -151,13 +151,13 @@ class _ChatRoomViewState extends State<ChatRoomView> {
 
       if (peopleSnapshot.docs.isEmpty) {
         if (kDebugMode) {
-          print('⚠️ people 컬렉션이 비어있습니다');
+          // print('⚠️ people 컬렉션이 비어있습니다');
         }
         return participants; // 드라이버만 있어도 반환
       }
 
       if (kDebugMode) {
-        print('👥 people 컬렉션에서 ${peopleSnapshot.docs.length}명 발견');
+        // print('👥 people 컬렉션에서 ${peopleSnapshot.docs.length}명 발견');
       }
 
       for (final doc in peopleSnapshot.docs) {
@@ -167,9 +167,9 @@ class _ChatRoomViewState extends State<ChatRoomView> {
         final luggageCount = data['luggageCount'] as int? ?? 0;
 
         if (kDebugMode) {
-          print(
-            '👤 참여자 데이터: uid=$uid, membersCount=$membersCount, luggageCount=$luggageCount',
-          );
+          // print(
+          //   '👤 참여자 데이터: uid=$uid, membersCount=$membersCount, luggageCount=$luggageCount',
+          // );
         }
 
         String name = '익명';
@@ -203,17 +203,17 @@ class _ChatRoomViewState extends State<ChatRoomView> {
                     '익명';
 
                 if (kDebugMode) {
-                  print('✅ users 컬렉션에서 이름 찾음: $name');
+                  // print('✅ users 컬렉션에서 이름 찾음: $name');
                 }
               }
             } else {
               if (kDebugMode) {
-                print('⚠️ users 컬렉션에 uid=$uid 문서가 없습니다');
+                // print('⚠️ users 컬렉션에 uid=$uid 문서가 없습니다');
               }
             }
           } catch (e) {
             if (kDebugMode) {
-              print('❌ users 조회 오류: $e');
+              // print('❌ users 조회 오류: $e');
             }
           }
         }
@@ -227,22 +227,22 @@ class _ChatRoomViewState extends State<ChatRoomView> {
       }
 
       if (kDebugMode) {
-        print('✅ 최종 참여자 목록: ${participants.length}명');
-        for (var p in participants) {
-          if (p['isDriver'] == true) {
-            print('  - ${p['name']} (드라이버)');
-          } else {
-            print(
-              '  - ${p['name']}: ${p['membersCount']}명, 가방 ${p['bagCount']}개',
-            );
-          }
-        }
+        // print('✅ 최종 참여자 목록: ${participants.length}명');
+        // for (var p in participants) {
+        //   if (p['isDriver'] == true) {
+        //     print('  - ${p['name']} (드라이버)');
+        //   } else {
+        //     print(
+        //       '  - ${p['name']}: ${p['membersCount']}명, 가방 ${p['bagCount']}개',
+        //     );
+        //   }
+        // }
       }
 
       return participants;
     } catch (e) {
       if (kDebugMode) {
-        print('❌ Error fetching participants: $e');
+        // print('❌ Error fetching participants: $e');
       }
       return [];
     }

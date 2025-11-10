@@ -13,8 +13,8 @@ class GeocodingService {
       final result = await callable.call(<String, dynamic>{'address': address});
 
       final rawData = result.data;
-      debugPrint('🔍 GeocodingService - rawData 타입: ${rawData.runtimeType}');
-      debugPrint('🔍 GeocodingService - rawData 내용: $rawData');
+      // debugPrint('🔍 GeocodingService - rawData 타입: ${rawData.runtimeType}');
+      // debugPrint('🔍 GeocodingService - rawData 내용: $rawData');
 
       if (rawData == null) {
         throw StateError('Firebase Functions에서 null 응답을 받았습니다.');
@@ -24,14 +24,14 @@ class GeocodingService {
           rawData is Map
               ? Map<String, dynamic>.from(rawData.cast<String, dynamic>())
               : throw StateError(
-                '예상하지 못한 응답 형식: ${rawData.runtimeType} - $rawData',
+                  '예상하지 못한 응답 형식: ${rawData.runtimeType} - $rawData',
               );
 
-      debugPrint('🔍 GeocodingService - 변환된 data: $data');
-      debugPrint('🔍 GeocodingService - data keys: ${data.keys.toList()}');
+      // debugPrint('🔍 GeocodingService - 변환된 data: $data');
+      // debugPrint('🔍 GeocodingService - data keys: ${data.keys.toList()}');
 
       if (data.containsKey('latitude') && data.containsKey('longitude')) {
-        debugPrint('✅ GeocodingService - 이미 변환된 데이터 형식입니다.');
+        // debugPrint('✅ GeocodingService - 이미 변환된 데이터 형식입니다.');
         return {
           'latitude': (data['latitude'] as num).toDouble(),
           'longitude': (data['longitude'] as num).toDouble(),
@@ -40,7 +40,7 @@ class GeocodingService {
 
       final status = data['status'];
       if (status == null) {
-        debugPrint('⚠️ GeocodingService - status가 null입니다. 전체 응답: $data');
+        // debugPrint('⚠️ GeocodingService - status가 null입니다. 전체 응답: $data');
         if (data.containsKey('error')) {
           throw StateError('Geocoding API 오류: ${data['error']}');
         }
