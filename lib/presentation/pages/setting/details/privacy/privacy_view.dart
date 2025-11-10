@@ -2,18 +2,18 @@ import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'package:tago_driver/presentation/common/appScaffold.dart';
 
-/// 개인정보 처리방침 화면
+/// Privacy Policy Screen
 ///
-/// 기능:
-/// 1. 개인정보 처리방침 전체 텍스트 표시
-/// 2. 섹션별 구분
-/// 3. 스크롤 가능
+/// Features:
+/// 1. Display full privacy policy text
+/// 2. Section-by-section organization
+/// 3. Scrollable
 ///
-/// 특징:
-/// - 정적 콘텐츠 (ViewModel 불필요)
-/// - 읽기 전용
+/// Characteristics:
+/// - Static content (no ViewModel needed)
+/// - Read-only
 ///
-/// 사용 위치: settings_view.dart의 "개인정보 처리방침"
+/// Usage: "Privacy Policy" in settings_view.dart
 class PrivacyView extends StatelessWidget {
   const PrivacyView({super.key});
 
@@ -27,7 +27,7 @@ class PrivacyView extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
-          "개인정보 처리방침",
+          "Privacy Policy",
           style: TextStyle(color: Colors.white, fontSize: 20),
         ),
       ),
@@ -36,7 +36,7 @@ class PrivacyView extends StatelessWidget {
     );
   }
 
-  /// 개인정보 처리방침 콘텐츠
+  /// Privacy Policy Content
   Widget _buildPrivacyContent() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -50,131 +50,202 @@ class PrivacyView extends StatelessWidget {
         const SizedBox(height: 32),
 
         _buildSection(
-          title: "1. 개인정보의 수집 및 이용 목적",
+          title: "TAGO Airport Shuttle Driver Privacy Policy",
           content:
-              "TAGO(이하 '회사')는 다음의 목적을 위하여 개인정보를 처리합니다:\n\n"
-              "• 회원 가입 및 관리\n"
-              "• 서비스 제공 및 개선\n"
-              "• 라이드 예약 및 매칭\n"
-              "• 결제 및 정산\n"
-              "• 고객 지원 및 문의 응대\n"
-              "• 마케팅 및 이벤트 정보 제공 (동의 시)",
+              "This Privacy Notice for People Link One (\"we,\" \"us,\" or \"our\") describes how and why we might access, collect, store, use, and/or share (\"process\") your personal information when you use our services (\"Services\"), including when you:\n\n"
+              "• Download and use our mobile application (TAGO Airport Shuttle Driver) or any other application of ours that links to this Privacy Notice.\n"
+              "• Engage with us in other related ways, including any sales, marketing, or events.",
         ),
 
         const SizedBox(height: 24),
 
         _buildSection(
-          title: "2. 수집하는 개인정보 항목",
+          title: "USE TAGO AIRPORT SHUTTLE DRIVER",
           content:
-              "회사는 다음의 개인정보를 수집합니다:\n\n"
-              "【필수 정보】\n"
-              "• 이름\n"
-              "• 이메일 주소\n"
-              "• 전화번호 (서비스 제공 시)\n"
-              "• 학교 정보\n\n"
-              "【선택 정보】\n"
-              "• 프로필 사진\n\n"
-              "【자동 수집 정보】\n"
-              "• 서비스 이용 기록\n"
-              "• 접속 로그\n"
-              "• 기기 정보\n"
-              "• 위치 정보 (서비스 이용 시)",
+              "App purpose\n"
+              "Tago Driver is the driver-only companion to the main Tago (Passenger) App. Passengers create ride requests in the main Tago app; drivers use Tago Driver to receive, manage, and complete those ride requests. It is not for passengers. Drivers use this app to: receive ride requests created in the Tago User App; view pickup and destination details on an interactive map; accept or decline assigned rides; communicate with passengers in real time via chat; and receive push notifications for new rides and messages. Because this app functions as part of the two-app ecosystem (User App + Driver App), a test driver account is required to access all features.\n\n"
+              "Location permission explanation\n"
+              "The app asks for location permission on first map use.\n"
+              "Info.plist keys: NSLocationWhenInUseUsageDescription; NSLocationAlwaysAndWhenInUseUsageDescription.\n"
+              "Reason: (1) show the driver's current position on Google Maps, (2) display the route from pickup to destination, and (3) assist the driver in navigating to the passenger.\n"
+              "Behavior: Location is used only while the driver is actively using the app and viewing a ride. No background tracking outside ride sessions. Purpose string: \"Location information is required to display your current location and show routes on the map.\"\n\n"
+              "Notifications (push)\n"
+              "Uses Firebase Cloud Messaging / APNs to send: new ride request notifications (triggered when a passenger creates a ride in the User App); new chat message notifications; ride status updates. Notifications are essential for timely driver responses and can be disabled in iOS Settings.\n\n"
+              "Network / backend dependencies\n"
+              "Uses Firebase (Authentication, Firestore, Cloud Messaging). Uses Google Maps SDK / Directions API for route display. Requires an active internet connection (Wi-Fi or cellular). If offline, real-time features such as ride requests, chat, and maps will not function.\n\n"
+              "Third-party services used\n"
+              "Firebase Authentication: driver login (email/password or Google).\n"
+              "Firebase Firestore: ride requests, statuses, chats (shared with the User App).\n"
+              "Firebase Cloud Messaging: push notifications.\n"
+              "Google Maps SDK: map display and route visualization.\n"
+              "Geolocator / CoreLocation: GPS location access.\n"
+              "All network traffic is encrypted via HTTPS.\n\n"
+              "Data and privacy\n"
+              "Data collected: driver's name, email, and device token for notifications.\n"
+              "Location: used only for in-app map rendering and navigation during rides.\n"
+              "All data is securely stored in Firebase Firestore (with strict Firestore rules).\n"
+              "Privacy Policy and Terms are accessible in-app and via the App Store listing.",
         ),
 
         const SizedBox(height: 24),
 
         _buildSection(
-          title: "3. 개인정보의 보유 및 이용 기간",
+          title: "QUESTIONS OR CONCERNS",
           content:
-              "회사는 법령에 따른 개인정보 보유·이용기간 또는 정보주체로부터 "
-              "개인정보를 수집 시에 동의받은 개인정보 보유·이용기간 내에서 "
-              "개인정보를 처리·보유합니다.\n\n"
-              "• 회원 탈퇴 시: 즉시 파기\n"
-              "• 단, 관계 법령에 따라 보존할 필요가 있는 경우 해당 기간 동안 보관:\n"
-              "  - 계약 또는 청약철회 등에 관한 기록: 5년\n"
-              "  - 대금결제 및 재화 등의 공급에 관한 기록: 5년\n"
-              "  - 소비자 불만 또는 분쟁처리에 관한 기록: 3년",
+              "Reading this Privacy Notice will help you understand your privacy rights and choices. If you do not agree with our policies and practices, please do not use our Services. Questions or concerns: ploride.dev@gmail.com.",
         ),
 
         const SizedBox(height: 24),
 
         _buildSection(
-          title: "4. 개인정보의 제3자 제공",
+          title: "SUMMARY OF KEY POINTS",
           content:
-              "회사는 원칙적으로 이용자의 개인정보를 외부에 제공하지 않습니다. "
-              "다만, 아래의 경우는 예외로 합니다:\n\n"
-              "• 이용자가 사전에 동의한 경우\n"
-              "• 서비스 제공을 위해 필요한 경우 (택시 기사에게 예약 정보 제공)\n"
-              "• 법령의 규정에 의거하거나, 수사 목적으로 법령에 정해진 절차와 방법에 따라 "
-              "수사기관의 요구가 있는 경우",
+              "What personal information do we process? We may process personal information depending on how you interact with us and the Services, the choices you make, and the products and features you use.\n\n"
+              "Do we process sensitive personal information? We do not process sensitive personal information.\n\n"
+              "Do we collect information from third parties? We do not collect any information from third parties.\n\n"
+              "How do we process your information? We process information to provide, improve, and administer our Services, communicate with you, for security and fraud prevention, and to comply with law. We also process information for other purposes with your consent and only when we have a valid legal reason.\n\n"
+              "When and with whom do we share personal information? We may share information in specific situations and with specific third parties.\n\n"
+              "How do we keep your information safe? We use organizational and technical safeguards, but no system is 100% secure.\n\n"
+              "What are your rights? Depending on where you live, you may have rights regarding your personal information.\n\n"
+              "How do you exercise your rights? Submit a data subject access request or contact us; we will act in accordance with applicable laws.",
         ),
 
         const SizedBox(height: 24),
 
         _buildSection(
-          title: "5. 개인정보 처리의 위탁",
+          title: "WHAT INFORMATION DO WE COLLECT?",
           content:
-              "회사는 서비스 향상을 위해 아래와 같이 개인정보 처리업무를 외부에 위탁하고 있습니다:\n\n"
-              "【위탁업체】\n"
-              "• 결제 서비스: Stripe, PayPal\n"
-              "• 클라우드 서비스: Firebase (Google)\n"
-              "• 고객 지원: Zendesk\n\n"
-              "회사는 위탁계약 체결 시 개인정보 보호법에 따라 위탁업무 수행목적 외 "
-              "개인정보 처리금지, 기술적·관리적 보호조치, 재위탁 제한 등을 규정하고 있습니다.",
+              "Personal information you disclose to us: We collect personal information that you provide when you register on the Services, express interest in information about us or our products and Services, participate in activities on the Services, or otherwise contact us.\n\n"
+              "Personal information provided by you: may include names and email addresses.\n\n"
+              "Sensitive information: We do not process sensitive information.\n\n"
+              "Social media login data: If you register using a social media account (e.g., Facebook, X), we will receive certain profile information from the provider as described under \"How do we handle your social logins?\"\n\n"
+              "Application data:\n"
+              "• Geolocation information: we may request access to track location while you use the app to provide location-based services. You can change permissions in device settings.\n"
+              "• Push notifications: we may send notifications related to your account and app features. You can opt out in device settings.\n\n"
+              "Google API: Our use of information received from Google APIs adheres to the Google API Services User Data Policy, including Limited Use requirements.",
         ),
 
         const SizedBox(height: 24),
 
         _buildSection(
-          title: "6. 정보주체의 권리·의무 및 행사 방법",
+          title: "HOW DO WE PROCESS YOUR INFORMATION?",
           content:
-              "이용자는 다음과 같은 권리를 행사할 수 있습니다:\n\n"
-              "• 개인정보 열람 요구\n"
-              "• 오류 등이 있을 경우 정정 요구\n"
-              "• 삭제 요구\n"
-              "• 처리 정지 요구\n\n"
-              "권리 행사는 '설정 > 프로필 수정' 또는 '문의하기'를 통해 가능합니다.",
+              "We process personal information to provide, improve, and administer our Services; communicate with you; for security and fraud prevention; and to comply with law. Examples:\n\n"
+              "• To facilitate account creation, authentication, and user account management.\n"
+              "• To enable user-to-user communications when you use features that allow communication with another user.",
         ),
 
         const SizedBox(height: 24),
 
         _buildSection(
-          title: "7. 개인정보의 파기",
+          title: "WHEN AND WITH WHOM DO WE SHARE YOUR PERSONAL INFORMATION?",
           content:
-              "회사는 개인정보 보유기간의 경과, 처리목적 달성 등 개인정보가 불필요하게 되었을 때에는 "
-              "지체없이 해당 개인정보를 파기합니다.\n\n"
-              "【파기 절차】\n"
-              "이용자가 입력한 정보는 목적 달성 후 별도의 DB에 옮겨져 내부 방침 및 관련 법령에 따라 "
-              "일정기간 저장된 후 파기됩니다.\n\n"
-              "【파기 방법】\n"
-              "• 전자적 파일: 복구 및 재생되지 않도록 기술적 방법으로 완전 삭제\n"
-              "• 종이 문서: 분쇄하거나 소각",
+              "We may share information in specific situations, including:\n\n"
+              "• Business transfers: in connection with merger, sale of assets, financing, or acquisition.\n\n"
+              "Google Maps Platform APIs: when we use Google Maps (e.g., Maps API, Places API), Google may estimate your location using GPS, Wi-Fi, and cell towers. GPS is about 20 meters accurate; Wi-Fi/cell towers improve accuracy indoors. This data helps provide directions but is not always perfectly precise.",
         ),
 
         const SizedBox(height: 24),
 
         _buildSection(
-          title: "8. 개인정보 보호책임자",
+          title: "DO WE USE COOKIES AND OTHER TRACKING TECHNOLOGIES?",
           content:
-              "회사는 개인정보 처리에 관한 업무를 총괄해서 책임지고, "
-              "개인정보 처리와 관련한 정보주체의 불만처리 및 피해구제 등을 위하여 "
-              "아래와 같이 개인정보 보호책임자를 지정하고 있습니다:\n\n"
-              "【개인정보 보호책임자】\n"
-              "• 이름: TAGO 개인정보 보호팀\n"
-              "• 이메일: privacy@tagoapp.com\n\n"
-              "기타 개인정보침해에 대한 신고나 상담이 필요한 경우 아래 기관에 문의하실 수 있습니다:\n"
-              "• 개인정보침해신고센터: privacy.kisa.or.kr (국번없이 118)\n"
-              "• 개인정보분쟁조정위원회: kopico.go.kr (1833-6972)",
+              "We may use cookies and similar tracking technologies (web beacons, pixels) to collect information when you interact with our Services, maintain security, prevent crashes, fix bugs, save preferences, and support basic site functions. Third parties may use tracking technologies on our Services for analytics and advertising, to manage or display ads tailored to your interests, or to send reminders depending on your preferences. To the extent these are considered \"sale\" or \"sharing\" under applicable US state laws, you can opt out by submitting a request as described under US state privacy rights. Details on refusing certain cookies are set out in our Cookie Notice.",
         ),
 
         const SizedBox(height: 24),
 
         _buildSection(
-          title: "9. 개인정보 처리방침의 변경",
+          title: "HOW DO WE HANDLE YOUR SOCIAL LOGINS?",
           content:
-              "이 개인정보 처리방침은 2025년 1월 1일부터 적용됩니다.\n\n"
-              "법령, 정책 또는 보안기술의 변경에 따라 내용의 추가·삭제 및 수정이 있을 시에는 "
-              "변경 최소 7일 전부터 앱 내 공지사항을 통해 고지할 것입니다.",
+              "If you register or log in via a third-party social media account, we receive profile information about you from that provider (typically your name, email address, friends list, profile picture, and any information you make public). We use that information only for the purposes described in this Notice or otherwise made clear to you. We are not responsible for other uses of your information by the social media provider; review their privacy notice to understand their practices and controls.",
+        ),
+
+        const SizedBox(height: 24),
+
+        _buildSection(
+          title: "HOW LONG DO WE KEEP YOUR INFORMATION?",
+          content:
+              "We keep personal information only as long as necessary for the purposes set out in this Notice or as required/permitted by law (e.g., tax, accounting). When there is no ongoing legitimate business need to process it, we delete or anonymize it, or if not possible (e.g., backups) we securely store and isolate it until deletion is possible.",
+        ),
+
+        const SizedBox(height: 24),
+
+        _buildSection(
+          title: "HOW DO WE KEEP YOUR INFORMATION SAFE?",
+          content:
+              "We implement appropriate technical and organizational measures to protect personal information. However, no transmission or storage technology is 100% secure. Transmission of personal information to and from our Services is at your own risk. Access the Services within a secure environment.",
+        ),
+
+        const SizedBox(height: 24),
+
+        _buildSection(
+          title: "DO WE COLLECT INFORMATION FROM MINORS?",
+          content:
+              "We do not knowingly collect data from or market to children under 18 years of age, nor do we knowingly sell such personal information. By using the Services, you represent that you are at least 18, or that you are the parent or guardian of a minor who is using the Services with your consent. If we learn that personal information from users under 18 has been collected, we will deactivate the account and take reasonable measures to promptly delete the data. If you become aware of any data we may have collected from children under 18, contact ploride.dev@gmail.com.",
+        ),
+
+        const SizedBox(height: 24),
+
+        _buildSection(
+          title: "WHAT ARE YOUR PRIVACY RIGHTS?",
+          content:
+              "You may review, change, or terminate your account at any time, depending on your country, province, or state of residence.\n\n"
+              "Withdrawing your consent: If we rely on consent (express or implied, depending on applicable law), you may withdraw it at any time by contacting us using the details in \"How can you contact us about this notice?\"\n\n"
+              "Account information: To review or change information in your account or terminate your account, log into your account settings and update your user account. Upon your termination request, we will deactivate or delete your account and information from our active databases. We may retain some information to prevent fraud, troubleshoot problems, assist investigations, enforce legal terms, and/or comply with legal requirements.",
+        ),
+
+        const SizedBox(height: 24),
+
+        _buildSection(
+          title: "DO UNITED STATES RESIDENTS HAVE SPECIFIC PRIVACY RIGHTS?",
+          content:
+              "If you are a resident of California, Colorado, Connecticut, Delaware, Florida, Indiana, Iowa, Kentucky, Maryland, Minnesota, Montana, Nebraska, New Hampshire, New Jersey, Oregon, Rhode Island, Tennessee, Texas, Utah, or Virginia, you may have rights to request access to and details about the personal information we maintain about you and how we processed it, correct inaccuracies, obtain a copy of it, or delete it. You may also have the right to withdraw consent where applicable. Rights may be limited in some circumstances by law.\n\n"
+              "Categories of personal information we collect (past 12 months):\n"
+              "A. Identifiers: COLLECTED – YES\n"
+              "B. Personal information as defined in the California Customer Records statute: COLLECTED – YES\n"
+              "C. Protected classification characteristics: COLLECTED – NO\n"
+              "D. Commercial information: COLLECTED – NO\n"
+              "E. Biometric information: COLLECTED – NO\n"
+              "F. Internet or other similar network activity: COLLECTED – NO\n"
+              "G. Geolocation data: COLLECTED – YES\n"
+              "H. Audio, electronic, sensory, or similar information: COLLECTED – NO\n"
+              "I. Professional or employment-related information: COLLECTED – NO\n"
+              "J. Education information: COLLECTED – NO\n"
+              "K. Inferences drawn from collected personal information: COLLECTED – NO\n"
+              "L. Sensitive personal information: COLLECTED – NO\n\n"
+              "Your rights under certain US state laws include:\n"
+              "• Right to know whether we are processing your personal data\n"
+              "• Right to access your personal data\n"
+              "• Right to correct inaccuracies\n"
+              "• Right to request deletion\n"
+              "• Right to obtain a copy of personal data you previously shared with us\n"
+              "• Right to non-discrimination for exercising your rights\n"
+              "• Right to opt out of processing for targeted advertising\n\n"
+              "How to exercise your rights: submit a data subject access request, email ploride.dev@gmail.com, or use the contact details at the bottom of this document.",
+        ),
+
+        const SizedBox(height: 24),
+
+        _buildSection(
+          title: "DO WE MAKE UPDATES TO THIS NOTICE?",
+          content:
+              "Yes. We will update this notice as necessary to stay compliant with relevant laws. The updated version will be indicated by the updated \"Revised\" date at the top. If we make material changes, we may notify you by prominently posting a notice of such changes or by sending a notification. Review this Notice frequently to stay informed about how we protect your information.",
+        ),
+
+        const SizedBox(height: 24),
+
+        _buildSection(
+          title: "HOW CAN YOU CONTACT US ABOUT THIS NOTICE?",
+          content: "Email: ploride.dev@gmail.com",
+        ),
+
+        const SizedBox(height: 24),
+
+        _buildSection(
+          title: "HOW CAN YOU REVIEW, UPDATE, OR DELETE THE DATA WE COLLECT FROM YOU?",
+          content:
+              "You may request access to the personal information we collect from you, details about how we processed it, corrections of inaccuracies, or deletion of your personal information. You may also have the right to withdraw consent to our processing, subject to applicable law. To review, update, or delete your personal information, submit a data subject access request.",
         ),
 
         const SizedBox(height: 40),
@@ -211,7 +282,7 @@ class PrivacyView extends StatelessWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  "TAGO는 이용자의 개인정보를 소중히 다루며,\n관련 법령을 준수합니다.",
+                  "TAGO values your privacy and complies with all relevant laws and regulations.",
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.7),
                     fontSize: 14,
@@ -230,7 +301,7 @@ class PrivacyView extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(left: 4),
       child: Text(
-        "최종 업데이트: 2025년 1월 1일",
+        "Last updated: November 10, 2025",
         style: TextStyle(
           color: Colors.white.withOpacity(0.6),
           fontSize: 13,
@@ -308,7 +379,7 @@ class PrivacyView extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   const Text(
-                    "개인정보 관련 문의",
+                    "Privacy Inquiries",
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 16,
@@ -319,7 +390,7 @@ class PrivacyView extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                "개인정보 처리방침에 대한 문의:\nprivacy@tagoapp.com",
+                "Questions about this Privacy Policy:\nploride.dev@gmail.com",
                 style: TextStyle(
                   color: Colors.white.withOpacity(0.7),
                   fontSize: 14,

@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:tago_driver/presentation/auth/login/login_view_model.dart';
 import 'package:tago_driver/presentation/auth/signUp/signUp_view.dart';
 import 'package:tago_driver/presentation/auth/signUp/signUp_view_model.dart';
+import 'package:tago_driver/presentation/auth/signUp/privacy_agreement_view.dart';
 import 'package:tago_driver/presentation/pages/chat/chatRoom/chat_room_view.dart';
 import 'package:tago_driver/presentation/pages/home/home_view.dart';
 import 'package:tago_driver/presentation/auth/login/login_view.dart';
@@ -179,7 +180,8 @@ class TagoDriverApp extends StatelessWidget {
         '/login': (_) => const LoginScreen(),
         '/main': (_) => const MainView(),
         '/home': (_) => const HomeView(),
-        '/signup': (_) => const SignUpView(),
+        '/signup': (_) => const PrivacyAgreementView(),
+        '/signup/form': (_) => const SignUpView(),
         '/chatRoom': (_) => const ChatRoomView(),
       },
     );
