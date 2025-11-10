@@ -111,7 +111,12 @@ class _RideMapViewState extends State<RideMapView> {
         final originCoords = await GeocodingService.geocodeAddress(
           widget.fromAddress!,
         );
-        origin = LatLng(originCoords['latitude']!, originCoords['longitude']!);
+        final originLat = originCoords['latitude'];
+        final originLng = originCoords['longitude'];
+        if (originLat == null || originLng == null) {
+          throw StateError('출발지 주소를 좌표로 변환할 수 없습니다: ${widget.fromAddress}');
+        }
+        origin = LatLng(originLat, originLng);
       } else {
         throw StateError('출발지 정보가 없습니다. 위치 권한을 확인해주세요.');
       }
@@ -121,10 +126,12 @@ class _RideMapViewState extends State<RideMapView> {
       final destCoords = await GeocodingService.geocodeAddress(
         widget.toAddress!,
       );
-      _destinationLatLng = LatLng(
-        destCoords['latitude']!,
-        destCoords['longitude']!,
-      );
+      final destLat = destCoords['latitude'];
+      final destLng = destCoords['longitude'];
+      if (destLat == null || destLng == null) {
+        throw StateError('목적지 주소를 좌표로 변환할 수 없습니다: ${widget.toAddress}');
+      }
+      _destinationLatLng = LatLng(destLat, destLng);
       _originLatLng = origin;
 
       debugPrint('✅ 출발지: $_originLatLng, 목적지: $_destinationLatLng');
@@ -215,35 +222,44 @@ class _RideMapViewState extends State<RideMapView> {
   Future<void> _fitBounds() async {
     if (_originLatLng == null ||
         _destinationLatLng == null ||
-        _mapController == null)
+        _mapController == null ||
+        !mounted) {
       return;
+    }
 
-    double minLat =
-        _originLatLng!.latitude < _destinationLatLng!.latitude
-            ? _originLatLng!.latitude
-            : _destinationLatLng!.latitude;
-    double maxLat =
-        _originLatLng!.latitude > _destinationLatLng!.latitude
-            ? _originLatLng!.latitude
-            : _destinationLatLng!.latitude;
-    double minLng =
-        _originLatLng!.longitude < _destinationLatLng!.longitude
-            ? _originLatLng!.longitude
-            : _destinationLatLng!.longitude;
-    double maxLng =
-        _originLatLng!.longitude > _destinationLatLng!.longitude
-            ? _originLatLng!.longitude
-            : _destinationLatLng!.longitude;
+    try {
+      double minLat =
+          _originLatLng!.latitude < _destinationLatLng!.latitude
+              ? _originLatLng!.latitude
+              : _destinationLatLng!.latitude;
+      double maxLat =
+          _originLatLng!.latitude > _destinationLatLng!.latitude
+              ? _originLatLng!.latitude
+              : _destinationLatLng!.latitude;
+      double minLng =
+          _originLatLng!.longitude < _destinationLatLng!.longitude
+              ? _originLatLng!.longitude
+              : _destinationLatLng!.longitude;
+      double maxLng =
+          _originLatLng!.longitude > _destinationLatLng!.longitude
+              ? _originLatLng!.longitude
+              : _destinationLatLng!.longitude;
 
-    await _mapController!.animateCamera(
-      CameraUpdate.newLatLngBounds(
-        LatLngBounds(
-          southwest: LatLng(minLat - 0.01, minLng - 0.01),
-          northeast: LatLng(maxLat + 0.01, maxLng + 0.01),
-        ),
-        100.0,
-      ),
-    );
+      if (mounted && _mapController != null) {
+        await _mapController!.animateCamera(
+          CameraUpdate.newLatLngBounds(
+            LatLngBounds(
+              southwest: LatLng(minLat - 0.01, minLng - 0.01),
+              northeast: LatLng(maxLat + 0.01, maxLng + 0.01),
+            ),
+            100.0,
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('❌ 카메라 조정 실패: $e');
+      // 에러가 발생해도 앱이 크래시되지 않도록 처리
+    }
   }
 
   // 현재 위치 가져오기
@@ -371,8 +387,8 @@ class _RideMapViewState extends State<RideMapView> {
                 _mapController = controller;
                 debugPrint('✅ 지도 생성 완료');
 
-                // 경로가 있으면 카메라 조정
-                if (_originLatLng != null && _destinationLatLng != null) {
+                // 경로가 있으면 카메라 조정 (안전하게 처리)
+                if (mounted && _originLatLng != null && _destinationLatLng != null) {
                   _fitBounds();
                 }
               },

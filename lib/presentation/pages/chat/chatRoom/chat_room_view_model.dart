@@ -37,13 +37,11 @@ class ChatViewModel extends ChangeNotifier {
 
     await messagesRef.add({
       ...msg.toMap(),
-      'timestamp': FieldValue.serverTimestamp(),
     });
 
     await rideRequestRef.set(
       {
         'lastMessage': text.trim(),
-        'lastTimestamp': FieldValue.serverTimestamp(),
       },
       SetOptions(merge: true),
     );
