@@ -26,6 +26,7 @@ class _ChatRoomViewState extends State<ChatRoomView> {
   final Map<String, String> _translatedCache = {};
   late final TranslationService _translationService;
   final Set<String> _showOriginal = {};
+  bool _hasInitializedDriverJoinNotice = false; // ✅ 한 번만 실행되도록 플래그 추가
 
   @override
   void initState() {
@@ -1104,12 +1105,18 @@ class _ChatRoomViewState extends State<ChatRoomView> {
             Expanded(
               child: Consumer<ChatViewModel>(
                 builder: (context, vm, _) {
-                  // 🔹 채팅방에 들어올 때 시스템 안내가 없으면 한 번 생성
-                  vm.ensureDriverJoinNoticeSent(
-                    driverName: myName,
-                    fareText: '앱에 표시된 금액', // TODO: 실제 요금 문자열로 바꾸기
-                    tipText: '자유롭게 주시면 됩니다', // TODO: 정책에 맞게 바꾸기
-                  );
+                  // ✅ 한 번만 실행되도록 수정 (build 메서드에서 side-effect 제거)
+                  if (!_hasInitializedDriverJoinNotice) {
+                    _hasInitializedDriverJoinNotice = true;
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      vm.ensureDriverJoinNoticeSent(
+                        driverName: myName,
+                        fareText: '앱에 표시된 금액', // TODO: 실제 요금 문자열로 바꾸기
+                        tipText: '자유롭게 주시면 됩니다', // TODO: 정책에 맞게 바꾸기
+                      );
+                    });
+                  }
+                  
                   return StreamBuilder<List<ChatMessage>>(
                     stream: vm.messagesStream,
                     builder: (context, snapshot) {
