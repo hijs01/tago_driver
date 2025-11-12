@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tago_driver/data/models/login_data.dart';
 import 'package:tago_driver/presentation/auth/login/login_view_model.dart';
+import 'package:tago_driver/l10n/app_localizations.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -45,6 +46,7 @@ class _LoginScreenState extends State<LoginScreen>
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<LoginViewModel>();
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       body: AnimatedBuilder(
@@ -151,7 +153,7 @@ class _LoginScreenState extends State<LoginScreen>
                             ),
                             SizedBox(height: 12),
                             Text(
-                              "택시 탑승자를 찾아보세요",
+                              l10n.loginSubtitle,
                               style: TextStyle(
                                 fontSize: 16,
                                 color: Colors.white60,
@@ -191,8 +193,8 @@ class _LoginScreenState extends State<LoginScreen>
                                 children: [
                                   // 이메일 입력
                                   _buildGlassInput(
-                                    label: "이메일",
-                                    hint: "you@psu.edu",
+                                    label: l10n.emailLabel,
+                                    hint: l10n.emailHint,
                                     controller: emailCtrl,
                                     keyboardType: TextInputType.emailAddress,
                                     icon: Icons.email_outlined,
@@ -201,8 +203,8 @@ class _LoginScreenState extends State<LoginScreen>
 
                                   // 비밀번호 입력
                                   _buildGlassInput(
-                                    label: "비밀번호",
-                                    hint: "••••••••",
+                                    label: l10n.passwordLabel,
+                                    hint: l10n.passwordHint,
                                     controller: pwCtrl,
                                     obscure: true,
                                     icon: Icons.lock_outline,
@@ -211,7 +213,10 @@ class _LoginScreenState extends State<LoginScreen>
 
                                   // 로그인 버튼
                                   _buildAnimatedGlassButton(
-                                    text: vm.isLoading ? "로그인 중..." : "로그인",
+                                    text:
+                                        vm.isLoading
+                                            ? l10n.loggingIn
+                                            : l10n.login,
                                     isLoading: vm.isLoading,
                                     onPressed: () => _handleLogin(context),
                                   ),
@@ -229,7 +234,7 @@ class _LoginScreenState extends State<LoginScreen>
                                       ),
                                     ),
                                     child: Text(
-                                      "아직 계정이 없나요? 회원가입하기",
+                                      l10n.signUpCta,
                                       style: TextStyle(
                                         color: Colors.white70,
                                         fontSize: 14,
@@ -412,6 +417,7 @@ class _LoginScreenState extends State<LoginScreen>
 
   Future<void> _handleLogin(BuildContext context) async {
     final vm = context.read<LoginViewModel>();
+    final l10n = AppLocalizations.of(context)!;
     final result = await vm.login(emailCtrl.text.trim(), pwCtrl.text.trim());
 
     if (!mounted) return;
@@ -419,23 +425,23 @@ class _LoginScreenState extends State<LoginScreen>
     if (result.success) {
       Navigator.pushReplacementNamed(context, '/main');
     } else {
-      String message = "로그인에 실패했습니다.";
+      String message = l10n.loginFailed;
 
       switch (result.error ?? LoginError.unknown) {
         case LoginError.userNotFound:
-          message = "해당 이메일로 가입된 계정을 찾을 수 없습니다.";
+          message = l10n.errorUserNotFound;
           break;
         case LoginError.wrongPassword:
-          message = "비밀번호가 올바르지 않습니다.";
+          message = l10n.errorWrongPassword;
           break;
         case LoginError.invalidEmail:
-          message = "이메일 형식이 올바르지 않습니다.";
+          message = l10n.errorInvalidEmail;
           break;
         case LoginError.cancelled:
-          message = "로그인을 취소했어요.";
+          message = l10n.errorCancelled;
           break;
         default:
-          message = "알 수 없는 오류가 발생했습니다. 잠시 후 다시 시도해주세요";
+          message = l10n.errorUnknown;
           break;
       }
 

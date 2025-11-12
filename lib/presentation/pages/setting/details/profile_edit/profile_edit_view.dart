@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:tago_driver/data/models/user.dart';
 import 'package:tago_driver/presentation/common/appScaffold.dart';
 import 'package:tago_driver/presentation/pages/setting/details/profile_edit/profile_edit_view_model.dart';
+import 'package:tago_driver/l10n/app_localizations.dart';
 
 /// 프로필 수정 화면
 ///
@@ -41,6 +42,7 @@ class _ProfileEditViewState extends State<ProfileEditView> {
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<ProfileEditViewModel>();
+    final l10n = AppLocalizations.of(context)!;
 
     return AppScaffold(
       appBar: AppBar(
@@ -49,9 +51,9 @@ class _ProfileEditViewState extends State<ProfileEditView> {
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          "프로필 수정",
-          style: TextStyle(color: Colors.white, fontSize: 20),
+        title: Text(
+          l10n.editProfile,
+          style: const TextStyle(color: Colors.white, fontSize: 20),
         ),
         actions: [
           // 저장 버튼 (AppBar 오른쪽)
@@ -71,7 +73,7 @@ class _ProfileEditViewState extends State<ProfileEditView> {
                       ),
                     )
                     : Text(
-                      "저장",
+                      l10n.save,
                       style: TextStyle(
                         color:
                             vm.hasChanges ? Colors.blueAccent : Colors.white38,
@@ -83,7 +85,7 @@ class _ProfileEditViewState extends State<ProfileEditView> {
         ],
       ),
       scrollable: true,
-      body: _buildEditForm(context, vm),
+      body: _buildEditForm(context, vm, l10n),
     );
   }
 
@@ -97,11 +99,16 @@ class _ProfileEditViewState extends State<ProfileEditView> {
   ///
   /// @param context BuildContext
   /// @param vm ProfileEditViewModel
-  Widget _buildEditForm(BuildContext context, ProfileEditViewModel vm) {
+  /// @param l10n AppLocalizations
+  Widget _buildEditForm(BuildContext context, ProfileEditViewModel vm, AppLocalizations l10n) {
+    // AppBar 높이를 고려한 여백 추가
+    final appBarHeight = AppBar().preferredSize.height;
+    final statusBarHeight = MediaQuery.of(context).padding.top;
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        const SizedBox(height: 20),
+        SizedBox(height: appBarHeight + statusBarHeight + 20),
 
         // 프로필 아이콘
         _buildProfileIcon(vm),
@@ -109,17 +116,17 @@ class _ProfileEditViewState extends State<ProfileEditView> {
         const SizedBox(height: 40),
 
         // 이름 입력 필드
-        _buildNameField(vm),
+        _buildNameField(vm, l10n),
 
         const SizedBox(height: 24),
 
         // 이메일 입력 필드
-        _buildEmailField(vm),
+        _buildEmailField(vm, l10n),
 
         const SizedBox(height: 32),
 
         // 안내 문구
-        _buildHelpText(),
+        _buildHelpText(l10n),
       ],
     );
   }
@@ -163,7 +170,8 @@ class _ProfileEditViewState extends State<ProfileEditView> {
   /// - 비어있으면 안 됨
   ///
   /// @param vm ProfileEditViewModel
-  Widget _buildNameField(ProfileEditViewModel vm) {
+  /// @param l10n AppLocalizations
+  Widget _buildNameField(ProfileEditViewModel vm, AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -171,7 +179,7 @@ class _ProfileEditViewState extends State<ProfileEditView> {
         Padding(
           padding: const EdgeInsets.only(left: 4, bottom: 8),
           child: Text(
-            "이름",
+            l10n.nameLabel,
             style: TextStyle(
               color: Colors.white.withOpacity(0.6),
               fontSize: 13,
@@ -186,10 +194,11 @@ class _ProfileEditViewState extends State<ProfileEditView> {
           controller: vm.nameController,
           style: const TextStyle(color: Colors.white, fontSize: 16),
           decoration: InputDecoration(
-            hintText: "이름을 입력하세요",
+            hintText: l10n.nameHint,
             hintStyle: TextStyle(color: Colors.white.withOpacity(0.3)),
             filled: true,
             fillColor: Colors.white.withOpacity(0.03),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
               borderSide: BorderSide(color: Colors.white.withOpacity(0.1)),
@@ -213,6 +222,10 @@ class _ProfileEditViewState extends State<ProfileEditView> {
             prefixIcon: Icon(
               Icons.person_outline,
               color: Colors.white.withOpacity(0.5),
+            ),
+            prefixIconConstraints: const BoxConstraints(
+              minWidth: 48,
+              minHeight: 48,
             ),
             // 에러 메시지 표시
             errorText:
@@ -239,7 +252,8 @@ class _ProfileEditViewState extends State<ProfileEditView> {
   /// - 비어있으면 안 됨
   ///
   /// @param vm ProfileEditViewModel
-  Widget _buildEmailField(ProfileEditViewModel vm) {
+  /// @param l10n AppLocalizations
+  Widget _buildEmailField(ProfileEditViewModel vm, AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -247,7 +261,7 @@ class _ProfileEditViewState extends State<ProfileEditView> {
         Padding(
           padding: const EdgeInsets.only(left: 4, bottom: 8),
           child: Text(
-            "이메일",
+            l10n.emailLabel,
             style: TextStyle(
               color: Colors.white.withOpacity(0.6),
               fontSize: 13,
@@ -263,10 +277,11 @@ class _ProfileEditViewState extends State<ProfileEditView> {
           keyboardType: TextInputType.emailAddress,
           style: const TextStyle(color: Colors.white, fontSize: 16),
           decoration: InputDecoration(
-            hintText: "이메일을 입력하세요",
+            hintText: l10n.emailHint,
             hintStyle: TextStyle(color: Colors.white.withOpacity(0.3)),
             filled: true,
             fillColor: Colors.white.withOpacity(0.03),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
               borderSide: BorderSide(color: Colors.white.withOpacity(0.1)),
@@ -291,6 +306,10 @@ class _ProfileEditViewState extends State<ProfileEditView> {
               Icons.email_outlined,
               color: Colors.white.withOpacity(0.5),
             ),
+            prefixIconConstraints: const BoxConstraints(
+              minWidth: 48,
+              minHeight: 48,
+            ),
             // 에러 메시지 표시
             errorText:
                 vm.emailController.text.isNotEmpty ? vm.validateEmail() : null,
@@ -309,7 +328,8 @@ class _ProfileEditViewState extends State<ProfileEditView> {
   /// 내용:
   /// - 프로필 정보 용도 설명
   /// - 주의사항
-  Widget _buildHelpText() {
+  /// @param l10n AppLocalizations
+  Widget _buildHelpText(AppLocalizations l10n) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
       child: BackdropFilter(
@@ -331,7 +351,7 @@ class _ProfileEditViewState extends State<ProfileEditView> {
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  "프로필 정보는 택시 기사와 다른 사용자에게 표시됩니다.",
+                  l10n.profileInfoMessage,
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.7),
                     fontSize: 13,

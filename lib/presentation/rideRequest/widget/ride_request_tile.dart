@@ -1,6 +1,7 @@
 // lib/presentation/rideRequest/widget/ride_request_tile.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:tago_driver/l10n/app_localizations.dart';
 
 class RideRequestTile extends StatelessWidget {
   final String text; // 버튼 라벨 (ex. '채팅방 입장')
@@ -28,6 +29,7 @@ class RideRequestTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Card(
       color: const Color(0xFF161B22),
       elevation: 0,
@@ -74,9 +76,9 @@ class RideRequestTile extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _kv('출발지', origin),
+                      _kv(l10n.origin, origin),
                       const SizedBox(height: 6),
-                      _kv('도착지', destination),
+                      _kv(l10n.destination, destination),
                     ],
                   ),
                 ),
@@ -131,7 +133,7 @@ class RideRequestTile extends StatelessWidget {
                 ),
                 const SizedBox(width: 6),
                 Text(
-                  '$passengers명',
+                  l10n.passengers(passengers),
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.9),
                     fontSize: 13.5,

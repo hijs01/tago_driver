@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tago_driver/presentation/auth/signUp/signUp_view_model.dart';
 import 'package:tago_driver/data/models/logIn_data.dart'; // LoginError, LoginResult
+import 'package:tago_driver/l10n/app_localizations.dart';
 
 class SignUpView extends StatefulWidget {
   const SignUpView({super.key});
@@ -56,6 +57,7 @@ class _SignUpViewState extends State<SignUpView>
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<SignUpViewModel>();
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       body: AnimatedBuilder(
@@ -149,7 +151,7 @@ class _SignUpViewState extends State<SignUpView>
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Text(
-                            "회원가입",
+                            l10n.signUpTitle,
                             style: TextStyle(
                               fontSize: 28,
                               fontWeight: FontWeight.bold,
@@ -160,7 +162,7 @@ class _SignUpViewState extends State<SignUpView>
                           ),
                           SizedBox(height: 6),
                           Text(
-                            "TAGO 타고가실?",
+                            l10n.signUpSubtitle,
                             style: TextStyle(
                               fontSize: 14,
                               color: Colors.white60,
@@ -200,8 +202,8 @@ class _SignUpViewState extends State<SignUpView>
                               children: [
                                 // 이름 입력
                                 _buildGlassInput(
-                                  label: "이름",
-                                  hint: "예: 홍길동",
+                                  label: l10n.nameLabel,
+                                  hint: l10n.nameHint,
                                   controller: nameCtrl,
                                   icon: Icons.person_outline,
                                 ),
@@ -209,8 +211,8 @@ class _SignUpViewState extends State<SignUpView>
 
                                 // 이메일 입력
                                 _buildGlassInput(
-                                  label: "이메일",
-                                  hint: "you@psu.edu",
+                                  label: l10n.emailLabel,
+                                  hint: l10n.emailHint,
                                   controller: emailCtrl,
                                   keyboardType: TextInputType.emailAddress,
                                   icon: Icons.email_outlined,
@@ -219,8 +221,8 @@ class _SignUpViewState extends State<SignUpView>
 
                                 // 회사 이름 입력
                                 _buildGlassInput(
-                                  label: "회사 이름",
-                                  hint: "PSU Taxi",
+                                  label: l10n.companyNameLabel,
+                                  hint: l10n.companyNameHint,
                                   controller: companyCtrl,
                                   icon: Icons.business_outlined,
                                 ),
@@ -228,8 +230,8 @@ class _SignUpViewState extends State<SignUpView>
 
                                 // 비밀번호 입력
                                 _buildGlassInput(
-                                  label: "비밀번호",
-                                  hint: "••••••••",
+                                  label: l10n.passwordLabel,
+                                  hint: l10n.passwordHint,
                                   controller: pwCtrl,
                                   obscure: true,
                                   icon: Icons.lock_outline,
@@ -238,8 +240,8 @@ class _SignUpViewState extends State<SignUpView>
 
                                 // 비밀번호 확인 입력
                                 _buildGlassInput(
-                                  label: "비밀번호 확인",
-                                  hint: "••••••••",
+                                  label: l10n.confirmPasswordLabel,
+                                  hint: l10n.confirmPasswordHint,
                                   controller: pwConfirmCtrl,
                                   obscure: true,
                                   icon: Icons.lock_outline,
@@ -248,8 +250,8 @@ class _SignUpViewState extends State<SignUpView>
 
                                 // 회사 확인 코드 입력
                                 _buildGlassInput(
-                                  label: "회사 확인 코드",
-                                  hint: "관리자에게 받은 확인 코드 입력",
+                                  label: l10n.companyCodeLabel,
+                                  hint: l10n.companyCodeHint,
                                   controller: companyCodeCtrl,
                                   icon: Icons.verified_user_outlined,
                                 ),
@@ -257,7 +259,7 @@ class _SignUpViewState extends State<SignUpView>
 
                                 // 회원가입 버튼
                                 _buildAnimatedGlassButton(
-                                  text: vm.isLoading ? "가입 중..." : "회원가입",
+                                  text: vm.isLoading ? l10n.signingUp : l10n.signUp,
                                   isLoading: vm.isLoading,
                                   onPressed: () => _handleSignUp(context),
                                 ),
@@ -273,7 +275,7 @@ class _SignUpViewState extends State<SignUpView>
                                     padding: EdgeInsets.symmetric(vertical: 8),
                                   ),
                                   child: Text(
-                                    "이미 계정이 있나요? 로그인하기",
+                                    l10n.loginCta,
                                     style: TextStyle(
                                       color: Colors.white70,
                                       fontSize: 14,
@@ -455,12 +457,13 @@ class _SignUpViewState extends State<SignUpView>
 
   Future<void> _handleSignUp(BuildContext context) async {
     final vm = context.read<SignUpViewModel>();
+    final l10n = AppLocalizations.of(context)!;
 
     // 1) 비밀번호 일치 여부 체크
     if (pwCtrl.text.trim() != pwConfirmCtrl.text.trim()) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("비밀번호가 서로 일치하지 않습니다."),
+          content: Text(l10n.errorPasswordMismatch),
           backgroundColor: Colors.redAccent.withOpacity(0.9),
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
@@ -476,7 +479,7 @@ class _SignUpViewState extends State<SignUpView>
     if (!validCompanyCodes.contains(companyCodeCtrl.text.trim())) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("유효하지 않은 회사 확인 코드입니다."),
+          content: Text(l10n.errorInvalidCompanyCode),
           backgroundColor: Colors.redAccent.withOpacity(0.9),
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
@@ -503,20 +506,20 @@ class _SignUpViewState extends State<SignUpView>
       Navigator.pushReplacementNamed(context, '/main');
     } else {
       // 에러 타입에 따라 메시지 분기
-      String message = "회원가입에 실패했습니다.";
+      String message = l10n.signUpFailed;
 
       switch (result.error ?? LoginError.unknown) {
         case LoginError.invalidEmail:
-          message = "이메일 형식이 올바르지 않습니다.";
+          message = l10n.errorInvalidEmail;
           break;
         case LoginError.weakPassword:
-          message = "비밀번호가 너무 약합니다. 6자 이상으로 설정해주세요.";
+          message = l10n.errorWeakPassword;
           break;
         case LoginError.emailInUse:
-          message = "이미 사용 중인 이메일입니다.";
+          message = l10n.errorEmailInUse;
           break;
         default:
-          message = "알 수 없는 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
+          message = l10n.errorUnknown;
           break;
       }
 

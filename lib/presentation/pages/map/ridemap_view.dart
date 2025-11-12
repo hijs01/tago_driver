@@ -5,6 +5,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:tago_driver/data/services/geocoding_service.dart';
 import 'package:tago_driver/data/services/directions_service.dart';
+import 'package:tago_driver/l10n/app_localizations.dart';
 import 'dart:async';
 
 class RideMapView extends StatefulWidget {
@@ -475,12 +476,11 @@ class _RideMapViewState extends State<RideMapView> {
 
       if (!mounted) return;
 
-
-            setState(() {
+      setState(() {
         // 커스텀 glassmorphism 마커 추가
         // ✅ useCurrentLocation이 true일 때는 초록색 마커(origin)를 표시하지 않음
         final markers = <Marker>[];
-        
+
         // useCurrentLocation이 false일 때만 출발지 마커 표시
         if (!widget.useCurrentLocation) {
           markers.add(
@@ -492,7 +492,7 @@ class _RideMapViewState extends State<RideMapView> {
             ),
           );
         }
-        
+
         // 목적지 마커는 항상 표시
         markers.add(
           Marker(
@@ -502,7 +502,7 @@ class _RideMapViewState extends State<RideMapView> {
             anchor: const Offset(0.5, 0.85),
           ),
         );
-        
+
         _markers = markers.toSet();
 
         _polylines = {
@@ -544,24 +544,23 @@ class _RideMapViewState extends State<RideMapView> {
   }
 
   //경로 재탐색하는 타이머
-    //경로 재탐색하는 타이머
-  void _startRouteUpdateTimer(int interval){
+  //경로 재탐색하는 타이머
+  void _startRouteUpdateTimer(int interval) {
     _routeUpdateTimer?.cancel();
-    _routeUpdateTimer = Timer.periodic(
-      Duration(seconds: interval),
-      (timer) async {
-        if (mounted && widget.toAddress != null){
-          // ✅ useCurrentLocation이 true일 때 현재 위치를 먼저 업데이트
-          if (widget.useCurrentLocation) {
-            await _getCurrentLocation();
-          }
-          // 경로 업데이트 (shouldFitBounds는 false로 유지하여 카메라 이동 방지)
-          await _loadRoute();
-        } else{
-          timer.cancel();
+    _routeUpdateTimer = Timer.periodic(Duration(seconds: interval), (
+      timer,
+    ) async {
+      if (mounted && widget.toAddress != null) {
+        // ✅ useCurrentLocation이 true일 때 현재 위치를 먼저 업데이트
+        if (widget.useCurrentLocation) {
+          await _getCurrentLocation();
         }
+        // 경로 업데이트 (shouldFitBounds는 false로 유지하여 카메라 이동 방지)
+        await _loadRoute();
+      } else {
+        timer.cancel();
       }
-    );
+    });
   }
 
   Future<void> _fitBounds() async {
@@ -646,7 +645,7 @@ class _RideMapViewState extends State<RideMapView> {
         timeLimit: const Duration(seconds: 10),
       );
 
-      if (_mapController != null){
+      if (_mapController != null) {
         await _mapController!.animateCamera(
           CameraUpdate.newLatLngZoom(
             LatLng(position.latitude, position.longitude),
@@ -674,6 +673,7 @@ class _RideMapViewState extends State<RideMapView> {
 
   // ✨ 완전 투명 AppBar (버튼만)
   Widget _buildGlassAppBar(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       decoration: const BoxDecoration(), // 완전 투명
       child: SafeArea(
@@ -803,7 +803,7 @@ class _RideMapViewState extends State<RideMapView> {
                         color: Colors.white,
                         padding: EdgeInsets.zero,
                         onPressed: _getCurrentLocation,
-                        tooltip: '현재 위치',
+                        tooltip: l10n.currentLocation,
                       ),
                     ),
                   ),
@@ -820,6 +820,15 @@ class _RideMapViewState extends State<RideMapView> {
     if (_originLatLng == null || _destinationLatLng == null)
       return const SizedBox.shrink();
 
+    return Builder(
+      builder: (context) {
+        final l10n = AppLocalizations.of(context)!;
+        return _buildInfoCardContent(l10n);
+      },
+    );
+  }
+
+  Widget _buildInfoCardContent(AppLocalizations l10n) {
     return Positioned(
       bottom: 12,
       left: 12,
@@ -880,8 +889,8 @@ class _RideMapViewState extends State<RideMapView> {
                             Text(
                               widget.useCurrentLocation &&
                                       _currentPosition != null
-                                  ? '현재 위치'
-                                  : (widget.fromName ?? '출발지'),
+                                  ? l10n.currentLocation
+                                  : (widget.fromName ?? l10n.origin),
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w600,
@@ -953,7 +962,7 @@ class _RideMapViewState extends State<RideMapView> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              widget.toName ?? '목적지',
+                              widget.toName ?? l10n.destination,
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w600,
@@ -1030,13 +1039,18 @@ class _RideMapViewState extends State<RideMapView> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    Text(
-                      '지도 로딩 중...',
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.8),
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                      ),
+                    Builder(
+                      builder: (context) {
+                        final l10n = AppLocalizations.of(context)!;
+                        return Text(
+                          l10n.mapLoading,
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.8),
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        );
+                      },
                     ),
                   ],
                 ),

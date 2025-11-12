@@ -6,6 +6,7 @@ import 'package:tago_driver/presentation/common/appScaffold.dart';
 import 'package:tago_driver/presentation/rideRequest/widget/ride_request_tile.dart';
 import 'package:tago_driver/presentation/rideRequest/ride_request_view_model.dart';
 import 'package:tago_driver/data/models/ride_request_model.dart';
+import 'package:tago_driver/l10n/app_localizations.dart';
 
 class StatusView extends StatelessWidget {
   const StatusView({super.key});
@@ -42,9 +43,9 @@ class StatusView extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 12),
-                const Text(
-                  '배정된 라이드 여정',
-                  style: TextStyle(
+                Text(
+                  AppLocalizations.of(context)!.assignedTripsHeader,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
@@ -112,7 +113,7 @@ class StatusView extends StatelessWidget {
                                 ),
                                 const SizedBox(height: 24),
                                 Text(
-                                  '배정된 여정이 없습니다',
+                                  AppLocalizations.of(context)!.noAssignedTrips,
                                   style: TextStyle(
                                     color: Colors.white.withOpacity(0.9),
                                     fontSize: 17,
@@ -121,7 +122,7 @@ class StatusView extends StatelessWidget {
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  '라이드를 배정하면 여정 목록에 추가됩니다',
+                                  AppLocalizations.of(context)!.assignRideHint,
                                   style: TextStyle(
                                     color: Colors.white.withOpacity(0.5),
                                     fontSize: 14,
@@ -149,17 +150,21 @@ class StatusView extends StatelessWidget {
                         // DateTime -> 문자열
                         String timeText;
                         if (r.departureAt != null) {
-                          final formatter = DateFormat(
-                            'M월 d일 • h:mm a',
-                            'ko_KR',
-                          );
-                          timeText = formatter.format(r.departureAt!);
+                          final locale =
+                              Localizations.localeOf(context).toString();
+                          final date = DateFormat.yMMMd(
+                            locale,
+                          ).format(r.departureAt!);
+                          final time = DateFormat.jm(
+                            locale,
+                          ).format(r.departureAt!);
+                          timeText = '$date • $time';
                         } else {
-                          timeText = '시간 정보 없음';
+                          timeText = AppLocalizations.of(context)!.timeUnknown;
                         }
 
                         return RideRequestTile(
-                          text: '채팅방 입장',
+                          text: AppLocalizations.of(context)!.enterChat,
                           id: r.id,
                           origin: r.fromName,
                           destination: r.toName,

@@ -10,6 +10,7 @@ import 'package:tago_driver/presentation/pages/setting/details/password_change/p
 import 'package:tago_driver/presentation/pages/setting/details/terms/terms_view.dart';
 import 'package:tago_driver/presentation/pages/setting/details/privacy/privacy_view.dart';
 import 'package:tago_driver/presentation/pages/setting/details/developer_info/developer_info_view.dart';
+import 'package:tago_driver/l10n/app_localizations.dart';
 
 /// 설정 화면 - Dark Minimal 스타일
 class SettingsView extends StatefulWidget {
@@ -31,6 +32,7 @@ class _SettingsViewState extends State<SettingsView> {
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<SettingsViewModel>();
+    final l10n = AppLocalizations.of(context)!;
 
     if (vm.isLoading) {
       return AppScaffold(
@@ -67,9 +69,9 @@ class _SettingsViewState extends State<SettingsView> {
                 ),
               ),
               const SizedBox(width: 12),
-              const Text(
-                '설정',
-                style: TextStyle(
+              Text(
+                l10n.settingsHeader,
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
@@ -86,30 +88,30 @@ class _SettingsViewState extends State<SettingsView> {
           const SizedBox(height: 32),
 
           // 섹션 제목: 계정
-          _buildSectionTitle("계정"),
+          _buildSectionTitle(l10n.accountSection),
           const SizedBox(height: 16),
 
           // 계정 카드 그리드
-          _buildAccountGrid(context, vm),
+          _buildAccountGrid(context, vm, l10n),
 
           const SizedBox(height: 32),
 
           // 섹션 제목: 약관 및 정보
-          _buildSectionTitle("약관 및 정보"),
+          _buildSectionTitle(l10n.termsAndInfoSection),
           const SizedBox(height: 16),
 
           // 약관 카드 그리드
-          _buildInfoGrid(context),
+          _buildInfoGrid(context, l10n),
 
           const SizedBox(height: 32),
 
           // 로그아웃 버튼
-          _buildLogoutButton(context, vm),
+          _buildLogoutButton(context, vm, l10n),
 
           const SizedBox(height: 16),
 
           // 회원 탈퇴
-          _buildDeleteAccountButton(context, vm),
+          _buildDeleteAccountButton(context, vm, l10n),
 
           const SizedBox(height: 100), // 바텀바 공간
         ],
@@ -195,14 +197,14 @@ class _SettingsViewState extends State<SettingsView> {
   }
 
   /// 계정 카드 그리드
-  Widget _buildAccountGrid(BuildContext context, SettingsViewModel vm) {
+  Widget _buildAccountGrid(BuildContext context, SettingsViewModel vm, AppLocalizations l10n) {
     return Row(
       children: [
         Expanded(
           child: _buildGridCard(
             icon: Icons.person_outline,
-            title: "프로필 수정",
-            subtitle: "이름, 이메일",
+            title: l10n.editProfile,
+            subtitle: l10n.editProfileSubtitle,
             onTap: () async {
               if (vm.currentUser == null) return;
 
@@ -227,8 +229,8 @@ class _SettingsViewState extends State<SettingsView> {
         Expanded(
           child: _buildGridCard(
             icon: Icons.lock_outline,
-            title: "비밀번호 변경",
-            subtitle: "비밀번호 재설정",
+            title: l10n.changePassword,
+            subtitle: l10n.changePasswordSubtitle,
             onTap: () {
               Navigator.push(
                 context,
@@ -248,7 +250,7 @@ class _SettingsViewState extends State<SettingsView> {
   }
 
   /// 약관 및 정보 카드 그리드
-  Widget _buildInfoGrid(BuildContext context) {
+  Widget _buildInfoGrid(BuildContext context, AppLocalizations l10n) {
     return Column(
       children: [
         Row(
@@ -256,8 +258,8 @@ class _SettingsViewState extends State<SettingsView> {
             Expanded(
               child: _buildGridCard(
                 icon: Icons.description_outlined,
-                title: "이용약관",
-                subtitle: "서비스 약관",
+                title: l10n.termsOfService,
+                subtitle: l10n.termsOfServiceSubtitle,
                 onTap: () {
                   Navigator.push(
                     context,
@@ -270,8 +272,8 @@ class _SettingsViewState extends State<SettingsView> {
             Expanded(
               child: _buildGridCard(
                 icon: Icons.privacy_tip_outlined,
-                title: "개인정보",
-                subtitle: "보호 정책",
+                title: l10n.privacyPolicy,
+                subtitle: l10n.privacyPolicySubtitle,
                 onTap: () {
                   Navigator.push(
                     context,
@@ -290,8 +292,8 @@ class _SettingsViewState extends State<SettingsView> {
             Expanded(
               child: _buildGridCard(
                 icon: Icons.code,
-                title: "개발자 정보",
-                subtitle: "팀 정보",
+                title: l10n.developerInfo,
+                subtitle: l10n.developerInfoSubtitle,
                 onTap: () {
                   Navigator.push(
                     context,
@@ -363,7 +365,7 @@ class _SettingsViewState extends State<SettingsView> {
   }
 
   /// 로그아웃 버튼 - Dark Minimal
-  Widget _buildLogoutButton(BuildContext context, SettingsViewModel vm) {
+  Widget _buildLogoutButton(BuildContext context, SettingsViewModel vm, AppLocalizations l10n) {
     return Container(
       width: double.infinity,
       height: 52,
@@ -375,16 +377,16 @@ class _SettingsViewState extends State<SettingsView> {
         color: Colors.transparent,
         child: InkWell(
           onTap: () async {
-            final confirm = await _showLogoutDialog(context);
+            final confirm = await _showLogoutDialog(context, l10n);
             if (confirm == true) {
               await vm.logout(context);
             }
           },
           borderRadius: BorderRadius.circular(12),
-          child: const Center(
+          child: Center(
             child: Text(
-              "로그아웃",
-              style: TextStyle(
+              l10n.logout,
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
@@ -397,10 +399,10 @@ class _SettingsViewState extends State<SettingsView> {
   }
 
   /// 회원 탈퇴 버튼
-  Widget _buildDeleteAccountButton(BuildContext context, SettingsViewModel vm) {
+  Widget _buildDeleteAccountButton(BuildContext context, SettingsViewModel vm, AppLocalizations l10n) {
     return GestureDetector(
       onTap: () async {
-        final confirm = await _showDeleteAccountDialog(context);
+        final confirm = await _showDeleteAccountDialog(context, l10n);
 
         if (confirm != true) return;
 
@@ -420,7 +422,7 @@ class _SettingsViewState extends State<SettingsView> {
       },
       child: Center(
         child: Text(
-          "회원 탈퇴",
+          l10n.deleteAccount,
           style: TextStyle(
             color: const Color(0xFFFF6B6B).withOpacity(0.7),
             fontSize: 14,
@@ -432,7 +434,7 @@ class _SettingsViewState extends State<SettingsView> {
   }
 
   /// 로그아웃 확인 다이얼로그 - Dark Minimal 스타일
-  Future<bool?> _showLogoutDialog(BuildContext context) {
+  Future<bool?> _showLogoutDialog(BuildContext context, AppLocalizations l10n) {
     return showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -440,15 +442,15 @@ class _SettingsViewState extends State<SettingsView> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
-        title: const Text(
-          "로그아웃",
-          style: TextStyle(
+        title: Text(
+          l10n.logoutDialogTitle,
+          style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.w700,
           ),
         ),
         content: Text(
-          "정말 로그아웃 하시겠습니까?",
+          l10n.logoutDialogMessage,
           style: TextStyle(
             color: Colors.white.withOpacity(0.7),
             fontSize: 15,
@@ -458,7 +460,7 @@ class _SettingsViewState extends State<SettingsView> {
           TextButton(
             onPressed: () => Navigator.pop(context, false),
             child: Text(
-              "취소",
+              l10n.cancel,
               style: TextStyle(
                 color: Colors.white.withOpacity(0.6),
                 fontWeight: FontWeight.w600,
@@ -467,9 +469,9 @@ class _SettingsViewState extends State<SettingsView> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text(
-              "로그아웃",
-              style: TextStyle(
+            child: Text(
+              l10n.logout,
+              style: const TextStyle(
                 color: Color(0xFFFF6B6B),
                 fontWeight: FontWeight.w700,
               ),
@@ -481,7 +483,7 @@ class _SettingsViewState extends State<SettingsView> {
   }
 
   /// 회원 탈퇴 확인 다이얼로그 - Dark Minimal 스타일
-  Future<bool?> _showDeleteAccountDialog(BuildContext context) async {
+  Future<bool?> _showDeleteAccountDialog(BuildContext context, AppLocalizations l10n) async {
     return showDialog<bool>(
       context: context,
       barrierDismissible: false,
@@ -493,13 +495,13 @@ class _SettingsViewState extends State<SettingsView> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
-            title: const Row(
+            title: Row(
               children: [
-                Icon(Icons.warning, color: Color(0xFFFF6B6B)),
-                SizedBox(width: 8),
+                const Icon(Icons.warning, color: Color(0xFFFF6B6B)),
+                const SizedBox(width: 8),
                 Text(
-                  "회원 탈퇴",
-                  style: TextStyle(
+                  l10n.deleteAccountDialogTitle,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
                   ),
@@ -510,9 +512,9 @@ class _SettingsViewState extends State<SettingsView> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                    const Text(
-                      "정말로 탈퇴하시겠습니까?",
-                      style: TextStyle(
+                    Text(
+                      l10n.deleteAccountDialogMessage,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -520,9 +522,9 @@ class _SettingsViewState extends State<SettingsView> {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      "• 모든 데이터가 영구적으로 삭제됩니다.\n"
-                      "• 예약 정보가 모두 사라집니다.\n"
-                      "• 이 작업은 되돌릴 수 없습니다.",
+                      '${l10n.deleteAccountWarning1}\n'
+                      '${l10n.deleteAccountWarning2}\n'
+                      '${l10n.deleteAccountWarning3}',
                       style: TextStyle(
                         color: Colors.white.withOpacity(0.7),
                         fontSize: 14,
@@ -530,9 +532,9 @@ class _SettingsViewState extends State<SettingsView> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    const Text(
-                      "계속하려면 아래에 DELETE를 입력하세요:",
-                      style: TextStyle(
+                    Text(
+                      l10n.deleteAccountInputHint,
+                      style: const TextStyle(
                         color: Color(0xFFFF6B6B),
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
@@ -543,7 +545,7 @@ class _SettingsViewState extends State<SettingsView> {
                       controller: controller,
                       style: const TextStyle(color: Colors.white),
                       decoration: InputDecoration(
-                        hintText: "DELETE",
+                        hintText: l10n.deleteAccountInputPlaceholder,
                         hintStyle: TextStyle(
                           color: Colors.white.withOpacity(0.3),
                         ),
@@ -578,7 +580,7 @@ class _SettingsViewState extends State<SettingsView> {
                   Navigator.pop(dialogContext, false);
                 },
                 child: Text(
-                  "취소",
+                  l10n.cancel,
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.6),
                     fontWeight: FontWeight.w600,
@@ -601,9 +603,9 @@ class _SettingsViewState extends State<SettingsView> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    child: const Text(
-                      "탈퇴하기",
-                      style: TextStyle(
+                    child: Text(
+                      l10n.deleteAccountButton,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w700,
                       ),

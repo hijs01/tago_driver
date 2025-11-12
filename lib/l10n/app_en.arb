@@ -1,0 +1,270 @@
+{
+  "@@locale": "en",
+  "assignedTripsHeader": "Assigned rides",
+  "noAssignedTrips": "No assigned trips",
+  "assignRideHint": "Assigned rides will appear here",
+  "enterChat": "Enter chat",
+  "origin": "From",
+  "destination": "To",
+  "timeUnknown": "Time not set",
+  "passengers": "{count, plural, one {{count} person} other {{count} people}}",
+  "loginSubtitle": "Find taxi passengers",
+  "emailLabel": "Email",
+  "emailHint": "you@psu.edu",
+  "passwordLabel": "Password",
+  "passwordHint": "Your password",
+  "login": "Log in",
+  "loggingIn": "Signing in...",
+  "signUpCta": "Don't have an account? Sign up",
+  "loginFailed": "Failed to sign in.",
+  "errorUserNotFound": "No account found for this email.",
+  "errorWrongPassword": "Incorrect password.",
+  "errorInvalidEmail": "Invalid email format.",
+  "errorCancelled": "Sign-in was cancelled.",
+  "errorUnknown": "An unknown error occurred. Please try again later.",
+  "signUpTitle": "Sign Up",
+  "signUpSubtitle": "TAGO, are you going to ride?",
+  "nameLabel": "Name",
+  "nameHint": "e.g., John Doe",
+  "companyNameLabel": "Company Name",
+  "companyNameHint": "PSU Taxi",
+  "confirmPasswordLabel": "Confirm Password",
+  "confirmPasswordHint": "Confirm password",
+  "companyCodeLabel": "Company Verification Code",
+  "companyCodeHint": "Enter verification code received from administrator",
+  "signUp": "Sign Up",
+  "signingUp": "Signing up...",
+  "loginCta": "Already have an account? Log in",
+  "errorPasswordMismatch": "Passwords do not match.",
+  "errorInvalidCompanyCode": "Invalid company verification code.",
+  "signUpFailed": "Failed to sign up.",
+  "errorWeakPassword": "Password is too weak. Please use at least 6 characters.",
+  "errorEmailInUse": "Email is already in use.",
+  "hello": "Hello",
+  "honorificSuffix": "",
+  "pendingRideRequestsHeader": "Pending ride requests",
+  "noPendingTrips": "No pending trips",
+  "newRequestNotification": "We'll notify you when new requests arrive",
+  "acceptRequest": "Accept request",
+  "requestAccepted": "Request accepted",
+  "defaultDriverName": "Driver",
+  "home": "Home",
+  "journey": "Journey",
+  "chat": "Chat",
+  "settings": "Settings",
+  "chatRoomListHeader": "Chat rooms",
+  "errorOccurred": "An error occurred",
+  "noChatRooms": "No chat rooms",
+  "chatRoomCreatedHint": "Chat rooms will be created when you accept a ride",
+  "noMessages": "No messages",
+  "settingsHeader": "Settings",
+  "accountSection": "Account",
+  "editProfile": "Edit Profile",
+  "editProfileSubtitle": "Name, Email",
+  "changePassword": "Change Password",
+  "changePasswordSubtitle": "Reset Password",
+  "termsAndInfoSection": "Terms and Info",
+  "termsOfService": "Terms of Service",
+  "termsOfServiceSubtitle": "Service Terms",
+  "privacyPolicy": "Privacy Policy",
+  "privacyPolicySubtitle": "Protection Policy",
+  "developerInfo": "Developer Info",
+  "developerInfoSubtitle": "Team Info",
+  "logout": "Logout",
+  "deleteAccount": "Delete Account",
+  "logoutDialogTitle": "Logout",
+  "logoutDialogMessage": "Are you sure you want to logout?",
+  "cancel": "Cancel",
+  "deleteAccountDialogTitle": "Delete Account",
+  "deleteAccountDialogMessage": "Are you really sure you want to delete your account?",
+  "deleteAccountWarning1": "• All data will be permanently deleted.",
+  "deleteAccountWarning2": "• All reservation information will be lost.",
+  "deleteAccountWarning3": "• This action cannot be undone.",
+  "deleteAccountInputHint": "To continue, please type DELETE below:",
+  "deleteAccountInputPlaceholder": "DELETE",
+  "deleteAccountButton": "Delete Account",
+  "save": "Save",
+  "nameHint": "Enter your name",
+  "emailHint": "Enter your email",
+  "profileInfoMessage": "Profile information is displayed to taxi drivers and other users.",
+  "currentPassword": "Current Password",
+  "currentPasswordHint": "Enter current password",
+  "newPassword": "New Password",
+  "newPasswordHint": "Enter new password",
+  "confirmNewPassword": "Confirm New Password",
+  "confirmNewPasswordHint": "Re-enter new password",
+  "passwordRulesTitle": "Password Rules",
+  "passwordRuleMinLength": "• 8 characters or more",
+  "passwordRuleLetters": "• Includes English letters",
+  "passwordRuleNumbers": "• Includes numbers",
+  "passwordChangeInfo": "Change your password regularly for security.",
+  "or": "or",
+  "getResetLinkByEmail": "Get reset link by email",
+  "termsHeaderInfo": "This is the TAGO Service Terms of Service.\nPlease review before using the service.",
+  "lastUpdated": "Last updated: {date}",
+  "@lastUpdated": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "termsArticle1Title": "Article 1 (Purpose)",
+  "termsArticle1Content": "The purpose of these terms and conditions is to stipulate the rights, obligations, and responsibilities between the company and users, and other necessary matters related to the use of the ride-sharing service (hereinafter referred to as 'Service') provided by TAGO (hereinafter referred to as 'Company').",
+  "termsArticle2Title": "Article 2 (Definitions)",
+  "termsArticle2Content": "1. 'Service' refers to the airport-school ride-sharing platform provided by the company.\n\n2. 'User' refers to a member who receives services provided by the company in accordance with these terms and conditions.\n\n3. 'Member' refers to a person who agrees to these terms and conditions and enters into a service agreement with the company.\n\n4. 'Taxi Driver' refers to a transportation service provider affiliated with the company.",
+  "termsArticle3Title": "Article 3 (Effectiveness and Changes to Terms)",
+  "termsArticle3Content": "1. These terms and conditions shall be effective for all users who wish to use the service.\n\n2. The company may change these terms and conditions within the scope that does not violate relevant laws and regulations if necessary.\n\n3. If the terms are changed, the company will notify the changes 7 days before the implementation date.\n\n4. If a user does not agree to the changed terms, they may stop using the service and withdraw.",
+  "termsArticle4Title": "Article 4 (Service Provision)",
+  "termsArticle4Content": "1. The company provides the following services:\n   • Airport-school ride reservations\n   • Taxi driver matching\n   • Payment processing\n   • Reservation management\n\n2. Services are provided 24 hours a day, 365 days a year in principle.\n\n3. The company may temporarily suspend service provision due to system maintenance, repairs, etc.",
+  "termsArticle5Title": "Article 5 (Membership Registration)",
+  "termsArticle5Content": "1. Users apply for membership by filling out the membership information according to the registration form set by the company and expressing their intention to agree to these terms and conditions.\n\n2. The company may refuse membership registration in the following cases:\n   • Use of another person's name\n   • False information\n   • Other cases where registration as a member is inappropriate",
+  "termsArticle6Title": "Article 6 (Privacy Protection)",
+  "termsArticle6Content": "The company strives to protect users' personal information in accordance with relevant laws and regulations. The relevant laws and regulations and the company's privacy policy apply to the protection and use of personal information.",
+  "termsArticle7Title": "Article 7 (Member Obligations)",
+  "termsArticle7Content": "1. Members must not engage in the following acts:\n   • Registration of false information and use of others' information\n   • Modification of the company's service information\n   • Transmission or posting of information other than that specified by the company\n   • Infringement of the company's copyright, third-party copyright, etc.\n   • Acts that damage others' reputation or cause disadvantage\n\n2. Members must comply with relevant laws, these terms, usage guidelines, and service announcements.",
+  "termsArticle8Title": "Article 8 (Reservation and Cancellation)",
+  "termsArticle8Content": "1. Members can make ride reservations through the app.\n\n2. Cancellation is free up to 24 hours before departure.\n\n3. Cancellation within 24 hours of departure may incur cancellation fees.\n\n4. Penalties may be imposed for cases such as no contact or refusal to board after reservation.",
+  "termsArticle9Title": "Article 9 (Payment)",
+  "termsArticle9Content": "1. Service usage fees are automatically charged after ride completion.\n\n2. Members can use payment methods specified by the company such as credit cards and check cards.\n\n3. Members' personal information related to payment is securely protected.",
+  "termsArticle10Title": "Article 10 (Refund)",
+  "termsArticle10Content": "1. If the service is not provided due to the company's fault, a full refund will be made.\n\n2. If the service cannot be used due to the member's fault, no refund will be made.\n\n3. Refunds may take 3-7 business days depending on the payment method.",
+  "termsArticle11Title": "Article 11 (Limitation of Liability)",
+  "termsArticle11Content": "1. The company is exempt from liability if the service cannot be provided due to natural disasters or force majeure.\n\n2. The company is not responsible for service use disruptions due to the member's fault.\n\n3. The company is not responsible for the quality of transportation services provided by taxi drivers, but actively mediates when problems occur.",
+  "termsArticle12Title": "Article 12 (Dispute Resolution)",
+  "termsArticle12Content": "1. Matters not specified in these terms and conditions follow relevant laws and commercial practices.\n\n2. If litigation is necessary for disputes arising from service use, the court having jurisdiction over the company's location shall be the exclusive jurisdiction court.",
+  "termsContactTitle": "Terms Inquiry",
+  "termsContactMessage": "If you have any questions about the Terms of Service,\nplease contact us through 'Support > Contact Us'.",
+  "privacyHeaderInfo": "TAGO values users' personal information and\ncomplies with relevant laws and regulations.",
+  "privacySection1Title": "1. Purpose of Personal Information Collection and Use",
+  "privacySection1Content": "TAGO (hereinafter referred to as 'the Company') processes personal information for the following purposes:\n\n• Membership registration and management\n• Service provision and improvement\n• Ride reservation and matching\n• Payment and settlement\n• Customer support and inquiry response\n• Marketing and event information provision (upon consent)",
+  "privacySection2Title": "2. Items of Personal Information Collected",
+  "privacySection2Content": "The Company collects the following personal information:\n\n【Required Information】\n• Name\n• Email address\n• Phone number (when providing service)\n• School information\n\n【Optional Information】\n• Profile picture\n\n【Automatically Collected Information】\n• Service usage history\n• Access logs\n• Device information\n• Location information (when using service)",
+  "privacySection3Title": "3. Retention and Use Period of Personal Information",
+  "privacySection3Content": "The Company processes and retains personal information within the retention and use period of personal information under relevant laws and regulations, or within the retention and use period of personal information agreed upon when collecting personal information from the information subject.\n\n• Upon membership withdrawal: Immediate destruction\n• However, if retention is required under relevant laws, retention for the relevant period:\n  - Records on contracts or withdrawal of subscription: 5 years\n  - Records on payment and supply of goods: 5 years\n  - Records on consumer complaints or dispute resolution: 3 years",
+  "privacySection4Title": "4. Provision of Personal Information to Third Parties",
+  "privacySection4Content": "The Company does not provide users' personal information to external parties in principle. However, the following cases are exceptions:\n\n• When the user has consented in advance\n• When necessary for service provision (providing reservation information to taxi drivers)\n• When required by law or when requested by investigative agencies in accordance with procedures and methods prescribed by law for investigative purposes",
+  "privacySection5Title": "5. Entrustment of Personal Information Processing",
+  "privacySection5Content": "The Company entrusts personal information processing tasks to external parties as follows for service improvement:\n\n【Entrusted Companies】\n• Payment services: Stripe, PayPal\n• Cloud services: Firebase (Google)\n• Customer support: Zendesk\n\nThe Company stipulates in the entrustment contract that personal information processing is prohibited for purposes other than performing entrusted tasks, technical and administrative protection measures, and restrictions on re-entrustment in accordance with the Personal Information Protection Act.",
+  "privacySection6Title": "6. Rights, Obligations, and Exercise Methods of Information Subjects",
+  "privacySection6Content": "Users can exercise the following rights:\n\n• Request to view personal information\n• Request correction in case of errors\n• Request deletion\n• Request suspension of processing\n\nRights can be exercised through 'Settings > Edit Profile' or 'Contact Us'.",
+  "privacySection7Title": "7. Destruction of Personal Information",
+  "privacySection7Content": "The Company destroys personal information without delay when it becomes unnecessary, such as when the retention period has elapsed or the processing purpose has been achieved.\n\n【Destruction Procedure】\nInformation entered by users is moved to a separate database after the purpose is achieved and destroyed after being stored for a certain period in accordance with internal policies and relevant laws.\n\n【Destruction Method】\n• Electronic files: Complete deletion using technical methods so that they cannot be recovered or reproduced\n• Paper documents: Shredding or incineration",
+  "privacySection8Title": "8. Personal Information Protection Officer",
+  "privacySection8Content": "The Company is responsible for overseeing personal information processing tasks and has designated a personal information protection officer as follows to handle information subjects' complaints and damage relief related to personal information processing:\n\n【Personal Information Protection Officer】\n• Name: TAGO Privacy Protection Team\n• Email: privacy@tagoapp.com\n\nFor other reports or consultations regarding personal information infringement, you can contact the following agencies:\n• Personal Information Infringement Report Center: privacy.kisa.or.kr (118 without area code)\n• Personal Information Dispute Mediation Committee: kopico.go.kr (1833-6972)",
+  "privacySection9Title": "9. Changes to Privacy Policy",
+  "privacySection9Content": "This Privacy Policy applies from January 1, 2025.\n\nIf there are additions, deletions, or modifications to the content due to changes in laws, policies, or security technology, we will notify you through in-app announcements at least 7 days before the change.",
+  "privacyContactTitle": "Privacy Inquiry",
+  "privacyContactMessage": "Questions about the Privacy Policy:\nprivacy@tagoapp.com",
+  "appDescription": "Smart ride service for Korean students",
+  "developmentTeam": "Development Team",
+  "inquiry": "Inquiry",
+  "website": "Website",
+  "version": "Version {version}",
+  "@version": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "copyright": "© 2025 TAGO. All rights reserved.",
+  "comingSoon": "This feature will be available soon.",
+  "tripInformation": "Trip Information",
+  "passengerCount": "Number of Passengers",
+  "totalBags": "Total Bags",
+  "bags": "{count, plural, one {{count} bag} other {{count} bags}}",
+  "@bags": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "participantList": "Participant List ({passengerCount} {passengerCount, plural, one {passenger} other {passengers}} + 1 driver)",
+  "@participantList": {
+    "placeholders": {
+      "passengerCount": {
+        "type": "int"
+      }
+    }
+  },
+  "participantListNoDriver": "Participant List ({count} people)",
+  "@participantListNoDriver": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "driver": "Driver",
+  "startRide": "Start Ride",
+  "leaveChatRoom": "Leave Chat Room",
+  "checkTripRoute": "Check Trip Route",
+  "endRide": "End Ride",
+  "viewOriginal": "View Original",
+  "viewTranslation": "View Translation",
+  "enterMessage": "Enter message",
+  "firstMessageHint": "Send your first message 🙂",
+  "errorOccurred": "An error occurred: {error}",
+  "@errorOccurred": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "loadingParticipants": "Loading participant information...",
+  "noParticipants": "No participants",
+  "rideStarted": "Ride started.",
+  "leftChatRoom": "Left the chat room.",
+  "rideEnded": "Ride has ended.",
+  "endRideDialogTitle": "End Ride",
+  "endRideDialogMessage": "Are you sure you want to end the ride?\n\nAll chat history and trip information will be deleted.\nThis action cannot be undone.",
+  "end": "End",
+  "rideEndError": "Error ending ride: {error}",
+  "@rideEndError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "leaveChatError": "Error leaving chat room: {error}",
+  "@leaveChatError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "updateError": "Update error: {error}",
+  "@updateError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "mapLoadError": "Error loading map information: {error}",
+  "@mapLoadError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "chatRoomNotFound": "Chat room document not found.",
+  "currentLocation": "Current Location",
+  "origin": "Origin",
+  "destination": "Destination",
+  "mapLoading": "Loading map...",
+  "@passengers": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
+}
+

@@ -135,6 +135,7 @@ import 'package:provider/provider.dart';
 import 'package:tago_driver/presentation/common/appScaffold.dart';
 import 'package:tago_driver/presentation/pages/chat/chatList/chat_list_view_model.dart';
 import 'package:tago_driver/presentation/auth/login/login_view_model.dart';
+import 'package:tago_driver/l10n/app_localizations.dart';
 
 class ChatView extends StatelessWidget {
   const ChatView({super.key});
@@ -145,6 +146,7 @@ class ChatView extends StatelessWidget {
     final loginVm = context.watch<LoginViewModel>();
     final me = loginVm.currentUser!;
     final myId = me.uid;
+    final l10n = AppLocalizations.of(context)!;
 
     return AppScaffold(
       backgroundColor: const Color(0xFF0F1419),
@@ -169,9 +171,9 @@ class ChatView extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 12),
-                const Text(
-                  '채팅방 목록',
-                  style: TextStyle(
+                Text(
+                  l10n.chatRoomListHeader,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
@@ -224,19 +226,13 @@ class ChatView extends StatelessWidget {
                             ),
                             const SizedBox(height: 24),
                             Text(
-                              '오류가 발생했습니다',
+                              l10n.errorOccurred(
+                                snapshot.error?.toString() ?? '',
+                              ),
                               style: TextStyle(
                                 color: Colors.white.withOpacity(0.9),
                                 fontSize: 17,
                                 fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              '${snapshot.error}',
-                              style: TextStyle(
-                                color: Colors.white.withOpacity(0.5),
-                                fontSize: 14,
                               ),
                               textAlign: TextAlign.center,
                             ),
@@ -274,7 +270,7 @@ class ChatView extends StatelessWidget {
                             ),
                             const SizedBox(height: 24),
                             Text(
-                              '채팅방이 없습니다',
+                              l10n.noChatRooms,
                               style: TextStyle(
                                 color: Colors.white.withOpacity(0.9),
                                 fontSize: 17,
@@ -283,7 +279,7 @@ class ChatView extends StatelessWidget {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              '라이드를 배정하면 채팅방이 생성됩니다',
+                              l10n.chatRoomCreatedHint,
                               style: TextStyle(
                                 color: Colors.white.withOpacity(0.5),
                                 fontSize: 14,
@@ -311,7 +307,7 @@ class ChatView extends StatelessWidget {
                     final toName = data['toName'] as String? ?? '';
                     final title = '$fromName → $toName';
                     final lastMessage =
-                        data['lastMessage'] as String? ?? '메시지가 없습니다.';
+                        data['lastMessage'] as String? ?? l10n.noMessages;
 
                     String timeText = '';
                     final rawTs = data['lastTimestamp'];
@@ -350,7 +346,9 @@ class ChatView extends StatelessWidget {
                                 width: 48,
                                 height: 48,
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF4CAF50).withOpacity(0.15),
+                                  color: const Color(
+                                    0xFF4CAF50,
+                                  ).withOpacity(0.15),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: const Icon(

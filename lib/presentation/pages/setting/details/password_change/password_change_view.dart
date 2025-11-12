@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'dart:ui';
 import 'package:tago_driver/presentation/common/appScaffold.dart';
 import 'package:tago_driver/presentation/pages/setting/details/password_change/password_change_view_model.dart';
+import 'package:tago_driver/l10n/app_localizations.dart';
 
 /// 비밀번호 변경 화면
 ///
@@ -26,6 +27,7 @@ class _PasswordChangeViewState extends State<PasswordChangeView> {
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<PasswordChangeViewModel>();
+    final l10n = AppLocalizations.of(context)!;
 
     return AppScaffold(
       appBar: AppBar(
@@ -34,13 +36,13 @@ class _PasswordChangeViewState extends State<PasswordChangeView> {
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          "비밀번호 변경",
-          style: TextStyle(color: Colors.white, fontSize: 20),
+        title: Text(
+          l10n.changePassword,
+          style: const TextStyle(color: Colors.white, fontSize: 20),
         ),
       ),
       scrollable: true,
-      body: _buildContent(context, vm),
+      body: _buildContent(context, vm, l10n),
     );
   }
 
@@ -53,47 +55,47 @@ class _PasswordChangeViewState extends State<PasswordChangeView> {
   /// 4. 새 비밀번호 확인 입력
   /// 5. 변경 버튼
   /// 6. 이메일로 재설정 버튼
-  Widget _buildContent(BuildContext context, PasswordChangeViewModel vm) {
+  Widget _buildContent(BuildContext context, PasswordChangeViewModel vm, AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // 안내 문구
-        _buildInfoBox(),
+        _buildInfoBox(l10n),
 
         const SizedBox(height: 32),
 
         // 현재 비밀번호
-        _buildCurrentPasswordField(vm),
+        _buildCurrentPasswordField(vm, l10n),
 
         const SizedBox(height: 20),
 
         // 새 비밀번호
-        _buildNewPasswordField(vm),
+        _buildNewPasswordField(vm, l10n),
 
         const SizedBox(height: 20),
 
         // 새 비밀번호 확인
-        _buildConfirmPasswordField(vm),
+        _buildConfirmPasswordField(vm, l10n),
 
         const SizedBox(height: 32),
 
         // 비밀번호 규칙 안내
-        _buildPasswordRules(),
+        _buildPasswordRules(l10n),
 
         const SizedBox(height: 32),
 
         // 변경 버튼
-        _buildChangeButton(context, vm),
+        _buildChangeButton(context, vm, l10n),
 
         const SizedBox(height: 16),
 
         // 구분선
-        _buildDivider(),
+        _buildDivider(l10n),
 
         const SizedBox(height: 16),
 
         // 이메일로 재설정
-        _buildResetByEmailButton(context, vm),
+        _buildResetByEmailButton(context, vm, l10n),
 
         const SizedBox(height: 40),
       ],
@@ -101,7 +103,7 @@ class _PasswordChangeViewState extends State<PasswordChangeView> {
   }
 
   /// 안내 문구
-  Widget _buildInfoBox() {
+  Widget _buildInfoBox(AppLocalizations l10n) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(20),
       child: BackdropFilter(
@@ -122,7 +124,7 @@ class _PasswordChangeViewState extends State<PasswordChangeView> {
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  "보안을 위해 정기적으로 비밀번호를 변경하세요.",
+                  l10n.passwordChangeInfo,
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.7),
                     fontSize: 14,
@@ -138,14 +140,14 @@ class _PasswordChangeViewState extends State<PasswordChangeView> {
   }
 
   /// 현재 비밀번호 입력 필드
-  Widget _buildCurrentPasswordField(PasswordChangeViewModel vm) {
+  Widget _buildCurrentPasswordField(PasswordChangeViewModel vm, AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: const EdgeInsets.only(left: 4, bottom: 8),
           child: Text(
-            "현재 비밀번호",
+            l10n.currentPassword,
             style: TextStyle(
               color: Colors.white.withOpacity(0.6),
               fontSize: 13,
@@ -159,7 +161,7 @@ class _PasswordChangeViewState extends State<PasswordChangeView> {
           obscureText: !vm.isCurrentPasswordVisible,
           style: const TextStyle(color: Colors.white, fontSize: 16),
           decoration: InputDecoration(
-            hintText: "현재 비밀번호를 입력하세요",
+            hintText: l10n.currentPasswordHint,
             hintStyle: TextStyle(color: Colors.white.withOpacity(0.3)),
             filled: true,
             fillColor: Colors.white.withOpacity(0.03),
@@ -196,14 +198,14 @@ class _PasswordChangeViewState extends State<PasswordChangeView> {
   }
 
   /// 새 비밀번호 입력 필드
-  Widget _buildNewPasswordField(PasswordChangeViewModel vm) {
+  Widget _buildNewPasswordField(PasswordChangeViewModel vm, AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: const EdgeInsets.only(left: 4, bottom: 8),
           child: Text(
-            "새 비밀번호",
+            l10n.newPassword,
             style: TextStyle(
               color: Colors.white.withOpacity(0.6),
               fontSize: 13,
@@ -217,7 +219,7 @@ class _PasswordChangeViewState extends State<PasswordChangeView> {
           obscureText: !vm.isNewPasswordVisible,
           style: const TextStyle(color: Colors.white, fontSize: 16),
           decoration: InputDecoration(
-            hintText: "새 비밀번호를 입력하세요",
+            hintText: l10n.newPasswordHint,
             hintStyle: TextStyle(color: Colors.white.withOpacity(0.3)),
             filled: true,
             fillColor: Colors.white.withOpacity(0.03),
@@ -266,14 +268,14 @@ class _PasswordChangeViewState extends State<PasswordChangeView> {
   }
 
   /// 새 비밀번호 확인 입력 필드
-  Widget _buildConfirmPasswordField(PasswordChangeViewModel vm) {
+  Widget _buildConfirmPasswordField(PasswordChangeViewModel vm, AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: const EdgeInsets.only(left: 4, bottom: 8),
           child: Text(
-            "새 비밀번호 확인",
+            l10n.confirmNewPassword,
             style: TextStyle(
               color: Colors.white.withOpacity(0.6),
               fontSize: 13,
@@ -287,7 +289,7 @@ class _PasswordChangeViewState extends State<PasswordChangeView> {
           obscureText: !vm.isConfirmPasswordVisible,
           style: const TextStyle(color: Colors.white, fontSize: 16),
           decoration: InputDecoration(
-            hintText: "새 비밀번호를 다시 입력하세요",
+            hintText: l10n.confirmNewPasswordHint,
             hintStyle: TextStyle(color: Colors.white.withOpacity(0.3)),
             filled: true,
             fillColor: Colors.white.withOpacity(0.03),
@@ -336,7 +338,7 @@ class _PasswordChangeViewState extends State<PasswordChangeView> {
   }
 
   /// 비밀번호 규칙 안내
-  Widget _buildPasswordRules() {
+  Widget _buildPasswordRules(AppLocalizations l10n) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
       child: BackdropFilter(
@@ -351,18 +353,18 @@ class _PasswordChangeViewState extends State<PasswordChangeView> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                "비밀번호 규칙",
-                style: TextStyle(
+              Text(
+                l10n.passwordRulesTitle,
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 8),
-              _buildRuleItem("• 8자 이상"),
-              _buildRuleItem("• 영문 포함"),
-              _buildRuleItem("• 숫자 포함"),
+              _buildRuleItem(l10n.passwordRuleMinLength),
+              _buildRuleItem(l10n.passwordRuleLetters),
+              _buildRuleItem(l10n.passwordRuleNumbers),
             ],
           ),
         ),
@@ -382,7 +384,7 @@ class _PasswordChangeViewState extends State<PasswordChangeView> {
   }
 
   /// 변경 버튼
-  Widget _buildChangeButton(BuildContext context, PasswordChangeViewModel vm) {
+  Widget _buildChangeButton(BuildContext context, PasswordChangeViewModel vm, AppLocalizations l10n) {
     return SizedBox(
       width: double.infinity,
       height: 50,
@@ -408,9 +410,9 @@ class _PasswordChangeViewState extends State<PasswordChangeView> {
                     color: Colors.white,
                   ),
                 )
-                : const Text(
-                  "비밀번호 변경",
-                  style: TextStyle(
+                : Text(
+                  l10n.changePassword,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -421,14 +423,14 @@ class _PasswordChangeViewState extends State<PasswordChangeView> {
   }
 
   /// 구분선
-  Widget _buildDivider() {
+  Widget _buildDivider(AppLocalizations l10n) {
     return Row(
       children: [
         Expanded(child: Divider(color: Colors.white12)),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(
-            "또는",
+            l10n.or,
             style: TextStyle(color: Colors.white38, fontSize: 13),
           ),
         ),
@@ -441,6 +443,7 @@ class _PasswordChangeViewState extends State<PasswordChangeView> {
   Widget _buildResetByEmailButton(
     BuildContext context,
     PasswordChangeViewModel vm,
+    AppLocalizations l10n,
   ) {
     return SizedBox(
       width: double.infinity,
@@ -466,14 +469,14 @@ class _PasswordChangeViewState extends State<PasswordChangeView> {
                     color: Colors.blueAccent,
                   ),
                 )
-                : const Row(
+                : Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.email_outlined, color: Colors.blueAccent),
-                    SizedBox(width: 8),
+                    const Icon(Icons.email_outlined, color: Colors.blueAccent),
+                    const SizedBox(width: 8),
                     Text(
-                      "이메일로 재설정 링크 받기",
-                      style: TextStyle(
+                      l10n.getResetLinkByEmail,
+                      style: const TextStyle(
                         color: Colors.blueAccent,
                         fontSize: 16,
                         fontWeight: FontWeight.bold,

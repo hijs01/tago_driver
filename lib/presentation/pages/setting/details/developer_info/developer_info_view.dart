@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:ui'; // BackdropFilter 사용
 import 'package:tago_driver/presentation/common/appScaffold.dart';
+import 'package:tago_driver/l10n/app_localizations.dart';
 
 /// 개발자 정보 화면 - Liquid Glass 스타일
 class DeveloperInfoView extends StatelessWidget {
@@ -8,6 +9,7 @@ class DeveloperInfoView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return AppScaffold(
       // ===== 검정 배경 유지 =====
       backgroundColor: Colors.black,
@@ -19,9 +21,9 @@ class DeveloperInfoView extends StatelessWidget {
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          "개발자 정보",
-          style: TextStyle(
+        title: Text(
+          l10n.developerInfo,
+          style: const TextStyle(
             color: Colors.white,
             fontSize: 20,
             fontWeight: FontWeight.w600,
@@ -30,11 +32,11 @@ class DeveloperInfoView extends StatelessWidget {
       ),
       scrollable: true,
       bodyPadding: const EdgeInsets.all(24),
-      body: _buildContent(context),
+      body: _buildContent(context, l10n),
     );
   }
 
-  Widget _buildContent(BuildContext context) {
+  Widget _buildContent(BuildContext context, AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -51,14 +53,14 @@ class DeveloperInfoView extends StatelessWidget {
         const SizedBox(height: 8),
 
         // 앱 설명
-        _buildAppDescription(),
+        _buildAppDescription(l10n),
 
         const SizedBox(height: 48),
 
         // 개발팀
         _buildInfoSection(
           icon: Icons.people,
-          title: "개발팀",
+          title: l10n.developmentTeam,
           subtitle: "TAGO Development Team",
         ),
 
@@ -67,10 +69,10 @@ class DeveloperInfoView extends StatelessWidget {
         // 문의
         _buildInfoSection(
           icon: Icons.email,
-          title: "문의",
+          title: l10n.inquiry,
           subtitle: "support@tagoapp.com",
           onTap: () {
-            _showComingSoon(context);
+            _showComingSoon(context, l10n);
           },
         ),
 
@@ -79,10 +81,10 @@ class DeveloperInfoView extends StatelessWidget {
         // 웹사이트
         _buildInfoSection(
           icon: Icons.language,
-          title: "웹사이트",
+          title: l10n.website,
           subtitle: "www.tagoapp.com",
           onTap: () {
-            _showComingSoon(context);
+            _showComingSoon(context, l10n);
           },
         ),
 
@@ -94,19 +96,19 @@ class DeveloperInfoView extends StatelessWidget {
           title: "GitHub",
           subtitle: "github.com/tago-app",
           onTap: () {
-            _showComingSoon(context);
+            _showComingSoon(context, l10n);
           },
         ),
 
         const SizedBox(height: 80),
 
         // 버전 정보
-        _buildVersionInfo(),
+        _buildVersionInfo(l10n),
 
         const SizedBox(height: 16),
 
         // 저작권
-        _buildCopyright(),
+        _buildCopyright(l10n),
 
         const SizedBox(height: 100), // 바텀바 공간
       ],
@@ -161,10 +163,10 @@ class DeveloperInfoView extends StatelessWidget {
   }
 
   /// 앱 설명
-  Widget _buildAppDescription() {
+  Widget _buildAppDescription(AppLocalizations l10n) {
     return Center(
       child: Text(
-        "한인 학생들을 위한 스마트 라이드 서비스",
+        l10n.appDescription,
         style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 14),
         textAlign: TextAlign.center,
       ),
@@ -253,7 +255,7 @@ class DeveloperInfoView extends StatelessWidget {
   }
 
   /// 버전 정보 - Liquid Glass
-  Widget _buildVersionInfo() {
+  Widget _buildVersionInfo(AppLocalizations l10n) {
     return Center(
       child: ClipRRect(
         borderRadius: BorderRadius.circular(20),
@@ -270,7 +272,7 @@ class DeveloperInfoView extends StatelessWidget {
               ),
             ),
             child: Text(
-              "Version 1.0.0",
+              l10n.version('1.0.0'),
               style: TextStyle(
                 color: Colors.white.withOpacity(0.5),
                 fontSize: 13,
@@ -284,20 +286,20 @@ class DeveloperInfoView extends StatelessWidget {
   }
 
   /// 저작권 표시
-  Widget _buildCopyright() {
+  Widget _buildCopyright(AppLocalizations l10n) {
     return Center(
       child: Text(
-        "© 2025 TAGO. All rights reserved.",
+        l10n.copyright,
         style: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 11),
       ),
     );
   }
 
   /// "곧 추가될 예정" 메시지 - Liquid Glass 스타일
-  void _showComingSoon(BuildContext context) {
+  void _showComingSoon(BuildContext context, AppLocalizations l10n) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Text("이 기능은 곧 추가될 예정입니다."),
+        content: Text(l10n.comingSoon),
         backgroundColor: Colors.white.withOpacity(0.9),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

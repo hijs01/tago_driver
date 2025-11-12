@@ -12,6 +12,7 @@ import 'package:tago_driver/data/services/translation_service.dart';
 import 'package:tago_driver/data/services/translation_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:tago_driver/presentation/pages/map/ridemap_view.dart';
+import 'package:tago_driver/l10n/app_localizations.dart';
 
 class ChatRoomView extends StatefulWidget {
   const ChatRoomView({super.key});
@@ -266,6 +267,7 @@ class _ChatRoomViewState extends State<ChatRoomView> {
     final me = loginVm.currentUser!;
     final myId = me.uid;
     final myName = me.name;
+    final l10n = AppLocalizations.of(context)!;
 
     return ChangeNotifierProvider(
       create: (_) => ChatViewModel(rideRequestRef),
@@ -430,7 +432,7 @@ class _ChatRoomViewState extends State<ChatRoomView> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
-                            '여정 정보',
+                            l10n.tripInformation,
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 18,
@@ -467,16 +469,19 @@ class _ChatRoomViewState extends State<ChatRoomView> {
                                 size: 20,
                               ),
                               const SizedBox(width: 8),
-                              const Text(
-                                '탑승 인원',
-                                style: TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 14,
+                              Flexible(
+                                child: Text(
+                                  l10n.passengerCount,
+                                  style: const TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 14,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                               const Spacer(),
                               Text(
-                                '$peopleCount명',
+                                l10n.passengers(peopleCount),
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 16,
@@ -494,16 +499,19 @@ class _ChatRoomViewState extends State<ChatRoomView> {
                                 size: 20,
                               ),
                               const SizedBox(width: 8),
-                              const Text(
-                                '총 가방',
-                                style: TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 14,
+                              Flexible(
+                                child: Text(
+                                  l10n.totalBags,
+                                  style: const TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 14,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                               const Spacer(),
                               Text(
-                                '$luggageCount개',
+                                l10n.bags(luggageCount),
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 16,
@@ -536,10 +544,10 @@ class _ChatRoomViewState extends State<ChatRoomView> {
                                 width: 1,
                               ),
                             ),
-                            child: const Center(
+                            child: Center(
                               child: Text(
-                                '참여자 정보를 불러오는 중...',
-                                style: TextStyle(
+                                l10n.loadingParticipants,
+                                style: const TextStyle(
                                   color: Colors.white54,
                                   fontSize: 13,
                                 ),
@@ -561,10 +569,10 @@ class _ChatRoomViewState extends State<ChatRoomView> {
                                 width: 1,
                               ),
                             ),
-                            child: const Center(
+                            child: Center(
                               child: Text(
-                                '참여자가 없습니다',
-                                style: TextStyle(
+                                l10n.noParticipants,
+                                style: const TextStyle(
                                   color: Colors.white54,
                                   fontSize: 13,
                                 ),
@@ -606,8 +614,8 @@ class _ChatRoomViewState extends State<ChatRoomView> {
                                   Expanded(
                                     child: Text(
                                       hasDriver
-                                          ? '참여자 목록 (승객 ${passengerCount}명 + 기사 1명)'
-                                          : '참여자 목록 (${participants.length}명)',
+                                          ? l10n.participantList(passengerCount)
+                                          : l10n.participantListNoDriver(participants.length),
                                       style: const TextStyle(
                                         color: Colors.white,
                                         fontSize: 15,
@@ -701,9 +709,9 @@ class _ChatRoomViewState extends State<ChatRoomView> {
                                                             4,
                                                           ),
                                                     ),
-                                                    child: const Text(
-                                                      '드라이버',
-                                                      style: TextStyle(
+                                                    child: Text(
+                                                      l10n.driver,
+                                                      style: const TextStyle(
                                                         color: Colors.blue,
                                                         fontSize: 10,
                                                         fontWeight:
@@ -728,7 +736,7 @@ class _ChatRoomViewState extends State<ChatRoomView> {
                                                     ),
                                                     const SizedBox(width: 4),
                                                     Text(
-                                                      '$membersCount명',
+                                                      l10n.passengers(membersCount),
                                                       style: const TextStyle(
                                                         color: Colors.white54,
                                                         fontSize: 12,
@@ -746,7 +754,7 @@ class _ChatRoomViewState extends State<ChatRoomView> {
                                                     ),
                                                     const SizedBox(width: 4),
                                                     Text(
-                                                      '$bags개',
+                                                      l10n.bags(bags),
                                                       style: const TextStyle(
                                                         color: Colors.white54,
                                                         fontSize: 12,
@@ -779,7 +787,7 @@ class _ChatRoomViewState extends State<ChatRoomView> {
                         _buildDrawerItem(
                           context: context,
                           icon: Icons.play_arrow,
-                          title: '라이드 시작하기',
+                          title: l10n.startRide,
                           color: const Color(0xFF4CAF50),
                           onTap: () async {
                             Navigator.pop(context);
@@ -790,7 +798,7 @@ class _ChatRoomViewState extends State<ChatRoomView> {
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: const Text('라이드를 시작합니다.'),
+                                    content: Text(l10n.rideStarted),
                                     backgroundColor: const Color(0xFF4CAF50),
                                     behavior: SnackBarBehavior.floating,
                                   ),
@@ -800,7 +808,7 @@ class _ChatRoomViewState extends State<ChatRoomView> {
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text('업데이트 중 오류 발생: $e'),
+                                    content: Text(l10n.updateError(e.toString())),
                                     backgroundColor: Colors.red,
                                     behavior: SnackBarBehavior.floating,
                                   ),
@@ -815,7 +823,7 @@ class _ChatRoomViewState extends State<ChatRoomView> {
                         _buildDrawerItem(
                           context: context,
                           icon: Icons.exit_to_app,
-                          title: '채팅방 나가기',
+                          title: l10n.leaveChatRoom,
                           color: Colors.redAccent,
                           onTap: () async {
                             Navigator.pop(context);
@@ -830,7 +838,7 @@ class _ChatRoomViewState extends State<ChatRoomView> {
                               ) async {
                                 final rideSnap = await transaction.get(rideRef);
                                 if (!rideSnap.exists) {
-                                  throw Exception('채팅방 문서를 찾을 수 없습니다.');
+                                  throw Exception(l10n.chatRoomNotFound);
                                 }
 
                                 final rideData = rideSnap.data()!;
@@ -853,8 +861,8 @@ class _ChatRoomViewState extends State<ChatRoomView> {
 
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('채팅방에서 나갔습니다.'),
+                                  SnackBar(
+                                    content: Text(l10n.leftChatRoom),
                                     behavior: SnackBarBehavior.floating,
                                     backgroundColor: Colors.redAccent,
                                   ),
@@ -869,7 +877,7 @@ class _ChatRoomViewState extends State<ChatRoomView> {
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text('채팅방 나가기 중 오류 발생: $e'),
+                                    content: Text(l10n.leaveChatError(e.toString())),
                                     behavior: SnackBarBehavior.floating,
                                     backgroundColor: Colors.redAccent,
                                   ),
@@ -885,7 +893,7 @@ class _ChatRoomViewState extends State<ChatRoomView> {
                         _buildDrawerItem(
                           context: context,
                           icon: Icons.map,
-                          title: '여정 경로 확인하기',
+                          title: l10n.checkTripRoute,
                           color: const Color(0xFF4CAF50),
                           onTap: () async {
                             Navigator.pop(context);
@@ -921,7 +929,7 @@ class _ChatRoomViewState extends State<ChatRoomView> {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(
-                                      '지도 정보를 불러오는 중 오류가 발생했습니다: $e',
+                                      l10n.mapLoadError(e.toString()),
                                     ),
                                     backgroundColor: Colors.red,
                                   ),
@@ -936,7 +944,7 @@ class _ChatRoomViewState extends State<ChatRoomView> {
                         _buildDrawerItem(
                           context: context,
                           icon: Icons.check_circle,
-                          title: '라이드 종료',
+                          title: l10n.endRide,
                           color: const Color(0xFFFF9800),
                           onTap: () async {
                             Navigator.pop(context);
@@ -954,17 +962,17 @@ class _ChatRoomViewState extends State<ChatRoomView> {
                                         width: 1,
                                       ),
                                     ),
-                                    title: const Row(
+                                    title: Row(
                                       children: [
-                                        Icon(
+                                        const Icon(
                                           Icons.warning_amber_rounded,
                                           color: Color(0xFFFF9800),
                                           size: 28,
                                         ),
-                                        SizedBox(width: 12),
+                                        const SizedBox(width: 12),
                                         Text(
-                                          '라이드 종료',
-                                          style: TextStyle(
+                                          l10n.endRideDialogTitle,
+                                          style: const TextStyle(
                                             color: Colors.white,
                                             fontSize: 18,
                                             fontWeight: FontWeight.bold,
@@ -972,9 +980,9 @@ class _ChatRoomViewState extends State<ChatRoomView> {
                                         ),
                                       ],
                                     ),
-                                    content: const Text(
-                                      '라이드를 종료하시겠습니까?\n\n모든 채팅 기록과 여정 정보가 삭제됩니다.\n이 작업은 되돌릴 수 없습니다.',
-                                      style: TextStyle(
+                                    content: Text(
+                                      l10n.endRideDialogMessage,
+                                      style: const TextStyle(
                                         color: Colors.white70,
                                         fontSize: 14,
                                         height: 1.5,
@@ -984,9 +992,9 @@ class _ChatRoomViewState extends State<ChatRoomView> {
                                       TextButton(
                                         onPressed:
                                             () => Navigator.pop(context, false),
-                                        child: const Text(
-                                          '취소',
-                                          style: TextStyle(
+                                        child: Text(
+                                          l10n.cancel,
+                                          style: const TextStyle(
                                             color: Colors.white54,
                                             fontSize: 15,
                                           ),
@@ -1022,11 +1030,11 @@ class _ChatRoomViewState extends State<ChatRoomView> {
                                               ScaffoldMessenger.of(
                                                 context,
                                               ).showSnackBar(
-                                                const SnackBar(
+                                                SnackBar(
                                                   content: Text(
-                                                    '라이드가 종료되었습니다.',
+                                                    l10n.rideEnded,
                                                   ),
-                                                  backgroundColor: Color(
+                                                  backgroundColor: const Color(
                                                     0xFFFF9800,
                                                   ),
                                                   behavior:
@@ -1048,7 +1056,7 @@ class _ChatRoomViewState extends State<ChatRoomView> {
                                               ).showSnackBar(
                                                 SnackBar(
                                                   content: Text(
-                                                    '라이드 종료 중 오류 발생: $e',
+                                                    l10n.rideEndError(e.toString()),
                                                   ),
                                                   backgroundColor: Colors.red,
                                                   behavior:
@@ -1074,9 +1082,9 @@ class _ChatRoomViewState extends State<ChatRoomView> {
                                             ),
                                           ),
                                         ),
-                                        child: const Text(
-                                          '종료',
-                                          style: TextStyle(
+                                        child: Text(
+                                          l10n.end,
+                                          style: const TextStyle(
                                             color: Colors.white,
                                             fontSize: 15,
                                             fontWeight: FontWeight.w600,
@@ -1134,7 +1142,7 @@ class _ChatRoomViewState extends State<ChatRoomView> {
                       if (snapshot.hasError) {
                         return Center(
                           child: Text(
-                            '오류 발생: ${snapshot.error}',
+                            l10n.errorOccurred(snapshot.error.toString()),
                             style: TextStyle(
                               color: Colors.white.withOpacity(0.9),
                             ),
@@ -1147,7 +1155,7 @@ class _ChatRoomViewState extends State<ChatRoomView> {
                       if (messages.isEmpty) {
                         return Center(
                           child: Text(
-                            '첫 메세지를 보내보세요 🙂',
+                            l10n.firstMessageHint,
                             style: TextStyle(
                               color: Colors.white.withOpacity(0.5),
                             ),
@@ -1228,7 +1236,7 @@ class _ChatRoomViewState extends State<ChatRoomView> {
                                           });
                                         },
                                         child: Text(
-                                          showOriginal ? '번역 보기' : '원문 보기',
+                                          showOriginal ? l10n.viewTranslation : l10n.viewOriginal,
                                           style: const TextStyle(
                                             color: Colors.white54,
                                             fontSize: 12,
@@ -1268,7 +1276,7 @@ class _ChatRoomViewState extends State<ChatRoomView> {
                   controller: _controller,
                   style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
-                    hintText: '메세지를 입력하세요',
+                    hintText: l10n.enterMessage,
                     hintStyle: TextStyle(color: Colors.white.withOpacity(0.4)),
                     filled: true,
                     fillColor: Colors.white.withOpacity(0.05),

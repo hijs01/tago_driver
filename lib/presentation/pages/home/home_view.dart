@@ -6,6 +6,7 @@ import 'package:tago_driver/presentation/common/appScaffold.dart';
 import 'package:tago_driver/presentation/rideRequest/widget/ride_request_tile.dart';
 import 'package:tago_driver/presentation/rideRequest/ride_request_view_model.dart';
 import 'package:tago_driver/data/models/ride_request_model.dart';
+import 'package:tago_driver/l10n/app_localizations.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -28,7 +29,8 @@ class _HomeViewState extends State<HomeView> {
   Widget build(BuildContext context) {
     final loginVm = context.watch<LoginViewModel>();
     final rideVm = context.watch<RideRequestViewModel>();
-    final userName = loginVm.currentUser?.name ?? '기사';
+    final l10n = AppLocalizations.of(context)!;
+    final userName = loginVm.currentUser?.name ?? l10n.defaultDriverName;
 
     return AppScaffold(
       backgroundColor: const Color(0xFF0F1419),
@@ -48,7 +50,7 @@ class _HomeViewState extends State<HomeView> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '안녕하세요',
+                  l10n.hello,
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.6),
                     fontSize: 15,
@@ -57,7 +59,7 @@ class _HomeViewState extends State<HomeView> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '$userName 님',
+                  '$userName${l10n.honorificSuffix}',
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 32,
@@ -85,9 +87,9 @@ class _HomeViewState extends State<HomeView> {
                   ),
                 ),
                 const SizedBox(width: 12),
-                const Text(
-                  '대기 중인 라이드 요청',
-                  style: TextStyle(
+                Text(
+                  l10n.pendingRideRequestsHeader,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
@@ -142,7 +144,7 @@ class _HomeViewState extends State<HomeView> {
                             ),
                             const SizedBox(height: 24),
                             Text(
-                              '대기 중인 여정이 없습니다',
+                              l10n.noPendingTrips,
                               style: TextStyle(
                                 color: Colors.white.withOpacity(0.9),
                                 fontSize: 17,
@@ -151,7 +153,7 @@ class _HomeViewState extends State<HomeView> {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              '새로운 요청이 오면 알려드릴게요',
+                              l10n.newRequestNotification,
                               style: TextStyle(
                                 color: Colors.white.withOpacity(0.5),
                                 fontSize: 14,
@@ -179,14 +181,21 @@ class _HomeViewState extends State<HomeView> {
                     // DateTime -> 문자열
                     String timeText;
                     if (r.departureAt != null) {
-                      final formatter = DateFormat('M월 d일 • h:mm a', 'ko_KR');
-                      timeText = formatter.format(r.departureAt!);
+                      final locale =
+                          Localizations.localeOf(context).toString();
+                      final date = DateFormat.yMMMd(
+                        locale,
+                      ).format(r.departureAt!);
+                      final time = DateFormat.jm(
+                        locale,
+                      ).format(r.departureAt!);
+                      timeText = '$date • $time';
                     } else {
-                      timeText = '시간 정보 없음';
+                      timeText = l10n.timeUnknown;
                     }
 
                     return RideRequestTile(
-                      text: '요청 수락하기',
+                      text: l10n.acceptRequest,
                       id: r.id,
                       origin: r.fromName,
                       destination: r.toName,
@@ -197,7 +206,7 @@ class _HomeViewState extends State<HomeView> {
                       onTap: () {
                         rideVm.assignRide(request: r);
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('요청이 수락되었습니다.')),
+                          SnackBar(content: Text(l10n.requestAccepted)),
                         );
                       },
                     );

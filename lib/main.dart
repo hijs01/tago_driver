@@ -18,6 +18,8 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:tago_driver/data/services/notification_service.dart';
 import 'package:flutter/services.dart'; // ✅ MethodChannel 사용을 위해
 import 'package:cloud_functions/cloud_functions.dart'; // ✅ Firebase Functions 사용을 위해
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:tago_driver/l10n/app_localizations.dart';
 
 void main() async {
   // Flutter 엔진이 위젯을 그리기 전에 비동기 코드(Firebase init 등) 실행 가능하게 함
@@ -25,7 +27,9 @@ void main() async {
 
   // Firebase Core 초기화 (firebase_options.dart에서 플랫폼별 설정을 불러옴)
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  // 다국어 날짜 데이터 초기화
   await initializeDateFormatting('ko_KR', null);
+  await initializeDateFormatting('en_US', null);
 
   await NotificationService().initialize();
 
@@ -170,6 +174,13 @@ class TagoDriverApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'TAGO Driver',
       theme: ThemeData.dark().copyWith(scaffoldBackgroundColor: Colors.black),
+      localizationsDelegates: [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      supportedLocales: const [Locale('en'), Locale('ko')],
 
       // 🔹 초기 화면 (AuthGate: 자동 로그인 처리)
       home: const AuthGate(),

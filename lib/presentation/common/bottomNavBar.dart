@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:tago_driver/l10n/app_localizations.dart';
 
 class TagoBottomNavBar extends StatelessWidget {
   final int currentIndex;
@@ -13,6 +14,7 @@ class TagoBottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       decoration: BoxDecoration(
         border: Border(
@@ -46,7 +48,7 @@ class TagoBottomNavBar extends StatelessWidget {
                 fontWeight: FontWeight.w400,
                 letterSpacing: -0.3,
               ),
-              items: const [
+              items: [
                 BottomNavigationBarItem(
                   icon: Padding(
                     padding: EdgeInsets.only(bottom: 4),
@@ -56,7 +58,7 @@ class TagoBottomNavBar extends StatelessWidget {
                     padding: EdgeInsets.only(bottom: 4),
                     child: Icon(Icons.home, size: 24),
                   ),
-                  label: "홈",
+                  label: l10n.home,
                 ),
                 BottomNavigationBarItem(
                   icon: Padding(
@@ -67,7 +69,7 @@ class TagoBottomNavBar extends StatelessWidget {
                     padding: EdgeInsets.only(bottom: 4),
                     child: Icon(Icons.explore, size: 24),
                   ),
-                  label: "여정",
+                  label: l10n.journey,
                 ),
                 BottomNavigationBarItem(
                   icon: Padding(
@@ -78,7 +80,7 @@ class TagoBottomNavBar extends StatelessWidget {
                     padding: EdgeInsets.only(bottom: 4),
                     child: Icon(Icons.chat_bubble, size: 24),
                   ),
-                  label: "채팅",
+                  label: l10n.chat,
                 ),
                 BottomNavigationBarItem(
                   icon: Padding(
@@ -89,7 +91,7 @@ class TagoBottomNavBar extends StatelessWidget {
                     padding: EdgeInsets.only(bottom: 4),
                     child: Icon(Icons.person, size: 24),
                   ),
-                  label: "설정",
+                  label: l10n.settings,
                 ),
               ],
             ),
