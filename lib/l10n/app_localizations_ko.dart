@@ -581,4 +581,38 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get mapLoading => '지도 로딩 중...';
+
+  @override
+  String get systemGuide => '시스템 안내';
+
+  @override
+  String driverEntered(String driverName) {
+    return '$driverName 드라이버가 입장했습니다.';
+  }
+
+  @override
+  String get driverEnteredNoName => '드라이버가 입장했습니다.';
+
+  @override
+  String get systemGuide1 => '1. 픽업 위치를 드라이버와 채팅으로 다시 한 번 확인해주세요.';
+
+  @override
+  String systemGuide2(String fareText, String tipText) {
+    return '2. 요금은 현장에서 결제해 주세요.\n   - 예상 요금: $fareText\n   - 추천 팁: $tipText';
+  }
+
+  @override
+  String get systemGuide3 => '3. 궁금한 점이 있으면 언제든지 채팅방에서 이야기해주세요.';
+
+  @override
+  String get statusActive => '활성';
+
+  @override
+  String get statusOnProgress => '진행 중';
+
+  @override
+  String get statusPending => '대기 중';
+
+  @override
+  String get statusAccepted => '수락됨';
 }

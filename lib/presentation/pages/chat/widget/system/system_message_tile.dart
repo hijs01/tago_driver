@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tago_driver/l10n/app_localizations.dart';
 
 /// 모든 시스템 메시지 카드가 공통으로 사용하는 UI 틀
 /// - 배경, 패딩, border, margin 등 공통 스타일 담당
@@ -24,9 +25,7 @@ class SystemMessageTile extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.06),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: Colors.white.withOpacity(0.1),
-          ),
+          border: Border.all(color: Colors.white.withOpacity(0.1)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -34,15 +33,11 @@ class SystemMessageTile extends StatelessWidget {
             if (icon != null)
               Row(
                 children: [
-                  Icon(
-                    icon,
-                    size: 18,
-                    color: iconColor ?? Colors.white70,
-                  ),
+                  Icon(icon, size: 18, color: iconColor ?? Colors.white70),
                   const SizedBox(width: 6),
-                  const Text(
-                    '시스템 안내',
-                    style: TextStyle(
+                  Text(
+                    AppLocalizations.of(context)!.systemGuide,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w600,
                     ),

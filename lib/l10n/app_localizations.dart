@@ -1198,6 +1198,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Loading map...'**
   String get mapLoading;
+
+  /// No description provided for @systemGuide.
+  ///
+  /// In en, this message translates to:
+  /// **'System Guide'**
+  String get systemGuide;
+
+  /// No description provided for @driverEntered.
+  ///
+  /// In en, this message translates to:
+  /// **'{driverName} driver has entered.'**
+  String driverEntered(String driverName);
+
+  /// No description provided for @driverEnteredNoName.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver has entered.'**
+  String get driverEnteredNoName;
+
+  /// No description provided for @systemGuide1.
+  ///
+  /// In en, this message translates to:
+  /// **'1. Please reconfirm the pickup location with the driver via chat.'**
+  String get systemGuide1;
+
+  /// No description provided for @systemGuide2.
+  ///
+  /// In en, this message translates to:
+  /// **'2. Please pay the fare on-site.\n   - Estimated fare: {fareText}\n   - Recommended tip: {tipText}'**
+  String systemGuide2(String fareText, String tipText);
+
+  /// No description provided for @systemGuide3.
+  ///
+  /// In en, this message translates to:
+  /// **'3. If you have any questions, please feel free to ask in the chat room.'**
+  String get systemGuide3;
+
+  /// No description provided for @statusActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get statusActive;
+
+  /// No description provided for @statusOnProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'On Progress'**
+  String get statusOnProgress;
+
+  /// No description provided for @statusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get statusPending;
+
+  /// No description provided for @statusAccepted.
+  ///
+  /// In en, this message translates to:
+  /// **'Accepted'**
+  String get statusAccepted;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

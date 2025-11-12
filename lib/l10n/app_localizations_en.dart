@@ -599,4 +599,38 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mapLoading => 'Loading map...';
+
+  @override
+  String get systemGuide => 'System Guide';
+
+  @override
+  String driverEntered(String driverName) {
+    return '$driverName driver has entered.';
+  }
+
+  @override
+  String get driverEnteredNoName => 'Driver has entered.';
+
+  @override
+  String get systemGuide1 => '1. Please reconfirm the pickup location with the driver via chat.';
+
+  @override
+  String systemGuide2(String fareText, String tipText) {
+    return '2. Please pay the fare on-site.\n   - Estimated fare: $fareText\n   - Recommended tip: $tipText';
+  }
+
+  @override
+  String get systemGuide3 => '3. If you have any questions, please feel free to ask in the chat room.';
+
+  @override
+  String get statusActive => 'Active';
+
+  @override
+  String get statusOnProgress => 'On Progress';
+
+  @override
+  String get statusPending => 'Pending';
+
+  @override
+  String get statusAccepted => 'Accepted';
 }

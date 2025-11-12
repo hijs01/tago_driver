@@ -70,10 +70,40 @@ class _ChatRoomViewState extends State<ChatRoomView> {
   Future<String?> _ensureTranslationOrNull({
     required ChatMessage message,
     required bool isMe,
+    required BuildContext context,
   }) async {
     if (isMe) return null;
     final String original = message.text;
     if (original.trim().isEmpty) return null;
+    
+    // 현재 앱의 로케일 확인
+    final locale = Localizations.localeOf(context);
+    final targetLanguage = locale.languageCode; // 'en' 또는 'ko'
+    
+    // 메시지 언어 감지 (한국어, 영어, 중국어, 스페인어)
+    final bool isKoreanText = RegExp(r'[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]').hasMatch(original);
+    final bool isChineseText = RegExp(r'[\u4e00-\u9fff]').hasMatch(original);
+    
+    // 스페인어 감지: 스페인어 특수 문자 포함 (ñ, á, é, í, ó, ú, ü 등)
+    final bool isSpanishText = RegExp(r'[ñáéíóúüÑÁÉÍÓÚÜ]').hasMatch(original) ||
+                               RegExp(r'\b(hola|gracias|por favor|adiós|sí|no|buenos días|buenas noches)\b', caseSensitive: false).hasMatch(original);
+    
+    // 영어 텍스트 체크: 영문, 숫자, 공백, 구두점만 포함하고 다른 언어 문자가 아닌 경우
+    final String trimmed = original.trim();
+    final bool isEnglishText = RegExp(r'^[a-zA-Z0-9\s.,!?;:\-()]+$').hasMatch(trimmed) && 
+                               !isKoreanText && !isChineseText && !isSpanishText;
+    
+    final bool isEnglishLocale = targetLanguage == 'en';
+    
+    // 번역 필요 여부 판단:
+    // 1. 앱이 영어이고 메시지가 영어가 아니면 → 영어로 번역
+    // 2. 앱이 한국어이고 메시지가 한국어가 아니면 → 한국어로 번역
+    // 3. 같은 언어면 번역 불필요
+    if (isEnglishLocale && isEnglishText) return null; // 영어 앱, 영어 메시지
+    if (!isEnglishLocale && isKoreanText) return null; // 한국어 앱, 한국어 메시지
+    
+    // 중국어, 스페인어, 또는 다른 언어는 항상 번역 대상
+    
     if (_translatedCache.containsKey(message.id)) {
       final String translated = _translatedCache[message.id]!;
       if (translated.trim().isEmpty || translated == original) return null;
@@ -82,7 +112,8 @@ class _ChatRoomViewState extends State<ChatRoomView> {
     try {
       final String translated = await _translationService.translateText(
         text: original,
-        targetLanguage: 'ko',
+        targetLanguage: targetLanguage, // 동적으로 설정
+        // sourceLanguage는 자동 감지되도록 null로 전달
       );
       _translatedCache[message.id] = translated;
       if (translated.trim().isEmpty || translated == original) return null;
@@ -1180,10 +1211,14 @@ class _ChatRoomViewState extends State<ChatRoomView> {
                           // 🔹 1) 시스템 메시지: 드라이버 입장 안내
                           if (msg.type == ChatMessageType.system &&
                               msg.systemType == 'driver_join') {
+                            final locale = Localizations.localeOf(context);
+                            final targetLanguage = locale.languageCode;
                             return DriverGuideNotice(
                               driverName: msg.driverName,
                               fareText: msg.fareText ?? '앱에 표시된 금액',
                               tipText: msg.tipText ?? '선택 사항입니다',
+                              translationService: _translationService,
+                              targetLanguage: targetLanguage,
                             );
                           }
 
@@ -1194,6 +1229,7 @@ class _ChatRoomViewState extends State<ChatRoomView> {
                             future: _ensureTranslationOrNull(
                               message: msg,
                               isMe: isMe,
+                              context: context,
                             ),
                             builder: (context, snapshot) {
                               final String? translated = snapshot.data;

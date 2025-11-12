@@ -259,6 +259,33 @@
   "origin": "출발지",
   "destination": "목적지",
   "mapLoading": "지도 로딩 중...",
+  "systemGuide": "시스템 안내",
+  "driverEntered": "{driverName} 드라이버가 입장했습니다.",
+  "@driverEntered": {
+    "placeholders": {
+      "driverName": {
+        "type": "String"
+      }
+    }
+  },
+  "driverEnteredNoName": "드라이버가 입장했습니다.",
+  "systemGuide1": "1. 픽업 위치를 드라이버와 채팅으로 다시 한 번 확인해주세요.",
+  "systemGuide2": "2. 요금은 현장에서 결제해 주세요.\n   - 예상 요금: {fareText}\n   - 추천 팁: {tipText}",
+  "@systemGuide2": {
+    "placeholders": {
+      "fareText": {
+        "type": "String"
+      },
+      "tipText": {
+        "type": "String"
+      }
+    }
+  },
+  "systemGuide3": "3. 궁금한 점이 있으면 언제든지 채팅방에서 이야기해주세요.",
+  "statusActive": "활성",
+  "statusOnProgress": "진행 중",
+  "statusPending": "대기 중",
+  "statusAccepted": "수락됨",
   "@passengers": {
     "placeholders": {
       "count": {

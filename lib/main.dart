@@ -20,6 +20,7 @@ import 'package:flutter/services.dart'; // ✅ MethodChannel 사용을 위해
 import 'package:cloud_functions/cloud_functions.dart'; // ✅ Firebase Functions 사용을 위해
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:tago_driver/l10n/app_localizations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   // Flutter 엔진이 위젯을 그리기 전에 비동기 코드(Firebase init 등) 실행 가능하게 함
@@ -165,33 +166,81 @@ void main() async {
   );
 }
 
-class TagoDriverApp extends StatelessWidget {
+class TagoDriverApp extends StatefulWidget {
   const TagoDriverApp({super.key});
 
   @override
+  State<TagoDriverApp> createState() => _TagoDriverAppState();
+}
+
+class _TagoDriverAppState extends State<TagoDriverApp> {
+  Locale? _locale;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadLocale();
+  }
+
+  Future<void> _loadLocale() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final languageCode = prefs.getString('selected_language') ?? 'ko';
+      setState(() {
+        _locale = Locale(languageCode);
+      });
+    } catch (e) {
+      setState(() {
+        _locale = const Locale('ko');
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'TAGO Driver',
-      theme: ThemeData.dark().copyWith(scaffoldBackgroundColor: Colors.black),
-      localizationsDelegates: [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-      ],
-      supportedLocales: const [Locale('en'), Locale('ko')],
+    return Consumer<SettingsViewModel>(
+      builder: (context, settingsVm, _) {
+        // SettingsViewModel의 selectedLanguage 변경 감지
+        final languageCode = settingsVm.selectedLanguage;
+        final currentLocale = Locale(languageCode);
 
-      // 🔹 초기 화면 (AuthGate: 자동 로그인 처리)
-      home: const AuthGate(),
+        // locale이 변경되었을 때만 업데이트
+        if (_locale?.languageCode != languageCode) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              setState(() {
+                _locale = currentLocale;
+              });
+            }
+          });
+        }
 
-      // 🔹 화면 라우트 정의
-      routes: {
-        '/login': (_) => const LoginScreen(),
-        '/main': (_) => const MainView(),
-        '/home': (_) => const HomeView(),
-        '/signup': (_) => const SignUpView(),
-        '/chatRoom': (_) => const ChatRoomView(),
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'TAGO Driver',
+          theme: ThemeData.dark().copyWith(
+            scaffoldBackgroundColor: Colors.black,
+          ),
+          localizationsDelegates: [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+          ],
+          supportedLocales: const [Locale('en'), Locale('ko')],
+          locale: _locale ?? const Locale('ko'), // 선택된 언어로 설정
+          // 🔹 초기 화면 (AuthGate: 자동 로그인 처리)
+          home: const AuthGate(),
+
+          // 🔹 화면 라우트 정의
+          routes: {
+            '/login': (_) => const LoginScreen(),
+            '/main': (_) => const MainView(),
+            '/home': (_) => const HomeView(),
+            '/signup': (_) => const SignUpView(),
+            '/chatRoom': (_) => const ChatRoomView(),
+          },
+        );
       },
     );
   }

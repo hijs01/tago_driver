@@ -93,7 +93,7 @@ class RideRequestTile extends StatelessWidget {
                     vertical: 6,
                   ),
                   child: Text(
-                    status, // ✅ this.status 명시적으로 사용
+                    _getStatusText(l10n, status), // 상태 텍스트 번역
                     style: TextStyle(
                       color: Colors.white.withOpacity(0.7),
                       fontSize: 12,
@@ -205,5 +205,21 @@ class RideRequestTile extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  // 상태 텍스트 번역
+  static String _getStatusText(AppLocalizations l10n, String status) {
+    switch (status.toLowerCase()) {
+      case 'active':
+        return l10n.statusActive;
+      case 'on progress':
+        return l10n.statusOnProgress;
+      case 'pending':
+        return l10n.statusPending;
+      case 'accepted':
+        return l10n.statusAccepted;
+      default:
+        return status; // 알 수 없는 상태는 원본 반환
+    }
   }
 }

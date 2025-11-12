@@ -259,6 +259,33 @@
   "origin": "Origin",
   "destination": "Destination",
   "mapLoading": "Loading map...",
+  "systemGuide": "System Guide",
+  "driverEntered": "{driverName} driver has entered.",
+  "@driverEntered": {
+    "placeholders": {
+      "driverName": {
+        "type": "String"
+      }
+    }
+  },
+  "driverEnteredNoName": "Driver has entered.",
+  "systemGuide1": "1. Please reconfirm the pickup location with the driver via chat.",
+  "systemGuide2": "2. Please pay the fare on-site.\n   - Estimated fare: {fareText}\n   - Recommended tip: {tipText}",
+  "@systemGuide2": {
+    "placeholders": {
+      "fareText": {
+        "type": "String"
+      },
+      "tipText": {
+        "type": "String"
+      }
+    }
+  },
+  "systemGuide3": "3. If you have any questions, please feel free to ask in the chat room.",
+  "statusActive": "Active",
+  "statusOnProgress": "On Progress",
+  "statusPending": "Pending",
+  "statusAccepted": "Accepted",
   "@passengers": {
     "placeholders": {
       "count": {
