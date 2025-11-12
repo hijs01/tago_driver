@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:tago_driver/data/models/user.dart';
@@ -118,15 +119,11 @@ class SettingsViewModel extends ChangeNotifier {
       favoriteDepartureName = prefs.getString('favorite_departure_name');
       favoriteArrivalName = prefs.getString('favorite_arrival_name');
       isPushEnabled = prefs.getBool('push_notification_enabled') ?? true;
-      final savedLanguage = prefs.getString('selected_language');
-      // 저장된 언어가 있으면 사용, 없으면 시스템 언어 확인 후 fallback
-      if (savedLanguage != null && (savedLanguage == 'ko' || savedLanguage == 'en')) {
-        selectedLanguage = savedLanguage;
-      } else {
-        // 저장된 값이 없거나 지원되지 않는 언어인 경우
-        // 시스템 언어 확인 (기본값은 한국어, 그 외는 영어)
-        selectedLanguage = 'ko'; // 기본값을 한국어로 설정 (시스템 언어는 main.dart에서 처리)
-      }
+      
+      // 시스템 언어 확인 (핸드폰 설정된 언어에 맞춰 자동 적용)
+      final systemLocale = WidgetsBinding.instance.platformDispatcher.locale;
+      final systemLanguageCode = systemLocale.languageCode;
+      selectedLanguage = (systemLanguageCode == 'ko') ? 'ko' : 'en';
     } catch (e) {
       // 에러 발생 시 기본값 사용
     }
@@ -218,6 +215,7 @@ class SettingsViewModel extends ChangeNotifier {
       // 저장 실패 시 로컬 변수는 이전 값 유지
     }
   }
+
 
   // ================================================================
   // 계정 관련 메서드

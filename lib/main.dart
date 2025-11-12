@@ -20,7 +20,6 @@ import 'package:flutter/services.dart'; // ✅ MethodChannel 사용을 위해
 import 'package:cloud_functions/cloud_functions.dart'; // ✅ Firebase Functions 사용을 위해
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:tago_driver/l10n/app_localizations.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   // Flutter 엔진이 위젯을 그리기 전에 비동기 코드(Firebase init 등) 실행 가능하게 함
@@ -174,104 +173,62 @@ class TagoDriverApp extends StatefulWidget {
 }
 
 class _TagoDriverAppState extends State<TagoDriverApp> {
-  Locale? _locale;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadLocale();
-  }
-
-  Future<void> _loadLocale() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final languageCode = prefs.getString('selected_language');
-
-      // 저장된 언어가 있으면 사용, 없으면 시스템 언어 확인
-      String safeLanguageCode;
-      if (languageCode != null &&
-          (languageCode == 'ko' || languageCode == 'en')) {
-        safeLanguageCode = languageCode;
-      } else {
-        // 저장된 값이 없거나 지원되지 않는 언어인 경우
-        // 시스템 언어 확인 (WidgetsBinding이 초기화된 후에만 가능)
-        final systemLocale = WidgetsBinding.instance.platformDispatcher.locale;
-        final systemLanguageCode = systemLocale.languageCode;
-
-        // 시스템 언어가 한국어면 한국어, 그 외는 영어
-        safeLanguageCode = (systemLanguageCode == 'ko') ? 'ko' : 'en';
-      }
-
-      setState(() {
-        _locale = Locale(safeLanguageCode);
-      });
-    } catch (e) {
-      setState(() {
-        _locale = const Locale('en'); // 오류 시 영어로 fallback
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Consumer<SettingsViewModel>(
-      builder: (context, settingsVm, _) {
-        // SettingsViewModel의 selectedLanguage 변경 감지
-        final languageCode = settingsVm.selectedLanguage;
-        // 지원되는 언어로만 제한 (ko, en)
-        final safeLanguageCode =
-            (languageCode == 'ko' || languageCode == 'en')
-                ? languageCode
-                : 'en'; // 지원되지 않는 언어는 영어로 fallback
-        final currentLocale = Locale(safeLanguageCode);
-
-        // locale이 변경되었을 때만 업데이트
-        if (_locale?.languageCode != safeLanguageCode) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) {
-              setState(() {
-                _locale = currentLocale;
-              });
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'TAGO Driver',
+      theme: ThemeData.dark().copyWith(
+        scaffoldBackgroundColor: Colors.black,
+      ),
+      localizationsDelegates: [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      supportedLocales: const [Locale('en'), Locale('ko')],
+      // locale을 null로 두면 Flutter가 시스템 언어를 자동으로 사용
+      // localeResolutionCallback에서 시스템 언어를 확인하여 매핑
+      locale: null,
+      localeResolutionCallback: (locale, supportedLocales) {
+        // locale 파라미터는 MaterialApp이 시스템에서 받아온 locale
+        // 실제 폰에서는 이 파라미터를 사용해야 함
+        final systemLanguageCode = locale?.languageCode;
+        
+        if (systemLanguageCode != null) {
+          // 지원되는 언어인지 확인
+          for (var supportedLocale in supportedLocales) {
+            if (supportedLocale.languageCode == systemLanguageCode) {
+              return supportedLocale;
             }
-          });
+          }
         }
+        
+        // locale이 null이거나 지원되지 않는 언어인 경우
+        // platformDispatcher를 fallback으로 사용
+        final fallbackLocale = WidgetsBinding.instance.platformDispatcher.locale;
+        final fallbackLanguageCode = fallbackLocale.languageCode;
+        
+        for (var supportedLocale in supportedLocales) {
+          if (supportedLocale.languageCode == fallbackLanguageCode) {
+            return supportedLocale;
+          }
+        }
+        
+        // 지원되지 않는 언어는 기본값(영어) 반환
+        return const Locale('en');
+      },
+      // 🔹 초기 화면 (AuthGate: 자동 로그인 처리)
+      home: const AuthGate(),
 
-        return MaterialApp(
-          debugShowCheckedModeBanner: false,
-          title: 'TAGO Driver',
-          theme: ThemeData.dark().copyWith(
-            scaffoldBackgroundColor: Colors.black,
-          ),
-          localizationsDelegates: [
-            AppLocalizations.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-          ],
-          supportedLocales: const [Locale('en'), Locale('ko')],
-          locale: _locale ?? const Locale('en'), // 선택된 언어로 설정 (기본값: 영어)
-          localeResolutionCallback: (locale, supportedLocales) {
-            // 지원되는 언어인지 확인
-            for (var supportedLocale in supportedLocales) {
-              if (supportedLocale.languageCode == locale?.languageCode) {
-                return supportedLocale;
-              }
-            }
-            // 지원되지 않는 언어는 기본값(영어) 반환
-            return const Locale('en');
-          },
-          // 🔹 초기 화면 (AuthGate: 자동 로그인 처리)
-          home: const AuthGate(),
-
-          // 🔹 화면 라우트 정의
-          routes: {
-            '/login': (_) => const LoginScreen(),
-            '/main': (_) => const MainView(),
-            '/home': (_) => const HomeView(),
-            '/signup': (_) => const SignUpView(),
-            '/chatRoom': (_) => const ChatRoomView(),
-          },
-        );
+      // 🔹 화면 라우트 정의
+      routes: {
+        '/login': (_) => const LoginScreen(),
+        '/main': (_) => const MainView(),
+        '/home': (_) => const HomeView(),
+        '/signup': (_) => const SignUpView(),
+        '/chatRoom': (_) => const ChatRoomView(),
       },
     );
   }

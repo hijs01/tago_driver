@@ -198,52 +198,56 @@ class _SettingsViewState extends State<SettingsView> {
 
   /// 계정 카드 그리드
   Widget _buildAccountGrid(BuildContext context, SettingsViewModel vm, AppLocalizations l10n) {
-    return Row(
+    return Column(
       children: [
-        Expanded(
-          child: _buildGridCard(
-            icon: Icons.person_outline,
-            title: l10n.editProfile,
-            subtitle: l10n.editProfileSubtitle,
-            onTap: () async {
-              if (vm.currentUser == null) return;
+        Row(
+          children: [
+            Expanded(
+              child: _buildGridCard(
+                icon: Icons.person_outline,
+                title: l10n.editProfile,
+                subtitle: l10n.editProfileSubtitle,
+                onTap: () async {
+                  if (vm.currentUser == null) return;
 
-              final updatedUser = await Navigator.push<AppUser>(
-                context,
-                MaterialPageRoute(
-                  builder:
-                      (context) => ChangeNotifierProvider(
-                        create: (_) => ProfileEditViewModel(),
-                        child: ProfileEditView(user: vm.currentUser!),
-                      ),
-                ),
-              );
+                  final updatedUser = await Navigator.push<AppUser>(
+                    context,
+                    MaterialPageRoute(
+                      builder:
+                          (context) => ChangeNotifierProvider(
+                            create: (_) => ProfileEditViewModel(),
+                            child: ProfileEditView(user: vm.currentUser!),
+                          ),
+                    ),
+                  );
 
-              if (updatedUser != null) {
-                await vm.initialize();
-              }
-            },
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _buildGridCard(
-            icon: Icons.lock_outline,
-            title: l10n.changePassword,
-            subtitle: l10n.changePasswordSubtitle,
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder:
-                      (context) => ChangeNotifierProvider(
-                        create: (_) => PasswordChangeViewModel(),
-                        child: const PasswordChangeView(),
-                      ),
-                ),
-              );
-            },
-          ),
+                  if (updatedUser != null) {
+                    await vm.initialize();
+                  }
+                },
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildGridCard(
+                icon: Icons.lock_outline,
+                title: l10n.changePassword,
+                subtitle: l10n.changePasswordSubtitle,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder:
+                          (context) => ChangeNotifierProvider(
+                            create: (_) => PasswordChangeViewModel(),
+                            child: const PasswordChangeView(),
+                          ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       ],
     );
