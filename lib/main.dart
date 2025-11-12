@@ -185,13 +185,29 @@ class _TagoDriverAppState extends State<TagoDriverApp> {
   Future<void> _loadLocale() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final languageCode = prefs.getString('selected_language') ?? 'ko';
+      final languageCode = prefs.getString('selected_language');
+
+      // 저장된 언어가 있으면 사용, 없으면 시스템 언어 확인
+      String safeLanguageCode;
+      if (languageCode != null &&
+          (languageCode == 'ko' || languageCode == 'en')) {
+        safeLanguageCode = languageCode;
+      } else {
+        // 저장된 값이 없거나 지원되지 않는 언어인 경우
+        // 시스템 언어 확인 (WidgetsBinding이 초기화된 후에만 가능)
+        final systemLocale = WidgetsBinding.instance.platformDispatcher.locale;
+        final systemLanguageCode = systemLocale.languageCode;
+
+        // 시스템 언어가 한국어면 한국어, 그 외는 영어
+        safeLanguageCode = (systemLanguageCode == 'ko') ? 'ko' : 'en';
+      }
+
       setState(() {
-        _locale = Locale(languageCode);
+        _locale = Locale(safeLanguageCode);
       });
     } catch (e) {
       setState(() {
-        _locale = const Locale('ko');
+        _locale = const Locale('en'); // 오류 시 영어로 fallback
       });
     }
   }
@@ -202,10 +218,15 @@ class _TagoDriverAppState extends State<TagoDriverApp> {
       builder: (context, settingsVm, _) {
         // SettingsViewModel의 selectedLanguage 변경 감지
         final languageCode = settingsVm.selectedLanguage;
-        final currentLocale = Locale(languageCode);
+        // 지원되는 언어로만 제한 (ko, en)
+        final safeLanguageCode =
+            (languageCode == 'ko' || languageCode == 'en')
+                ? languageCode
+                : 'en'; // 지원되지 않는 언어는 영어로 fallback
+        final currentLocale = Locale(safeLanguageCode);
 
         // locale이 변경되었을 때만 업데이트
-        if (_locale?.languageCode != languageCode) {
+        if (_locale?.languageCode != safeLanguageCode) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted) {
               setState(() {
@@ -228,7 +249,17 @@ class _TagoDriverAppState extends State<TagoDriverApp> {
             GlobalWidgetsLocalizations.delegate,
           ],
           supportedLocales: const [Locale('en'), Locale('ko')],
-          locale: _locale ?? const Locale('ko'), // 선택된 언어로 설정
+          locale: _locale ?? const Locale('en'), // 선택된 언어로 설정 (기본값: 영어)
+          localeResolutionCallback: (locale, supportedLocales) {
+            // 지원되는 언어인지 확인
+            for (var supportedLocale in supportedLocales) {
+              if (supportedLocale.languageCode == locale?.languageCode) {
+                return supportedLocale;
+              }
+            }
+            // 지원되지 않는 언어는 기본값(영어) 반환
+            return const Locale('en');
+          },
           // 🔹 초기 화면 (AuthGate: 자동 로그인 처리)
           home: const AuthGate(),
 

@@ -78,7 +78,11 @@ class _ChatRoomViewState extends State<ChatRoomView> {
     
     // 현재 앱의 로케일 확인
     final locale = Localizations.localeOf(context);
-    final targetLanguage = locale.languageCode; // 'en' 또는 'ko'
+    final languageCode = locale.languageCode;
+    // 지원되는 언어로만 제한 (ko, en), 그 외는 영어로 fallback
+    final targetLanguage = (languageCode == 'ko' || languageCode == 'en') 
+        ? languageCode 
+        : 'en';
     
     // 메시지 언어 감지 (한국어, 영어, 중국어, 스페인어)
     final bool isKoreanText = RegExp(r'[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]').hasMatch(original);
@@ -1212,7 +1216,11 @@ class _ChatRoomViewState extends State<ChatRoomView> {
                           if (msg.type == ChatMessageType.system &&
                               msg.systemType == 'driver_join') {
                             final locale = Localizations.localeOf(context);
-                            final targetLanguage = locale.languageCode;
+                            // 지원되는 언어로만 제한 (ko, en)
+                            final languageCode = locale.languageCode;
+                            final targetLanguage = (languageCode == 'ko' || languageCode == 'en') 
+                                ? languageCode 
+                                : 'en'; // 지원되지 않는 언어는 영어로 fallback
                             return DriverGuideNotice(
                               driverName: msg.driverName,
                               fareText: msg.fareText ?? '앱에 표시된 금액',

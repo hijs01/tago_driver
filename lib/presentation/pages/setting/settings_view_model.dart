@@ -55,7 +55,7 @@ class SettingsViewModel extends ChangeNotifier {
 
   /// 선택된 언어 코드
   /// 'ko': 한국어, 'en': 영어
-  /// 기본값: 'ko'
+  /// 기본값: 'ko' (시스템 언어가 한국어면 한국어, 그 외는 영어로 fallback)
   String selectedLanguage = 'ko';
 
   // ================================================================
@@ -118,7 +118,15 @@ class SettingsViewModel extends ChangeNotifier {
       favoriteDepartureName = prefs.getString('favorite_departure_name');
       favoriteArrivalName = prefs.getString('favorite_arrival_name');
       isPushEnabled = prefs.getBool('push_notification_enabled') ?? true;
-      selectedLanguage = prefs.getString('selected_language') ?? 'ko';
+      final savedLanguage = prefs.getString('selected_language');
+      // 저장된 언어가 있으면 사용, 없으면 시스템 언어 확인 후 fallback
+      if (savedLanguage != null && (savedLanguage == 'ko' || savedLanguage == 'en')) {
+        selectedLanguage = savedLanguage;
+      } else {
+        // 저장된 값이 없거나 지원되지 않는 언어인 경우
+        // 시스템 언어 확인 (기본값은 한국어, 그 외는 영어)
+        selectedLanguage = 'ko'; // 기본값을 한국어로 설정 (시스템 언어는 main.dart에서 처리)
+      }
     } catch (e) {
       // 에러 발생 시 기본값 사용
     }

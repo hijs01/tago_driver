@@ -38,7 +38,14 @@ class _DriverGuideNoticeState extends State<DriverGuideNotice> {
   String get _originalText4 => '3. 궁금한 점이 있으면 언제든지 채팅방에서 이야기해주세요.';
 
   Future<String> _translateText(String original) async {
+    // 한국어면 번역 불필요
     if (widget.targetLanguage == 'ko') return original;
+    
+    // 지원되는 언어가 아니면 영어로 fallback
+    final safeTargetLanguage = (widget.targetLanguage == 'ko' || widget.targetLanguage == 'en')
+        ? widget.targetLanguage
+        : 'en';
+    
     if (_translatedCache.containsKey(original)) {
       return _translatedCache[original]!;
     }
@@ -46,11 +53,12 @@ class _DriverGuideNoticeState extends State<DriverGuideNotice> {
     try {
       final translated = await widget.translationService.translateText(
         text: original,
-        targetLanguage: widget.targetLanguage,
+        targetLanguage: safeTargetLanguage,
       );
       _translatedCache[original] = translated;
       return translated;
     } catch (e) {
+      // 번역 실패 시 원본 반환
       return original;
     }
   }
