@@ -19,6 +19,10 @@ class NotificationService {
   
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  // 현재 활성 채팅방 정보 (rideType + chatRoomId 조합)
+  // "rideRequests/{rideType}/items/{chatRoomId}" 형식
+  String? _activeChatRoomPath;
+
   /// 초기화
   Future<void> initialize() async {
     print('🚀 NotificationService 초기화 시작');
@@ -131,9 +135,42 @@ class NotificationService {
     });
   }
 
+  /// 현재 활성 채팅방 설정 (채팅방 입장 시 호출)
+  void setActiveChatRoom(String rideRequestRefPath) {
+    _activeChatRoomPath = rideRequestRefPath;
+    print('🔔 활성 채팅방 설정: $rideRequestRefPath');
+  }
+
+  /// 현재 활성 채팅방 해제 (채팅방 퇴장 시 호출)
+  void clearActiveChatRoom() {
+    _activeChatRoomPath = null;
+    print('🔔 활성 채팅방 해제');
+  }
+
   /// 포그라운드 메시지 처리
   void _handleForegroundMessage(RemoteMessage message) {
     print('🔔 포그라운드 메시지 수신: ${message.notification?.title}');
+    print('🔔 메시지 데이터: ${message.data}');
+    
+    // 채팅 알림인지 확인
+    final messageType = message.data['type'] as String?;
+    
+    // 채팅 알림이고, 현재 활성 채팅방과 동일한 경우 알림 표시하지 않음
+    if (messageType == 'chat') {
+      final rideType = message.data['rideType'] as String?;
+      final chatRoomId = message.data['chatRoomId'] as String?;
+      
+      if (rideType != null && chatRoomId != null && _activeChatRoomPath != null) {
+        // 알림에서 받은 채팅방 경로 구성
+        final notificationChatRoomPath = 'rideRequests/$rideType/items/$chatRoomId';
+        
+        // 현재 활성 채팅방과 비교
+        if (notificationChatRoomPath == _activeChatRoomPath) {
+          print('⏭️ 현재 활성 채팅방의 알림이므로 표시하지 않음: $notificationChatRoomPath');
+          return;
+        }
+      }
+    }
     
     // 로컬 알림으로 표시
     _showLocalNotification(message);

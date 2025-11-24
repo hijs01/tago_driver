@@ -12,6 +12,7 @@ import 'package:flutter/foundation.dart';
 import 'package:tago_driver/presentation/pages/chat/chatRoom/widget/chat_room_drawer.dart';
 import 'package:tago_driver/presentation/pages/chat/chatRoom/widget/chat_message_list.dart';
 import 'package:tago_driver/presentation/pages/chat/chatRoom/widget/chat_input_field.dart';
+import 'package:tago_driver/data/services/notification_service.dart';
 
 /// 채팅방 메인 화면
 /// - 드라이버와 승객 간의 실시간 채팅을 제공
@@ -40,6 +41,9 @@ class _ChatRoomViewState extends State<ChatRoomView> {
   // 원문 표시 여부를 저장하는 Set (메시지 ID)
   final Set<String> _showOriginal = {};
 
+  // 채팅방 경로 저장 (dispose에서 사용)
+  String? _rideRequestRefPath;
+
   @override
   void initState() {
     super.initState();
@@ -53,10 +57,24 @@ class _ChatRoomViewState extends State<ChatRoomView> {
         TranslationConfig.translateRegion,
       );
     }
+
+    // 현재 채팅방이 활성화되었음을 NotificationService에 알림
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+      if (args != null) {
+        _rideRequestRefPath = args['rideRequestRefPath'] as String?;
+        if (_rideRequestRefPath != null) {
+          NotificationService().setActiveChatRoom(_rideRequestRefPath!);
+        }
+      }
+    });
   }
 
   @override
   void dispose() {
+    // 채팅방을 떠날 때 활성 채팅방 해제
+    NotificationService().clearActiveChatRoom();
+    
     // 리소스 정리
     _controller.dispose();
     _scrollController.dispose();
